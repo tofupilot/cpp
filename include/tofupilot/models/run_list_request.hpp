@@ -41,7 +41,7 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> operated_by_ids;
     /// Maximum number of runs to return per page.
     std::optional<int64_t> limit;
-    std::optional<int64_t> cursor;
+    std::optional<double> cursor;
     /// Field to sort results by.
     std::optional<RunListSortBy> sort_by;
     /// Sort order direction.
@@ -189,7 +189,7 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
         v.limit = j["limit"].get<int64_t>();
     }
     if (j.contains("cursor") && !j["cursor"].is_null()) {
-        v.cursor = j["cursor"].get<int64_t>();
+        v.cursor = j["cursor"].get<double>();
     }
     if (j.contains("sort_by") && !j["sort_by"].is_null()) {
         v.sort_by = j["sort_by"].get<RunListSortBy>();
@@ -330,7 +330,7 @@ public:
     }
 
     /// Set the `cursor` field.
-    RunListRequestBuilder& cursor(int64_t value) {
+    RunListRequestBuilder& cursor(double value) {
         cursor_ = std::move(value);
         return *this;
     }
@@ -431,7 +431,7 @@ private:
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<std::vector<std::string>> operated_by_ids_;
     std::optional<int64_t> limit_;
-    std::optional<int64_t> cursor_;
+    std::optional<double> cursor_;
     std::optional<RunListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
 };

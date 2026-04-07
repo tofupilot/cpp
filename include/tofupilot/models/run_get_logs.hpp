@@ -22,7 +22,7 @@ struct RunGetLogs {
     std::string timestamp;
     std::string message;
     std::string source_file;
-    int64_t line_number;
+    double line_number;
 };
 
 inline void to_json(nlohmann::json& j, const RunGetLogs& v) {
@@ -65,7 +65,7 @@ inline void from_json(const nlohmann::json& j, RunGetLogs& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: line_number", &j);
     }
-    v.line_number = j["line_number"].get<int64_t>();
+    v.line_number = j["line_number"].get<double>();
 }
 
 } // namespace tofupilot

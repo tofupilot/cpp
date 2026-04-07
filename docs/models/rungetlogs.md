@@ -10,4 +10,4 @@
 | `timestamp` | `std::string` | :heavy_check_mark: | N/A |
 | `message` | `std::string` | :heavy_check_mark: | N/A |
 | `source_file` | `std::string` | :heavy_check_mark: | N/A |
-| `line_number` | `int64_t` | :heavy_check_mark: | N/A |
+| `line_number` | `double` | :heavy_check_mark: | N/A |
