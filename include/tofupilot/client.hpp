@@ -120,6 +120,8 @@ private:
         httplib::Headers headers = {
             {"Authorization", "Bearer " + config_.api_key},
             {"User-Agent", config_.user_agent},
+            {"x-client-type", "cpp"},
+            {"x-client-version", config_.client_version},
         };
         std::string full_path = full_path_base;
         if (!query_string.empty()) full_path += "?" + query_string;
