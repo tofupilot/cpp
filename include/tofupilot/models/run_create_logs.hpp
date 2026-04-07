@@ -26,7 +26,7 @@ struct RunCreateLogs {
     /// Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry.
     std::string source_file;
     /// Line number in the source file where the log message was generated. Used for debugging and tracing log origins.
-    double line_number;
+    int64_t line_number;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreateLogs& v) {
@@ -63,7 +63,7 @@ inline void from_json(const nlohmann::json& j, RunCreateLogs& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: line_number", &j);
     }
-    v.line_number = j["line_number"].get<double>();
+    v.line_number = j["line_number"].get<int64_t>();
 }
 
 } // namespace tofupilot
