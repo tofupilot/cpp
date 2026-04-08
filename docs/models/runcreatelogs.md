@@ -9,4 +9,4 @@
 | `timestamp` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the log message was generated. |
 | `message` | `std::string` | :heavy_check_mark: | Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated. |
 | `source_file` | `std::string` | :heavy_check_mark: | Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry. |
-| `line_number` | `double` | :heavy_check_mark: | Line number in the source file where the log message was generated. Used for debugging and tracing log origins. |
+| `line_number` | `int64_t` | :heavy_check_mark: | Line number in the source file where the log message was generated. Used for debugging and tracing log origins. |

@@ -127,7 +127,7 @@ public:
         limit_ = std::move(value);
         return *this;
     }
-    ListBuilder& cursor(double value) {
+    ListBuilder& cursor(int64_t value) {
         cursor_ = std::move(value);
         return *this;
     }
@@ -342,7 +342,7 @@ private:
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<std::vector<std::string>> operated_by_ids_;
     std::optional<int64_t> limit_;
-    std::optional<double> cursor_;
+    std::optional<int64_t> cursor_;
     std::optional<RunListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
     RequestConfig request_config_;

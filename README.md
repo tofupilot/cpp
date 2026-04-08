@@ -11,7 +11,7 @@ Add to your `CMakeLists.txt`:
 
 ```cmake
 include(FetchContent)
-FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.0.0 GIT_SHALLOW TRUE)
+FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.0.1 GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(tofupilot)
 target_link_libraries(your_target PRIVATE tofupilot)
 ```
@@ -90,7 +90,7 @@ auto client = tofupilot::TofuPilot(
 tofupilot::RunCreateMeasurements m;
 m.name = "Output Voltage";
 m.outcome = tofupilot::ValidatorsOutcome::Pass;
-m.measured_value = nlohmann::json(3.3);
+m.measured_value = 3.3;
 
 tofupilot::RunCreatePhases phase;
 phase.name = "Voltage Test";

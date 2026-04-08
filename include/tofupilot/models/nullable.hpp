@@ -48,6 +48,11 @@ public:
     template<typename U, std::enable_if_t<std::is_constructible_v<T, std::initializer_list<U>>, int> = 0>
     NullableField(std::initializer_list<U> il) : state_(State::Value), storage_(T(il)) {} // NOLINT(google-explicit-constructor)
 
+    /// Implicit conversion from types convertible to T (e.g. double → nlohmann::json).
+    template<typename U, std::enable_if_t<
+        std::is_constructible_v<T, U> && !std::is_same_v<std::decay_t<U>, NullableField>, int> = 0>
+    NullableField(U&& v) : state_(State::Value), storage_(T(std::forward<U>(v))) {} // NOLINT(google-explicit-constructor)
+
     NullableField(const NullableField&) = default;
     NullableField& operator=(const NullableField&) = default;
 
@@ -55,6 +60,15 @@ public:
         noexcept(std::is_nothrow_move_constructible_v<std::optional<T>>) = default;
     NullableField& operator=(NullableField&&)
         noexcept(std::is_nothrow_move_assignable_v<std::optional<T>>) = default;
+
+    /// Assignment from types convertible to T (e.g. m.units = "V").
+    template<typename U, std::enable_if_t<
+        std::is_constructible_v<T, U> && !std::is_same_v<std::decay_t<U>, NullableField>, int> = 0>
+    NullableField& operator=(U&& v) {
+        state_ = State::Value;
+        storage_.emplace(std::forward<U>(v));
+        return *this;
+    }
 
     State state() const noexcept { return state_; }
     bool is_absent() const noexcept { return state_ == State::Absent; }
