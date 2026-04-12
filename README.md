@@ -11,7 +11,7 @@ Add to your `CMakeLists.txt`:
 
 ```cmake
 include(FetchContent)
-FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.0.1 GIT_SHALLOW TRUE)
+FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.0.2 GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(tofupilot)
 target_link_libraries(your_target PRIVATE tofupilot)
 ```
@@ -73,10 +73,9 @@ auto client = tofupilot::TofuPilot(
 |----------|-----------|
 | `client.procedures()` | list, create, get, delete_, update |
 | `client.versions()` | get, delete_, create |
-| `client.runs()` | list, create, delete_, get, update |
-| `client.runs().attachments()` | upload, download |
-| `client.units()` | list, create, delete_, get, update, add_child, remove_child |
-| `client.units().attachments()` | upload, download, delete_ |
+| `client.runs()` | list, create, delete_, get, update, create_attachment |
+| `client.attachments()` | initialize, finalize |
+| `client.units()` | list, create, delete_, get, update, add_child, remove_child, create_attachment, delete_attachment |
 | `client.parts()` | list, create, get, delete_, update |
 | `client.revisions()` | get, delete_, update, create |
 | `client.batches()` | get, delete_, update, list, create |
@@ -128,19 +127,14 @@ for (const auto& run : result.data) {
 ### Upload and download attachments
 
 ```cpp
-#include <tofupilot/upload.hpp>
+// Upload a file
+auto upload = tofupilot::upload_file(client, "report.pdf");
 
-// Upload a file to a run
-auto id = client.runs().attachments().upload(run.id, "report.pdf");
+// Link to a run
+client.runs().update().id(run.id).attachments({upload.id}).send();
 
-// Upload a file to a unit
-auto id = client.units().attachments().upload("SN-0001", "calibration.pdf");
-
-// Download an attachment
-client.runs().attachments().download(download_url, "local-copy.pdf");
-
-// Delete a unit attachment
-client.units().attachments().delete_("SN-0001", {id});
+// Download
+tofupilot::download_file(upload.url, "local-copy.pdf");
 ```
 
 ## Error Handling

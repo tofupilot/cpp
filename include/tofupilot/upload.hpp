@@ -81,7 +81,7 @@ inline void download_to_file(const std::string& url, const std::string& local_pa
 
 } // namespace detail
 
-/// Sub-resource: client.runs().attachments().create() / .download()
+/// Sub-resource: client.runs().attachments().upload() / .download()
 class RunAttachments {
 public:
     explicit RunAttachments(TofuPilot& client) noexcept : client_(client) {}

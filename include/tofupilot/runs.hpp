@@ -38,7 +38,7 @@ public:
     class CreateAttachmentBuilder;
     CreateAttachmentBuilder create_attachment();
 
-    // Hand-written: attachment sub-resource (defined in upload.hpp)
+    // Attachment sub-resource (defined in upload.hpp)
     inline RunAttachments attachments();
 
 private:

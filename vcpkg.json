@@ -1,6 +1,6 @@
 {
   "name": "tofupilot",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Official C++ SDK for TofuPilot test & measurement platform",
   "homepage": "https://tofupilot.com",
   "license": "MIT",

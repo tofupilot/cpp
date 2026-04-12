@@ -44,7 +44,7 @@ public:
     class DeleteAttachmentBuilder;
     DeleteAttachmentBuilder delete_attachment();
 
-    // Hand-written: attachment sub-resource (defined in upload.hpp)
+    // Attachment sub-resource (defined in upload.hpp)
     inline UnitAttachments attachments();
 
 private:
