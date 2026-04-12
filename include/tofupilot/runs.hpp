@@ -19,6 +19,7 @@
 namespace tofupilot {
 
 class TofuPilot;
+class RunAttachments;
 
 class RunsClient {
 public:
@@ -34,6 +35,11 @@ public:
     GetBuilder get();
     class UpdateBuilder;
     UpdateBuilder update();
+    class CreateAttachmentBuilder;
+    CreateAttachmentBuilder create_attachment();
+
+    // Hand-written: attachment sub-resource (defined in upload.hpp)
+    inline RunAttachments attachments();
 
 private:
     TofuPilot& client_;
@@ -675,6 +681,70 @@ private:
     RequestConfig request_config_;
 };
 
+class RunsClient::CreateAttachmentBuilder {
+public:
+    explicit CreateAttachmentBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    CreateAttachmentBuilder& id(std::string value) {
+        id_ = std::move(value);
+        return *this;
+    }
+    CreateAttachmentBuilder& name(std::string value) {
+        name_ = std::move(value);
+        return *this;
+    }
+    CreateAttachmentBuilder& body(RunCreateAttachmentRequestBody b) {
+        name_ = std::move(b.name);
+        return *this;
+    }
+
+    CreateAttachmentBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    CreateAttachmentBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    RunCreateAttachmentResponse send() {
+        if (!id_.has_value()) throw ValidationError("missing required path parameter: id");
+
+        std::string path = "/v2/runs/" + detail::url_encode(id_.value()) + "/attachments";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            RunCreateAttachmentRequestBody req_body;
+            if (!name_.has_value()) throw ValidationError("missing required field: name");
+            req_body.name = name_.value();
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return RunCreateAttachmentResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<RunCreateAttachmentResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> id_;
+    std::optional<std::string> name_;
+    RequestConfig request_config_;
+};
+
 inline RunsClient::ListBuilder RunsClient::list() {
     return ListBuilder(client_);
 }
@@ -689,6 +759,9 @@ inline RunsClient::GetBuilder RunsClient::get() {
 }
 inline RunsClient::UpdateBuilder RunsClient::update() {
     return UpdateBuilder(client_);
+}
+inline RunsClient::CreateAttachmentBuilder RunsClient::create_attachment() {
+    return CreateAttachmentBuilder(client_);
 }
 
 } // namespace tofupilot

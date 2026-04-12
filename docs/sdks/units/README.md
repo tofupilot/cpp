@@ -11,6 +11,8 @@
 * [update](#update) - Update unit
 * [add_child](#add_child) - Add sub-unit
 * [remove_child](#remove_child) - Remove sub-unit
+* [create_attachment](#create_attachment) - Attach file to unit
+* [delete_attachment](#delete_attachment) - Delete unit attachments
 
 ## list
 
@@ -345,6 +347,96 @@ int main() {
 | Error Type | Status Code | Content Type |
 | --- | --- | --- |
 | `BadRequestError` | 400 | application/json |
+| `UnauthorizedError` | 401 | application/json |
+| `NotFoundError` | 404 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
+## create_attachment
+
+Create an attachment linked to a unit and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.units().create_attachment()
+            .serial_number("SN-001234")
+            .name("My Test Procedure")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `serial_number` | `std::string` | :heavy_check_mark: | Serial number of the unit to attach the file to. Matched case-insensitively. |
+| `name` | `std::string` | :heavy_check_mark: | File name including extension (e.g. "calibration.pdf"). Used to determine content type and display name. |
+
+### Response
+
+**[`UnitCreateAttachmentResponse`](../../models/unitcreateattachmentresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `NotFoundError` | 404 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
+## delete_attachment
+
+Delete attachments from a unit by their IDs. Removes the files from storage and unlinks them from the unit.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.units().delete_attachment()
+            .serial_number("SN-001234")
+            .ids({"550e8400-e29b-41d4-a716-446655440000"})
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `serial_number` | `std::string` | :heavy_check_mark: | Serial number of the unit. Matched case-insensitively. |
+| `ids` | `std::vector<std::string>` | :heavy_check_mark: | Attachment IDs to delete |
+
+### Response
+
+**[`UnitDeleteAttachmentResponse`](../../models/unitdeleteattachmentresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
 | `UnauthorizedError` | 401 | application/json |
 | `NotFoundError` | 404 | application/json |
 | `InternalServerError` | 500 | application/json |

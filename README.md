@@ -74,8 +74,9 @@ auto client = tofupilot::TofuPilot(
 | `client.procedures()` | list, create, get, delete_, update |
 | `client.versions()` | get, delete_, create |
 | `client.runs()` | list, create, delete_, get, update |
-| `client.attachments()` | initialize, delete_, finalize |
+| `client.runs().attachments()` | upload, download |
 | `client.units()` | list, create, delete_, get, update, add_child, remove_child |
+| `client.units().attachments()` | upload, download, delete_ |
 | `client.parts()` | list, create, get, delete_, update |
 | `client.revisions()` | get, delete_, update, create |
 | `client.batches()` | get, delete_, update, list, create |
@@ -90,7 +91,7 @@ auto client = tofupilot::TofuPilot(
 tofupilot::RunCreateMeasurements m;
 m.name = "Output Voltage";
 m.outcome = tofupilot::ValidatorsOutcome::Pass;
-m.measured_value = 3.3;
+m.measured_value = nlohmann::json(3.3);
 
 tofupilot::RunCreatePhases phase;
 phase.name = "Voltage Test";
@@ -127,14 +128,19 @@ for (const auto& run : result.data) {
 ### Upload and download attachments
 
 ```cpp
-// Upload a file
-auto upload = tofupilot::upload_file(client, "report.pdf");
+#include <tofupilot/upload.hpp>
 
-// Link to a run
-client.runs().update().id(run.id).attachments({upload.id}).send();
+// Upload a file to a run
+auto id = client.runs().attachments().upload(run.id, "report.pdf");
 
-// Download
-tofupilot::download_file(upload.url, "local-copy.pdf");
+// Upload a file to a unit
+auto id = client.units().attachments().upload("SN-0001", "calibration.pdf");
+
+// Download an attachment
+client.runs().attachments().download(download_url, "local-copy.pdf");
+
+// Delete a unit attachment
+client.units().attachments().delete_("SN-0001", {id});
 ```
 
 ## Error Handling

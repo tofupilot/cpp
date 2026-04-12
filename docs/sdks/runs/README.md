@@ -9,6 +9,7 @@
 * [delete_](#delete_) - Delete runs
 * [get](#get) - Get run
 * [update](#update) - Update run
+* [create_attachment](#create_attachment) - Attach file to run
 
 ## list
 
@@ -259,6 +260,51 @@ int main() {
 ### Response
 
 **[`RunUpdateResponse`](../../models/runupdateresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `NotFoundError` | 404 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
+## create_attachment
+
+Create an attachment linked to a run and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.runs().create_attachment()
+            .id("550e8400-e29b-41d4-a716-446655440000")
+            .name("My Test Procedure")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `std::string` | :heavy_check_mark: | Unique identifier of the run to attach the file to. |
+| `name` | `std::string` | :heavy_check_mark: | File name including extension (e.g. "report.pdf"). Used to determine content type and display name. |
+
+### Response
+
+**[`RunCreateAttachmentResponse`](../../models/runcreateattachmentresponse.md)**
 
 ### Errors
 

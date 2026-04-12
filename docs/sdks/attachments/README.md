@@ -5,7 +5,6 @@
 ### Available Operations
 
 * [initialize](#initialize) - Initialize upload
-* [delete_](#delete_) - Delete attachments
 * [finalize](#finalize) - Finalize upload
 
 ## initialize
@@ -52,50 +51,6 @@ int main() {
 | `NotFoundError` | 404 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `BadGatewayError` | 502 | application/json |
-| `ApiException` | 4XX, 5XX | \*/\* |
-
-## delete_
-
-Permanently delete attachments by their IDs and unlink them from any associated runs or units. Removes files from storage and clears all references.
-
-### Example Usage
-
-```cpp
-#include <tofupilot/tofupilot.hpp>
-
-int main() {
-    auto client = tofupilot::TofuPilot("your-api-key");
-
-    try {
-        auto result = client.attachments().delete_()
-            .ids({"550e8400-e29b-41d4-a716-446655440000"})
-            .send();
-    } catch (const tofupilot::ApiException& e) {
-        // Handle error
-    }
-
-    return 0;
-}
-```
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `ids` | `std::vector<std::string>` | :heavy_check_mark: | Upload IDs to delete |
-
-### Response
-
-**[`AttachmentDeleteResponse`](../../models/attachmentdeleteresponse.md)**
-
-### Errors
-
-| Error Type | Status Code | Content Type |
-| --- | --- | --- |
-| `BadRequestError` | 400 | application/json |
-| `UnauthorizedError` | 401 | application/json |
-| `NotFoundError` | 404 | application/json |
-| `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
 ## finalize

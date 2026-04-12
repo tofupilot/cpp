@@ -19,6 +19,7 @@
 namespace tofupilot {
 
 class TofuPilot;
+class UnitAttachments;
 
 class UnitsClient {
 public:
@@ -38,6 +39,13 @@ public:
     AddChildBuilder add_child();
     class RemoveChildBuilder;
     RemoveChildBuilder remove_child();
+    class CreateAttachmentBuilder;
+    CreateAttachmentBuilder create_attachment();
+    class DeleteAttachmentBuilder;
+    DeleteAttachmentBuilder delete_attachment();
+
+    // Hand-written: attachment sub-resource (defined in upload.hpp)
+    inline UnitAttachments attachments();
 
 private:
     TofuPilot& client_;
@@ -731,6 +739,135 @@ private:
     RequestConfig request_config_;
 };
 
+class UnitsClient::CreateAttachmentBuilder {
+public:
+    explicit CreateAttachmentBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    CreateAttachmentBuilder& serial_number(std::string value) {
+        serial_number_ = std::move(value);
+        return *this;
+    }
+    CreateAttachmentBuilder& name(std::string value) {
+        name_ = std::move(value);
+        return *this;
+    }
+    CreateAttachmentBuilder& body(UnitCreateAttachmentRequestBody b) {
+        name_ = std::move(b.name);
+        return *this;
+    }
+
+    CreateAttachmentBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    CreateAttachmentBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    UnitCreateAttachmentResponse send() {
+        if (!serial_number_.has_value()) throw ValidationError("missing required path parameter: serial_number");
+
+        std::string path = "/v2/units/" + detail::url_encode(serial_number_.value()) + "/attachments";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            UnitCreateAttachmentRequestBody req_body;
+            if (!name_.has_value()) throw ValidationError("missing required field: name");
+            req_body.name = name_.value();
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return UnitCreateAttachmentResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<UnitCreateAttachmentResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> serial_number_;
+    std::optional<std::string> name_;
+    RequestConfig request_config_;
+};
+
+class UnitsClient::DeleteAttachmentBuilder {
+public:
+    explicit DeleteAttachmentBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    DeleteAttachmentBuilder& serial_number(std::string value) {
+        serial_number_ = std::move(value);
+        return *this;
+    }
+    DeleteAttachmentBuilder& ids(std::vector<std::string> value) {
+        ids_ = std::move(value);
+        return *this;
+    }
+
+    DeleteAttachmentBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    DeleteAttachmentBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    UnitDeleteAttachmentResponse send() {
+        if (!serial_number_.has_value()) throw ValidationError("missing required path parameter: serial_number");
+
+        std::string path = "/v2/units/" + detail::url_encode(serial_number_.value()) + "/attachments";
+
+        std::string query_string;
+        {
+            std::ostringstream qs;
+            bool first = true;
+            if (ids_.has_value()) {
+                for (const auto& item : ids_.value()) {
+                    if (!first) qs << "&";
+                    qs << "ids=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            query_string = qs.str();
+        }
+
+        std::string body_str;
+        std::string content_type;
+
+        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return UnitDeleteAttachmentResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<UnitDeleteAttachmentResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> serial_number_;
+    std::optional<std::vector<std::string>> ids_;
+    RequestConfig request_config_;
+};
+
 inline UnitsClient::ListBuilder UnitsClient::list() {
     return ListBuilder(client_);
 }
@@ -751,6 +888,12 @@ inline UnitsClient::AddChildBuilder UnitsClient::add_child() {
 }
 inline UnitsClient::RemoveChildBuilder UnitsClient::remove_child() {
     return RemoveChildBuilder(client_);
+}
+inline UnitsClient::CreateAttachmentBuilder UnitsClient::create_attachment() {
+    return CreateAttachmentBuilder(client_);
+}
+inline UnitsClient::DeleteAttachmentBuilder UnitsClient::delete_attachment() {
+    return DeleteAttachmentBuilder(client_);
 }
 
 } // namespace tofupilot

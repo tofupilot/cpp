@@ -26,8 +26,6 @@ public:
 
     class InitializeBuilder;
     InitializeBuilder initialize();
-    class DeleteBuilder;
-    DeleteBuilder delete_();
     class FinalizeBuilder;
     FinalizeBuilder finalize();
 
@@ -93,65 +91,6 @@ private:
     RequestConfig request_config_;
 };
 
-class AttachmentsClient::DeleteBuilder {
-public:
-    explicit DeleteBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    DeleteBuilder& ids(std::vector<std::string> value) {
-        ids_ = std::move(value);
-        return *this;
-    }
-
-    DeleteBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    DeleteBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    AttachmentDeleteResponse send() {
-
-        std::string path = "/v2/attachments";
-
-        std::string query_string;
-        {
-            std::ostringstream qs;
-            bool first = true;
-            if (ids_.has_value()) {
-                for (const auto& item : ids_.value()) {
-                    if (!first) qs << "&";
-                    qs << "ids=" << detail::url_encode(detail::to_query_string(item));
-                    first = false;
-                }
-            }
-            query_string = qs.str();
-        }
-
-        std::string body_str;
-        std::string content_type;
-
-        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return AttachmentDeleteResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<AttachmentDeleteResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::vector<std::string>> ids_;
-    RequestConfig request_config_;
-};
-
 class AttachmentsClient::FinalizeBuilder {
 public:
     explicit FinalizeBuilder(TofuPilot& client) noexcept : client_(client) {}
@@ -202,9 +141,6 @@ private:
 
 inline AttachmentsClient::InitializeBuilder AttachmentsClient::initialize() {
     return InitializeBuilder(client_);
-}
-inline AttachmentsClient::DeleteBuilder AttachmentsClient::delete_() {
-    return DeleteBuilder(client_);
 }
 inline AttachmentsClient::FinalizeBuilder AttachmentsClient::finalize() {
     return FinalizeBuilder(client_);
