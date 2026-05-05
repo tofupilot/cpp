@@ -302,8 +302,36 @@ public:
         name_ = std::move(value);
         return *this;
     }
+    UpdateBuilder& production_branch(std::string value) {
+        production_branch_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    UpdateBuilder& production_branch_null() {
+        production_branch_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+    UpdateBuilder& auto_push_enabled(bool value) {
+        auto_push_enabled_ = std::move(value);
+        return *this;
+    }
+    UpdateBuilder& excluded_branch_patterns(std::vector<std::string> value) {
+        excluded_branch_patterns_ = std::move(value);
+        return *this;
+    }
+    UpdateBuilder& root_directory(std::string value) {
+        root_directory_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    UpdateBuilder& root_directory_null() {
+        root_directory_ = NullableField<std::string>::make_null();
+        return *this;
+    }
     UpdateBuilder& body(ProcedureUpdateRequestBody b) {
-        name_ = std::move(b.name);
+        if (b.name.has_value()) name_ = std::move(b.name);
+        production_branch_ = std::move(b.production_branch);
+        if (b.auto_push_enabled.has_value()) auto_push_enabled_ = std::move(b.auto_push_enabled);
+        if (b.excluded_branch_patterns.has_value()) excluded_branch_patterns_ = std::move(b.excluded_branch_patterns);
+        root_directory_ = std::move(b.root_directory);
         return *this;
     }
 
@@ -327,8 +355,11 @@ public:
         std::string content_type;
         {
             ProcedureUpdateRequestBody req_body;
-            if (!name_.has_value()) throw ValidationError("missing required field: name");
-            req_body.name = name_.value();
+            req_body.name = name_;
+            if (!production_branch_.is_absent()) req_body.production_branch = production_branch_;
+            req_body.auto_push_enabled = auto_push_enabled_;
+            req_body.excluded_branch_patterns = excluded_branch_patterns_;
+            if (!root_directory_.is_absent()) req_body.root_directory = root_directory_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -351,6 +382,10 @@ private:
     TofuPilot& client_;
     std::optional<std::string> id_;
     std::optional<std::string> name_;
+    NullableField<std::string> production_branch_;
+    std::optional<bool> auto_push_enabled_;
+    std::optional<std::vector<std::string>> excluded_branch_patterns_;
+    NullableField<std::string> root_directory_;
     RequestConfig request_config_;
 };
 

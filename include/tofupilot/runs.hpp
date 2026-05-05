@@ -366,6 +366,14 @@ public:
         procedure_id_ = std::move(value);
         return *this;
     }
+    CreateBuilder& deployment_id(std::string value) {
+        deployment_id_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& deployment_id_null() {
+        deployment_id_ = NullableField<std::string>::make_null();
+        return *this;
+    }
     CreateBuilder& procedure_version(std::string value) {
         procedure_version_ = NullableField<std::string>::value(std::move(value));
         return *this;
@@ -421,6 +429,7 @@ public:
     CreateBuilder& body(RunCreateRequest b) {
         outcome_ = std::move(b.outcome);
         procedure_id_ = std::move(b.procedure_id);
+        deployment_id_ = std::move(b.deployment_id);
         procedure_version_ = std::move(b.procedure_version);
         if (b.operated_by.has_value()) operated_by_ = std::move(b.operated_by);
         started_at_ = std::move(b.started_at);
@@ -459,6 +468,7 @@ public:
             req_body.outcome = outcome_.value();
             if (!procedure_id_.has_value()) throw ValidationError("missing required field: procedure_id");
             req_body.procedure_id = procedure_id_.value();
+            if (!deployment_id_.is_absent()) req_body.deployment_id = deployment_id_;
             if (!procedure_version_.is_absent()) req_body.procedure_version = procedure_version_;
             req_body.operated_by = operated_by_;
             if (!started_at_.has_value()) throw ValidationError("missing required field: started_at");
@@ -496,6 +506,7 @@ private:
     TofuPilot& client_;
     std::optional<Outcome> outcome_;
     std::optional<std::string> procedure_id_;
+    NullableField<std::string> deployment_id_;
     NullableField<std::string> procedure_version_;
     std::optional<std::string> operated_by_;
     std::optional<std::string> started_at_;

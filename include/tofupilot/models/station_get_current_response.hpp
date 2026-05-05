@@ -29,8 +29,6 @@ struct StationGetCurrentResponse {
     std::vector<StationGetCurrentProcedures> procedures;
     /// Slug of the organization this station belongs to
     std::string organization_slug;
-    /// Current connection status of the station
-    std::optional<std::string> connection_status;
     /// Team this station is assigned to
     std::optional<StationGetCurrentTeam> team;
 };
@@ -44,9 +42,6 @@ inline void to_json(nlohmann::json& j, const StationGetCurrentResponse& v) {
     }
     j["procedures"] = v.procedures;
     j["organization_slug"] = v.organization_slug;
-    if (v.connection_status.has_value()) {
-        j["connection_status"] = v.connection_status.value();
-    }
     if (v.team.has_value()) {
         j["team"] = v.team.value();
     }
@@ -74,9 +69,6 @@ inline void from_json(const nlohmann::json& j, StationGetCurrentResponse& v) {
             "missing required field in response: organization_slug", &j);
     }
     v.organization_slug = j["organization_slug"].get<std::string>();
-    if (j.contains("connection_status") && !j["connection_status"].is_null()) {
-        v.connection_status = j["connection_status"].get<std::string>();
-    }
     if (j.contains("team") && !j["team"].is_null()) {
         v.team = j["team"].get<StationGetCurrentTeam>();
     }

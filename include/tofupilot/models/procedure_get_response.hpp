@@ -22,8 +22,6 @@ namespace tofupilot {
 struct ProcedureGetResponse {
     /// Unique identifier for the procedure.
     std::string id;
-    /// Optional unique identifier for the procedure.
-    std::optional<std::string> identifier;
     /// Procedure name.
     std::string name;
     /// ISO 8601 timestamp when the procedure was created.
@@ -41,9 +39,6 @@ struct ProcedureGetResponse {
 inline void to_json(nlohmann::json& j, const ProcedureGetResponse& v) {
     j = nlohmann::json::object();
     j["id"] = v.id;
-    if (v.identifier.has_value()) {
-        j["identifier"] = v.identifier.value();
-    }
     j["name"] = v.name;
     j["created_at"] = v.created_at;
     if (v.created_by_user.has_value()) {
@@ -60,9 +55,6 @@ inline void from_json(const nlohmann::json& j, ProcedureGetResponse& v) {
             "missing required field in response: id", &j);
     }
     v.id = j["id"].get<std::string>();
-    if (j.contains("identifier") && !j["identifier"].is_null()) {
-        v.identifier = j["identifier"].get<std::string>();
-    }
     if (!j.contains("name")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: name", &j);

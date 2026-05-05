@@ -20,8 +20,6 @@ namespace tofupilot {
 struct StationGetCurrentProcedures {
     /// Procedure ID
     std::string id;
-    /// Procedure identifier
-    std::optional<std::string> identifier;
     /// Procedure name
     std::string name;
     /// Number of runs created by this station in the last 7 days
@@ -33,9 +31,6 @@ struct StationGetCurrentProcedures {
 inline void to_json(nlohmann::json& j, const StationGetCurrentProcedures& v) {
     j = nlohmann::json::object();
     j["id"] = v.id;
-    if (v.identifier.has_value()) {
-        j["identifier"] = v.identifier.value();
-    }
     j["name"] = v.name;
     j["runs_count"] = v.runs_count;
     if (!v.deployment.is_absent()) {
@@ -53,9 +48,6 @@ inline void from_json(const nlohmann::json& j, StationGetCurrentProcedures& v) {
             "missing required field in response: id", &j);
     }
     v.id = j["id"].get<std::string>();
-    if (j.contains("identifier") && !j["identifier"].is_null()) {
-        v.identifier = j["identifier"].get<std::string>();
-    }
     if (!j.contains("name")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: name", &j);
@@ -82,13 +74,6 @@ public:
     /// Procedure ID
     StationGetCurrentProceduresBuilder& id(std::string value) {
         id_ = std::move(value);
-        return *this;
-    }
-
-    /// Set the `identifier` field.
-    /// Procedure identifier
-    StationGetCurrentProceduresBuilder& identifier(std::string value) {
-        identifier_ = std::move(value);
         return *this;
     }
 
@@ -126,7 +111,6 @@ public:
             throw std::runtime_error("missing required field: id");
         }
         result.id = id_.value();
-        result.identifier = identifier_;
         if (!name_.has_value()) {
             throw std::runtime_error("missing required field: name");
         }
@@ -146,7 +130,6 @@ public:
             throw std::runtime_error("missing required field: id");
         }
         result.id = std::move(id_.value());
-        result.identifier = std::move(identifier_);
         if (!name_.has_value()) {
             throw std::runtime_error("missing required field: name");
         }
@@ -161,7 +144,6 @@ public:
 
 private:
     std::optional<std::string> id_;
-    std::optional<std::string> identifier_;
     std::optional<std::string> name_;
     std::optional<double> runs_count_;
     NullableField<StationGetCurrentDeployment> deployment_;

@@ -24,6 +24,8 @@ struct RunCreateYAxis {
     std::vector<double> data;
     /// Unit for this axis.
     NullableField<std::string> units;
+    /// Name of this data series.
+    NullableField<std::string> name;
     /// Description of this data series.
     NullableField<std::string> description;
     /// Validators for this specific axis/series.
@@ -40,6 +42,13 @@ inline void to_json(nlohmann::json& j, const RunCreateYAxis& v) {
             j["units"] = nullptr;
         } else {
             j["units"] = v.units.get();
+        }
+    }
+    if (!v.name.is_absent()) {
+        if (v.name.is_null()) {
+            j["name"] = nullptr;
+        } else {
+            j["name"] = v.name.get();
         }
     }
     if (!v.description.is_absent()) {
@@ -74,6 +83,13 @@ inline void from_json(const nlohmann::json& j, RunCreateYAxis& v) {
             v.units = NullableField<std::string>::make_null();
         } else {
             v.units = NullableField<std::string>::value(j["units"].get<std::string>());
+        }
+    }
+    if (j.contains("name")) {
+        if (j["name"].is_null()) {
+            v.name = NullableField<std::string>::make_null();
+        } else {
+            v.name = NullableField<std::string>::value(j["name"].get<std::string>());
         }
     }
     if (j.contains("description")) {
@@ -119,6 +135,19 @@ public:
     /// Explicitly set `units` to null.
     RunCreateYAxisBuilder& units_null() {
         units_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Set the `name` field.
+    /// Name of this data series.
+    RunCreateYAxisBuilder& name(std::string value) {
+        name_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `name` to null.
+    RunCreateYAxisBuilder& name_null() {
+        name_ = NullableField<std::string>::make_null();
         return *this;
     }
 
@@ -168,6 +197,7 @@ public:
             result.data = data_.value();
         }
         result.units = units_;
+        result.name = name_;
         result.description = description_;
         result.validators = validators_;
         result.aggregations = aggregations_;
@@ -181,6 +211,7 @@ public:
             result.data = std::move(data_.value());
         }
         result.units = std::move(units_);
+        result.name = std::move(name_);
         result.description = std::move(description_);
         result.validators = std::move(validators_);
         result.aggregations = std::move(aggregations_);
@@ -190,6 +221,7 @@ public:
 private:
     std::optional<std::vector<double>> data_;
     NullableField<std::string> units_;
+    NullableField<std::string> name_;
     NullableField<std::string> description_;
     NullableField<std::vector<RunCreateYAxisValidators>> validators_;
     NullableField<std::vector<RunCreateYAxisAggregations>> aggregations_;

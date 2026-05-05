@@ -24,6 +24,7 @@ struct RunCreateRequest {
     Outcome outcome;
     /// Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
     std::string procedure_id;
+    NullableField<std::string> deployment_id;
     NullableField<std::string> procedure_version;
     /// Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
     std::optional<std::string> operated_by;
@@ -53,6 +54,13 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
     j = nlohmann::json::object();
     j["outcome"] = v.outcome;
     j["procedure_id"] = v.procedure_id;
+    if (!v.deployment_id.is_absent()) {
+        if (v.deployment_id.is_null()) {
+            j["deployment_id"] = nullptr;
+        } else {
+            j["deployment_id"] = v.deployment_id.get();
+        }
+    }
     if (!v.procedure_version.is_absent()) {
         if (v.procedure_version.is_null()) {
             j["procedure_version"] = nullptr;
@@ -100,6 +108,13 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
             "missing required field in response: procedure_id", &j);
     }
     v.procedure_id = j["procedure_id"].get<std::string>();
+    if (j.contains("deployment_id")) {
+        if (j["deployment_id"].is_null()) {
+            v.deployment_id = NullableField<std::string>::make_null();
+        } else {
+            v.deployment_id = NullableField<std::string>::value(j["deployment_id"].get<std::string>());
+        }
+    }
     if (j.contains("procedure_version")) {
         if (j["procedure_version"].is_null()) {
             v.procedure_version = NullableField<std::string>::make_null();
@@ -162,6 +177,18 @@ public:
     /// Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
     RunCreateRequestBuilder& procedure_id(std::string value) {
         procedure_id_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `deployment_id` field.
+    RunCreateRequestBuilder& deployment_id(std::string value) {
+        deployment_id_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `deployment_id` to null.
+    RunCreateRequestBuilder& deployment_id_null() {
+        deployment_id_ = NullableField<std::string>::make_null();
         return *this;
     }
 
@@ -265,6 +292,7 @@ public:
             throw std::runtime_error("missing required field: procedure_id");
         }
         result.procedure_id = procedure_id_.value();
+        result.deployment_id = deployment_id_;
         result.procedure_version = procedure_version_;
         result.operated_by = operated_by_;
         if (!started_at_.has_value()) {
@@ -300,6 +328,7 @@ public:
             throw std::runtime_error("missing required field: procedure_id");
         }
         result.procedure_id = std::move(procedure_id_.value());
+        result.deployment_id = std::move(deployment_id_);
         result.procedure_version = std::move(procedure_version_);
         result.operated_by = std::move(operated_by_);
         if (!started_at_.has_value()) {
@@ -327,6 +356,7 @@ public:
 private:
     std::optional<Outcome> outcome_;
     std::optional<std::string> procedure_id_;
+    NullableField<std::string> deployment_id_;
     NullableField<std::string> procedure_version_;
     std::optional<std::string> operated_by_;
     std::optional<std::string> started_at_;

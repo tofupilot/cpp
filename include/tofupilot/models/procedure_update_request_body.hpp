@@ -12,25 +12,154 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/nullable.hpp"
 
 namespace tofupilot {
 
 struct ProcedureUpdateRequestBody {
     /// New name for the procedure.
-    std::string name;
+    std::optional<std::string> name;
+    /// Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production.
+    NullableField<std::string> production_branch;
+    /// Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
+    std::optional<bool> auto_push_enabled;
+    /// Branches matching any of these patterns (exact name or minimatch glob, e.g. "renovate/*") skip preview deployments. Empty array = no exclusions.
+    std::optional<std::vector<std::string>> excluded_branch_patterns;
+    /// Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
+    NullableField<std::string> root_directory;
 };
 
 inline void to_json(nlohmann::json& j, const ProcedureUpdateRequestBody& v) {
     j = nlohmann::json::object();
-    j["name"] = v.name;
+    if (v.name.has_value()) {
+        j["name"] = v.name.value();
+    }
+    if (!v.production_branch.is_absent()) {
+        if (v.production_branch.is_null()) {
+            j["production_branch"] = nullptr;
+        } else {
+            j["production_branch"] = v.production_branch.get();
+        }
+    }
+    if (v.auto_push_enabled.has_value()) {
+        j["auto_push_enabled"] = v.auto_push_enabled.value();
+    }
+    if (v.excluded_branch_patterns.has_value()) {
+        j["excluded_branch_patterns"] = v.excluded_branch_patterns.value();
+    }
+    if (!v.root_directory.is_absent()) {
+        if (v.root_directory.is_null()) {
+            j["root_directory"] = nullptr;
+        } else {
+            j["root_directory"] = v.root_directory.get();
+        }
+    }
 }
 
 inline void from_json(const nlohmann::json& j, ProcedureUpdateRequestBody& v) {
-    if (!j.contains("name")) {
-        throw nlohmann::json::other_error::create(501,
-            "missing required field in response: name", &j);
+    if (j.contains("name") && !j["name"].is_null()) {
+        v.name = j["name"].get<std::string>();
     }
-    v.name = j["name"].get<std::string>();
+    if (j.contains("production_branch")) {
+        if (j["production_branch"].is_null()) {
+            v.production_branch = NullableField<std::string>::make_null();
+        } else {
+            v.production_branch = NullableField<std::string>::value(j["production_branch"].get<std::string>());
+        }
+    }
+    if (j.contains("auto_push_enabled") && !j["auto_push_enabled"].is_null()) {
+        v.auto_push_enabled = j["auto_push_enabled"].get<bool>();
+    }
+    if (j.contains("excluded_branch_patterns") && !j["excluded_branch_patterns"].is_null()) {
+        v.excluded_branch_patterns = j["excluded_branch_patterns"].get<std::vector<std::string>>();
+    }
+    if (j.contains("root_directory")) {
+        if (j["root_directory"].is_null()) {
+            v.root_directory = NullableField<std::string>::make_null();
+        } else {
+            v.root_directory = NullableField<std::string>::value(j["root_directory"].get<std::string>());
+        }
+    }
 }
+
+/// Builder for ProcedureUpdateRequestBody.
+class ProcedureUpdateRequestBodyBuilder {
+public:
+    /// Set the `name` field.
+    /// New name for the procedure.
+    ProcedureUpdateRequestBodyBuilder& name(std::string value) {
+        name_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `production_branch` field.
+    /// Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production.
+    ProcedureUpdateRequestBodyBuilder& production_branch(std::string value) {
+        production_branch_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `production_branch` to null.
+    ProcedureUpdateRequestBodyBuilder& production_branch_null() {
+        production_branch_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Set the `auto_push_enabled` field.
+    /// Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
+    ProcedureUpdateRequestBodyBuilder& auto_push_enabled(bool value) {
+        auto_push_enabled_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `excluded_branch_patterns` field.
+    /// Branches matching any of these patterns (exact name or minimatch glob, e.g. "renovate/*") skip preview deployments. Empty array = no exclusions.
+    ProcedureUpdateRequestBodyBuilder& excluded_branch_patterns(std::vector<std::string> value) {
+        excluded_branch_patterns_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `root_directory` field.
+    /// Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
+    ProcedureUpdateRequestBodyBuilder& root_directory(std::string value) {
+        root_directory_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `root_directory` to null.
+    ProcedureUpdateRequestBodyBuilder& root_directory_null() {
+        root_directory_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Build the struct. Throws std::runtime_error if required fields are missing.
+    ProcedureUpdateRequestBody build() const& {
+        ProcedureUpdateRequestBody result;
+        result.name = name_;
+        result.production_branch = production_branch_;
+        result.auto_push_enabled = auto_push_enabled_;
+        result.excluded_branch_patterns = excluded_branch_patterns_;
+        result.root_directory = root_directory_;
+        return result;
+    }
+
+    /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
+    ProcedureUpdateRequestBody build() && {
+        ProcedureUpdateRequestBody result;
+        result.name = std::move(name_);
+        result.production_branch = std::move(production_branch_);
+        result.auto_push_enabled = std::move(auto_push_enabled_);
+        result.excluded_branch_patterns = std::move(excluded_branch_patterns_);
+        result.root_directory = std::move(root_directory_);
+        return result;
+    }
+
+private:
+    std::optional<std::string> name_;
+    NullableField<std::string> production_branch_;
+    std::optional<bool> auto_push_enabled_;
+    std::optional<std::vector<std::string>> excluded_branch_patterns_;
+    NullableField<std::string> root_directory_;
+};
 
 } // namespace tofupilot

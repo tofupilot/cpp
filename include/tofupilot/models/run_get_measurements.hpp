@@ -27,8 +27,8 @@ struct RunGetMeasurements {
     std::string name;
     /// Measurement validation result.
     ValidatorsOutcome outcome;
-    /// Units of measurement.
-    std::optional<std::string> units;
+    /// Units of measurement. Not present for multi-dimensional measurements (units are per data series).
+    NullableField<std::string> units;
     /// Structured validation rules with outcome and expected values.
     std::optional<std::vector<RunGetValidators>> validators;
     /// Aggregations computed over this measurement.
@@ -44,8 +44,12 @@ inline void to_json(nlohmann::json& j, const RunGetMeasurements& v) {
     j["id"] = v.id;
     j["name"] = v.name;
     j["outcome"] = v.outcome;
-    if (v.units.has_value()) {
-        j["units"] = v.units.value();
+    if (!v.units.is_absent()) {
+        if (v.units.is_null()) {
+            j["units"] = nullptr;
+        } else {
+            j["units"] = v.units.get();
+        }
     }
     if (v.validators.has_value()) {
         j["validators"] = v.validators.value();
@@ -81,8 +85,12 @@ inline void from_json(const nlohmann::json& j, RunGetMeasurements& v) {
             "missing required field in response: outcome", &j);
     }
     v.outcome = j["outcome"].get<ValidatorsOutcome>();
-    if (j.contains("units") && !j["units"].is_null()) {
-        v.units = j["units"].get<std::string>();
+    if (j.contains("units")) {
+        if (j["units"].is_null()) {
+            v.units = NullableField<std::string>::make_null();
+        } else {
+            v.units = NullableField<std::string>::value(j["units"].get<std::string>());
+        }
     }
     if (j.contains("validators") && !j["validators"].is_null()) {
         v.validators = j["validators"].get<std::vector<RunGetValidators>>();
@@ -127,9 +135,15 @@ public:
     }
 
     /// Set the `units` field.
-    /// Units of measurement.
+    /// Units of measurement. Not present for multi-dimensional measurements (units are per data series).
     RunGetMeasurementsBuilder& units(std::string value) {
-        units_ = std::move(value);
+        units_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `units` to null.
+    RunGetMeasurementsBuilder& units_null() {
+        units_ = NullableField<std::string>::make_null();
         return *this;
     }
 
@@ -217,7 +231,7 @@ private:
     std::optional<std::string> id_;
     std::optional<std::string> name_;
     std::optional<ValidatorsOutcome> outcome_;
-    std::optional<std::string> units_;
+    NullableField<std::string> units_;
     std::optional<std::vector<RunGetValidators>> validators_;
     NullableField<std::vector<RunGetAggregations>> aggregations_;
     std::optional<nlohmann::json> measured_value_;

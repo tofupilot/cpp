@@ -19,9 +19,17 @@
 namespace tofupilot {
 
 struct RunGetDataSeries {
+    /// Array of numeric data points for this series.
     std::vector<double> data;
+    /// Unit for this data series.
     std::optional<std::string> units;
+    /// Name of this data series.
+    NullableField<std::string> name;
+    /// Description of this data series.
+    NullableField<std::string> description;
+    /// Validators for this data series.
     NullableField<std::vector<RunGetDataSeriesValidators>> validators;
+    /// Aggregations computed over this data series.
     NullableField<std::vector<RunGetDataSeriesAggregations>> aggregations;
 };
 
@@ -30,6 +38,20 @@ inline void to_json(nlohmann::json& j, const RunGetDataSeries& v) {
     j["data"] = v.data;
     if (v.units.has_value()) {
         j["units"] = v.units.value();
+    }
+    if (!v.name.is_absent()) {
+        if (v.name.is_null()) {
+            j["name"] = nullptr;
+        } else {
+            j["name"] = v.name.get();
+        }
+    }
+    if (!v.description.is_absent()) {
+        if (v.description.is_null()) {
+            j["description"] = nullptr;
+        } else {
+            j["description"] = v.description.get();
+        }
     }
     if (!v.validators.is_absent()) {
         if (v.validators.is_null()) {
@@ -54,6 +76,20 @@ inline void from_json(const nlohmann::json& j, RunGetDataSeries& v) {
     if (j.contains("units") && !j["units"].is_null()) {
         v.units = j["units"].get<std::string>();
     }
+    if (j.contains("name")) {
+        if (j["name"].is_null()) {
+            v.name = NullableField<std::string>::make_null();
+        } else {
+            v.name = NullableField<std::string>::value(j["name"].get<std::string>());
+        }
+    }
+    if (j.contains("description")) {
+        if (j["description"].is_null()) {
+            v.description = NullableField<std::string>::make_null();
+        } else {
+            v.description = NullableField<std::string>::value(j["description"].get<std::string>());
+        }
+    }
     if (j.contains("validators")) {
         if (j["validators"].is_null()) {
             v.validators = NullableField<std::vector<RunGetDataSeriesValidators>>::make_null();
@@ -74,18 +110,47 @@ inline void from_json(const nlohmann::json& j, RunGetDataSeries& v) {
 class RunGetDataSeriesBuilder {
 public:
     /// Set the `data` field.
+    /// Array of numeric data points for this series.
     RunGetDataSeriesBuilder& data(std::vector<double> value) {
         data_ = std::move(value);
         return *this;
     }
 
     /// Set the `units` field.
+    /// Unit for this data series.
     RunGetDataSeriesBuilder& units(std::string value) {
         units_ = std::move(value);
         return *this;
     }
 
+    /// Set the `name` field.
+    /// Name of this data series.
+    RunGetDataSeriesBuilder& name(std::string value) {
+        name_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `name` to null.
+    RunGetDataSeriesBuilder& name_null() {
+        name_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Set the `description` field.
+    /// Description of this data series.
+    RunGetDataSeriesBuilder& description(std::string value) {
+        description_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `description` to null.
+    RunGetDataSeriesBuilder& description_null() {
+        description_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
     /// Set the `validators` field.
+    /// Validators for this data series.
     RunGetDataSeriesBuilder& validators(std::vector<RunGetDataSeriesValidators> value) {
         validators_ = NullableField<std::vector<RunGetDataSeriesValidators>>::value(std::move(value));
         return *this;
@@ -98,6 +163,7 @@ public:
     }
 
     /// Set the `aggregations` field.
+    /// Aggregations computed over this data series.
     RunGetDataSeriesBuilder& aggregations(std::vector<RunGetDataSeriesAggregations> value) {
         aggregations_ = NullableField<std::vector<RunGetDataSeriesAggregations>>::value(std::move(value));
         return *this;
@@ -116,6 +182,8 @@ public:
             result.data = data_.value();
         }
         result.units = units_;
+        result.name = name_;
+        result.description = description_;
         result.validators = validators_;
         result.aggregations = aggregations_;
         return result;
@@ -128,6 +196,8 @@ public:
             result.data = std::move(data_.value());
         }
         result.units = std::move(units_);
+        result.name = std::move(name_);
+        result.description = std::move(description_);
         result.validators = std::move(validators_);
         result.aggregations = std::move(aggregations_);
         return result;
@@ -136,6 +206,8 @@ public:
 private:
     std::optional<std::vector<double>> data_;
     std::optional<std::string> units_;
+    NullableField<std::string> name_;
+    NullableField<std::string> description_;
     NullableField<std::vector<RunGetDataSeriesValidators>> validators_;
     NullableField<std::vector<RunGetDataSeriesAggregations>> aggregations_;
 };
