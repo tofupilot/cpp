@@ -611,10 +611,6 @@ public:
         metadata_ = std::move(value);
         return *this;
     }
-    UpdateBuilder& metadata_replace(bool value) {
-        metadata_replace_ = std::move(value);
-        return *this;
-    }
     UpdateBuilder& body(UnitUpdateRequestBody b) {
         if (b.new_serial_number.has_value()) new_serial_number_ = std::move(b.new_serial_number);
         if (b.part_number.has_value()) part_number_ = std::move(b.part_number);
@@ -623,7 +619,6 @@ public:
         if (b.attachments.has_value()) attachments_ = std::move(b.attachments);
         sample_ = std::move(b.sample);
         if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
-        if (b.metadata_replace.has_value()) metadata_replace_ = std::move(b.metadata_replace);
         return *this;
     }
 
@@ -654,7 +649,6 @@ public:
             req_body.attachments = attachments_;
             if (!sample_.is_absent()) req_body.sample = sample_;
             req_body.metadata = metadata_;
-            req_body.metadata_replace = metadata_replace_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -683,7 +677,6 @@ private:
     std::optional<std::vector<std::string>> attachments_;
     NullableField<std::string> sample_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
-    std::optional<bool> metadata_replace_;
     RequestConfig request_config_;
 };
 

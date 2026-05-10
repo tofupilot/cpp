@@ -816,13 +816,8 @@ public:
         metadata_ = std::move(value);
         return *this;
     }
-    UpdateMetadataBuilder& metadata_replace(bool value) {
-        metadata_replace_ = std::move(value);
-        return *this;
-    }
     UpdateMetadataBuilder& body(RunUpdateMetadataRequestBody b) {
         if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
-        if (b.metadata_replace.has_value()) metadata_replace_ = std::move(b.metadata_replace);
         return *this;
     }
 
@@ -847,7 +842,6 @@ public:
         {
             RunUpdateMetadataRequestBody req_body;
             req_body.metadata = metadata_;
-            req_body.metadata_replace = metadata_replace_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -870,7 +864,6 @@ private:
     TofuPilot& client_;
     std::optional<std::string> id_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
-    std::optional<bool> metadata_replace_;
     RequestConfig request_config_;
 };
 

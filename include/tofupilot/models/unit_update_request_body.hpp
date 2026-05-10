@@ -29,10 +29,8 @@ struct UnitUpdateRequestBody {
     std::optional<std::vector<std::string>> attachments;
     /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
     NullableField<std::string> sample;
-    /// Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+    /// Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
-    /// When true, removes any metadata keys not present in `metadata`. Default: false (PATCH).
-    std::optional<bool> metadata_replace;
 };
 
 inline void to_json(nlohmann::json& j, const UnitUpdateRequestBody& v) {
@@ -66,9 +64,6 @@ inline void to_json(nlohmann::json& j, const UnitUpdateRequestBody& v) {
     if (v.metadata.has_value()) {
         j["metadata"] = v.metadata.value();
     }
-    if (v.metadata_replace.has_value()) {
-        j["metadata_replace"] = v.metadata_replace.value();
-    }
 }
 
 inline void from_json(const nlohmann::json& j, UnitUpdateRequestBody& v) {
@@ -100,9 +95,6 @@ inline void from_json(const nlohmann::json& j, UnitUpdateRequestBody& v) {
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
         v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
-    }
-    if (j.contains("metadata_replace") && !j["metadata_replace"].is_null()) {
-        v.metadata_replace = j["metadata_replace"].get<bool>();
     }
 }
 
@@ -164,16 +156,9 @@ public:
     }
 
     /// Set the `metadata` field.
-    /// Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+    /// Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     UnitUpdateRequestBodyBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
-        return *this;
-    }
-
-    /// Set the `metadata_replace` field.
-    /// When true, removes any metadata keys not present in `metadata`. Default: false (PATCH).
-    UnitUpdateRequestBodyBuilder& metadata_replace(bool value) {
-        metadata_replace_ = std::move(value);
         return *this;
     }
 
@@ -187,7 +172,6 @@ public:
         result.attachments = attachments_;
         result.sample = sample_;
         result.metadata = metadata_;
-        result.metadata_replace = metadata_replace_;
         return result;
     }
 
@@ -201,7 +185,6 @@ public:
         result.attachments = std::move(attachments_);
         result.sample = std::move(sample_);
         result.metadata = std::move(metadata_);
-        result.metadata_replace = std::move(metadata_replace_);
         return result;
     }
 
@@ -213,7 +196,6 @@ private:
     std::optional<std::vector<std::string>> attachments_;
     NullableField<std::string> sample_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
-    std::optional<bool> metadata_replace_;
 };
 
 } // namespace tofupilot

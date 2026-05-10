@@ -16,10 +16,8 @@
 namespace tofupilot {
 
 struct RunUpdateMetadataRequestBody {
-    /// Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+    /// Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
-    /// When true, removes any metadata keys not present in `metadata`. Default: false.
-    std::optional<bool> metadata_replace;
 };
 
 inline void to_json(nlohmann::json& j, const RunUpdateMetadataRequestBody& v) {
@@ -27,17 +25,11 @@ inline void to_json(nlohmann::json& j, const RunUpdateMetadataRequestBody& v) {
     if (v.metadata.has_value()) {
         j["metadata"] = v.metadata.value();
     }
-    if (v.metadata_replace.has_value()) {
-        j["metadata_replace"] = v.metadata_replace.value();
-    }
 }
 
 inline void from_json(const nlohmann::json& j, RunUpdateMetadataRequestBody& v) {
     if (j.contains("metadata") && !j["metadata"].is_null()) {
         v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
-    }
-    if (j.contains("metadata_replace") && !j["metadata_replace"].is_null()) {
-        v.metadata_replace = j["metadata_replace"].get<bool>();
     }
 }
 
@@ -45,16 +37,9 @@ inline void from_json(const nlohmann::json& j, RunUpdateMetadataRequestBody& v) 
 class RunUpdateMetadataRequestBodyBuilder {
 public:
     /// Set the `metadata` field.
-    /// Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+    /// Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     RunUpdateMetadataRequestBodyBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
-        return *this;
-    }
-
-    /// Set the `metadata_replace` field.
-    /// When true, removes any metadata keys not present in `metadata`. Default: false.
-    RunUpdateMetadataRequestBodyBuilder& metadata_replace(bool value) {
-        metadata_replace_ = std::move(value);
         return *this;
     }
 
@@ -62,7 +47,6 @@ public:
     RunUpdateMetadataRequestBody build() const& {
         RunUpdateMetadataRequestBody result;
         result.metadata = metadata_;
-        result.metadata_replace = metadata_replace_;
         return result;
     }
 
@@ -70,13 +54,11 @@ public:
     RunUpdateMetadataRequestBody build() && {
         RunUpdateMetadataRequestBody result;
         result.metadata = std::move(metadata_);
-        result.metadata_replace = std::move(metadata_replace_);
         return result;
     }
 
 private:
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
-    std::optional<bool> metadata_replace_;
 };
 
 } // namespace tofupilot

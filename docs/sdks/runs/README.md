@@ -324,7 +324,7 @@ int main() {
 
 ## update_metadata
 
-Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics by default (omitted keys preserved). Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics: omitted keys preserved. Pass `null` as a value to delete a key.
 
 ### Example Usage
 
@@ -351,8 +351,7 @@ int main() {
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `std::string` | :heavy_check_mark: | Unique identifier of the run to update. |
-| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present. |
-| `metadata_replace` | `std::optional<bool>` | :heavy_minus_sign: | When true, removes any metadata keys not present in `metadata`. Default: false. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. |
 
 ### Response
 
