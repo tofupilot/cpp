@@ -22,3 +22,4 @@ Single test run details.
 | `attachments` | `std::optional<std::vector<RunGetAttachments>>` | :heavy_minus_sign: | Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included. |
 | `logs` | `std::optional<std::vector<RunGetLogs>>` | :heavy_minus_sign: | N/A |
 | `sub_units` | `std::optional<std::vector<RunGetSubUnits>>` | :heavy_minus_sign: | Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included. |
+| `metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the run. |

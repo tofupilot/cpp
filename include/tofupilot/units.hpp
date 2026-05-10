@@ -147,6 +147,14 @@ public:
         sort_order_ = std::move(value);
         return *this;
     }
+    ListBuilder& metadata(nlohmann::json value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
+        return *this;
+    }
 
     ListBuilder& server_url(std::string url) {
         request_config_.server_url = std::move(url);
@@ -300,6 +308,16 @@ public:
                 qs << "sort_order=" << detail::url_encode(detail::to_query_string(sort_order_.value()));
                 first = false;
             }
+            if (metadata_.has_value()) {
+                if (!first) qs << "&";
+                qs << "metadata=" << detail::url_encode(detail::to_query_string(metadata_.value()));
+                first = false;
+            }
+            if (include_metadata_.has_value()) {
+                if (!first) qs << "&";
+                qs << "include_metadata=" << detail::url_encode(detail::to_query_string(include_metadata_.value()));
+                first = false;
+            }
             query_string = qs.str();
         }
 
@@ -345,6 +363,8 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
+    std::optional<nlohmann::json> metadata_;
+    std::optional<bool> include_metadata_;
     RequestConfig request_config_;
 };
 
@@ -372,11 +392,16 @@ public:
         sample_ = NullableField<std::string>::make_null();
         return *this;
     }
+    CreateBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& body(UnitCreateRequest b) {
         serial_number_ = std::move(b.serial_number);
         part_number_ = std::move(b.part_number);
         revision_number_ = std::move(b.revision_number);
         sample_ = std::move(b.sample);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -406,6 +431,7 @@ public:
             if (!revision_number_.has_value()) throw ValidationError("missing required field: revision_number");
             req_body.revision_number = revision_number_.value();
             if (!sample_.is_absent()) req_body.sample = sample_;
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -430,6 +456,7 @@ private:
     std::optional<std::string> part_number_;
     std::optional<std::string> revision_number_;
     NullableField<std::string> sample_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
     RequestConfig request_config_;
 };
 
@@ -580,6 +607,14 @@ public:
         sample_ = NullableField<std::string>::make_null();
         return *this;
     }
+    UpdateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    UpdateBuilder& metadata_replace(bool value) {
+        metadata_replace_ = std::move(value);
+        return *this;
+    }
     UpdateBuilder& body(UnitUpdateRequestBody b) {
         if (b.new_serial_number.has_value()) new_serial_number_ = std::move(b.new_serial_number);
         if (b.part_number.has_value()) part_number_ = std::move(b.part_number);
@@ -587,6 +622,8 @@ public:
         batch_number_ = std::move(b.batch_number);
         if (b.attachments.has_value()) attachments_ = std::move(b.attachments);
         sample_ = std::move(b.sample);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
+        if (b.metadata_replace.has_value()) metadata_replace_ = std::move(b.metadata_replace);
         return *this;
     }
 
@@ -616,6 +653,8 @@ public:
             if (!batch_number_.is_absent()) req_body.batch_number = batch_number_;
             req_body.attachments = attachments_;
             if (!sample_.is_absent()) req_body.sample = sample_;
+            req_body.metadata = metadata_;
+            req_body.metadata_replace = metadata_replace_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -643,6 +682,8 @@ private:
     NullableField<std::string> batch_number_;
     std::optional<std::vector<std::string>> attachments_;
     NullableField<std::string> sample_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<bool> metadata_replace_;
     RequestConfig request_config_;
 };
 

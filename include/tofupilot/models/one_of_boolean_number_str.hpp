@@ -12,20 +12,21 @@
 
 namespace tofupilot {
 
-/// [LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead.
-using RunCreateUnits = std::variant<
+using OneOfBooleanNumberStr = std::variant<
     std::string,
-    std::vector<std::string>
+    double,
+    bool
 >;
 
-inline void to_json(nlohmann::json& j, const RunCreateUnits& v) {
+inline void to_json(nlohmann::json& j, const OneOfBooleanNumberStr& v) {
     std::visit([&j](const auto& val) { j = val; }, v);
 }
 
-inline void from_json(const nlohmann::json& j, RunCreateUnits& v) {
+inline void from_json(const nlohmann::json& j, OneOfBooleanNumberStr& v) {
     if (j.is_string()) { v = j.get<std::string>(); return; }
-    if (j.is_array()) { v = j.get<std::vector<std::string>>(); return; }
-    throw nlohmann::json::type_error::create(302, "cannot convert JSON to RunCreateUnits", &j);
+    if (j.is_number()) { v = j.get<double>(); return; }
+    if (j.is_boolean()) { v = j.get<bool>(); return; }
+    throw nlohmann::json::type_error::create(302, "cannot convert JSON to OneOfBooleanNumberStr", &j);
 }
 
 } // namespace tofupilot
@@ -37,11 +38,11 @@ inline void from_json(const nlohmann::json& j, RunCreateUnits& v) {
 // adl_serializer<T>::to_json / from_json when free functions aren't found.
 namespace nlohmann {
 template <>
-struct adl_serializer<::tofupilot::RunCreateUnits> {
-    static void to_json(json& j, const ::tofupilot::RunCreateUnits& v) {
+struct adl_serializer<::tofupilot::OneOfBooleanNumberStr> {
+    static void to_json(json& j, const ::tofupilot::OneOfBooleanNumberStr& v) {
         ::tofupilot::to_json(j, v);
     }
-    static void from_json(const json& j, ::tofupilot::RunCreateUnits& v) {
+    static void from_json(const json& j, ::tofupilot::OneOfBooleanNumberStr& v) {
         ::tofupilot::from_json(j, v);
     }
 };

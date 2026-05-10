@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/one_of_boolean_number_str.hpp"
 
 namespace tofupilot {
 
@@ -25,6 +26,8 @@ struct UnitCreateRequest {
     std::string revision_number;
     /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
     NullableField<std::string> sample;
+    /// Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitCreateRequest& v) {
@@ -38,6 +41,9 @@ inline void to_json(nlohmann::json& j, const UnitCreateRequest& v) {
         } else {
             j["sample"] = v.sample.get();
         }
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -63,6 +69,9 @@ inline void from_json(const nlohmann::json& j, UnitCreateRequest& v) {
         } else {
             v.sample = NullableField<std::string>::value(j["sample"].get<std::string>());
         }
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
     }
 }
 
@@ -103,6 +112,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    UnitCreateRequestBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     UnitCreateRequest build() const& {
         UnitCreateRequest result;
@@ -119,6 +135,7 @@ public:
         }
         result.revision_number = revision_number_.value();
         result.sample = sample_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -138,6 +155,7 @@ public:
         }
         result.revision_number = std::move(revision_number_.value());
         result.sample = std::move(sample_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -146,6 +164,7 @@ private:
     std::optional<std::string> part_number_;
     std::optional<std::string> revision_number_;
     NullableField<std::string> sample_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
 };
 
 } // namespace tofupilot

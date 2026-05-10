@@ -18,3 +18,4 @@ Units retrieved successfully
 | `children` | `std::optional<std::vector<UnitGetChildren>>` | :heavy_minus_sign: | Child units with part details. |
 | `created_during` | `NullableField<UnitGetCreatedDuring>` | :heavy_minus_sign: | Run that created this unit. |
 | `attachments` | `std::optional<std::vector<UnitGetAttachments>>` | :heavy_minus_sign: | Files attached to this unit. |
+| `metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the unit. |

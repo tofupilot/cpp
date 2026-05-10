@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/unit_get_attachments.hpp"
 #include "tofupilot/models/unit_get_batch.hpp"
 #include "tofupilot/models/unit_get_children.hpp"
@@ -50,6 +51,8 @@ struct UnitGetResponse {
     NullableField<UnitGetCreatedDuring> created_during;
     /// Files attached to this unit.
     std::optional<std::vector<UnitGetAttachments>> attachments;
+    /// Custom metadata key/value pairs on the unit.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitGetResponse& v) {
@@ -97,6 +100,9 @@ inline void to_json(nlohmann::json& j, const UnitGetResponse& v) {
     }
     if (v.attachments.has_value()) {
         j["attachments"] = v.attachments.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -160,6 +166,9 @@ inline void from_json(const nlohmann::json& j, UnitGetResponse& v) {
     }
     if (j.contains("attachments") && !j["attachments"].is_null()) {
         v.attachments = j["attachments"].get<std::vector<UnitGetAttachments>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
     }
 }
 

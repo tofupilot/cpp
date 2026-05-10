@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_get_attachments.hpp"
 #include "tofupilot/models/run_get_created_by_station.hpp"
@@ -59,6 +60,8 @@ struct RunGetResponse {
     std::optional<std::vector<RunGetLogs>> logs;
     /// Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included.
     std::optional<std::vector<RunGetSubUnits>> sub_units;
+    /// Custom metadata key/value pairs on the run.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
@@ -110,6 +113,9 @@ inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
     }
     if (v.sub_units.has_value()) {
         j["sub_units"] = v.sub_units.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -193,6 +199,9 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
     }
     if (j.contains("sub_units") && !j["sub_units"].is_null()) {
         v.sub_units = j["sub_units"].get<std::vector<RunGetSubUnits>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
     }
 }
 

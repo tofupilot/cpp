@@ -28,3 +28,5 @@
 | `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
 | `sort_by` | `std::optional<UnitListSortBy>` | :heavy_minus_sign: | Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run. |
 | `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
+| `metadata` | `std::optional<nlohmann::json>` | :heavy_minus_sign: | Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
+| `include_metadata` | `std::optional<bool>` | :heavy_minus_sign: | When true, includes the unit metadata array in the response. Defaults to false to keep payloads small. |

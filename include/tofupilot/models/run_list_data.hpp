@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_list_created_by_station.hpp"
 #include "tofupilot/models/run_list_created_by_user.hpp"
@@ -47,6 +48,8 @@ struct RunListData {
     RunListProcedure procedure;
     /// Unit under test information.
     RunListUnit unit;
+    /// Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const RunListData& v) {
@@ -87,6 +90,9 @@ inline void to_json(nlohmann::json& j, const RunListData& v) {
     }
     j["procedure"] = v.procedure;
     j["unit"] = v.unit;
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, RunListData& v) {
@@ -158,6 +164,9 @@ inline void from_json(const nlohmann::json& j, RunListData& v) {
             "missing required field in response: unit", &j);
     }
     v.unit = j["unit"].get<RunListUnit>();
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+    }
 }
 
 /// Builder for RunListData.
@@ -271,6 +280,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`.
+    RunListDataBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunListData build() const& {
         RunListData result;
@@ -310,6 +326,7 @@ public:
             throw std::runtime_error("missing required field: unit");
         }
         result.unit = unit_.value();
+        result.metadata = metadata_;
         return result;
     }
 
@@ -352,6 +369,7 @@ public:
             throw std::runtime_error("missing required field: unit");
         }
         result.unit = std::move(unit_.value());
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -368,6 +386,7 @@ private:
     NullableField<RunListOperatedBy> operated_by_;
     std::optional<RunListProcedure> procedure_;
     std::optional<RunListUnit> unit_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
 };
 
 } // namespace tofupilot

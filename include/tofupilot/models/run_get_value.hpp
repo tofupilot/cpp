@@ -31,3 +31,20 @@ inline void from_json(const nlohmann::json& j, RunGetValue& v) {
 }
 
 } // namespace tofupilot
+
+// adl_serializer specialization: required when this variant alias is used as
+// the value type of std::map / std::vector. ADL on those containers looks at
+// std-namespace template args (std::variant, std::string, double, bool) and
+// can't find the tofupilot::to_json/from_json above. nlohmann falls back to
+// adl_serializer<T>::to_json / from_json when free functions aren't found.
+namespace nlohmann {
+template <>
+struct adl_serializer<::tofupilot::RunGetValue> {
+    static void to_json(json& j, const ::tofupilot::RunGetValue& v) {
+        ::tofupilot::to_json(j, v);
+    }
+    static void from_json(const json& j, ::tofupilot::RunGetValue& v) {
+        ::tofupilot::from_json(j, v);
+    }
+};
+} // namespace nlohmann

@@ -11,7 +11,7 @@ Add to your `CMakeLists.txt`:
 
 ```cmake
 include(FetchContent)
-FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.3.1 GIT_SHALLOW TRUE)
+FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.4.0 GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(tofupilot)
 target_link_libraries(your_target PRIVATE tofupilot)
 ```
@@ -73,7 +73,7 @@ auto client = tofupilot::TofuPilot(
 |----------|-----------|
 | `client.procedures()` | list, create, get, delete_, update |
 | `client.versions()` | get, delete_, create |
-| `client.runs()` | list, create, delete_, get, update, create_attachment |
+| `client.runs()` | list, create, delete_, get, update, create_attachment, update_metadata |
 | `client.attachments()` | initialize, finalize |
 | `client.units()` | list, create, delete_, get, update, add_child, remove_child, create_attachment, delete_attachment |
 | `client.parts()` | list, create, get, delete_, update |

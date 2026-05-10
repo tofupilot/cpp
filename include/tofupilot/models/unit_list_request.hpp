@@ -46,6 +46,10 @@ struct UnitListRequest {
     std::optional<UnitListSortBy> sort_by;
     /// Sort order direction.
     std::optional<ListSortOrder> sort_order;
+    /// Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+    std::optional<nlohmann::json> metadata;
+    /// When true, includes the unit metadata array in the response. Defaults to false to keep payloads small.
+    std::optional<bool> include_metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitListRequest& v) {
@@ -119,6 +123,12 @@ inline void to_json(nlohmann::json& j, const UnitListRequest& v) {
     if (v.sort_order.has_value()) {
         j["sort_order"] = v.sort_order.value();
     }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
+    if (v.include_metadata.has_value()) {
+        j["include_metadata"] = v.include_metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
@@ -190,6 +200,12 @@ inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
     }
     if (j.contains("sort_order") && !j["sort_order"].is_null()) {
         v.sort_order = j["sort_order"].get<ListSortOrder>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<nlohmann::json>();
+    }
+    if (j.contains("include_metadata") && !j["include_metadata"].is_null()) {
+        v.include_metadata = j["include_metadata"].get<bool>();
     }
 }
 
@@ -337,6 +353,20 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+    UnitListRequestBuilder& metadata(nlohmann::json value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `include_metadata` field.
+    /// When true, includes the unit metadata array in the response. Defaults to false to keep payloads small.
+    UnitListRequestBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     UnitListRequest build() const& {
         UnitListRequest result;
@@ -363,6 +393,8 @@ public:
         result.cursor = cursor_;
         result.sort_by = sort_by_;
         result.sort_order = sort_order_;
+        result.metadata = metadata_;
+        result.include_metadata = include_metadata_;
         return result;
     }
 
@@ -392,6 +424,8 @@ public:
         result.cursor = std::move(cursor_);
         result.sort_by = std::move(sort_by_);
         result.sort_order = std::move(sort_order_);
+        result.metadata = std::move(metadata_);
+        result.include_metadata = std::move(include_metadata_);
         return result;
     }
 
@@ -419,6 +453,8 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
+    std::optional<nlohmann::json> metadata_;
+    std::optional<bool> include_metadata_;
 };
 
 } // namespace tofupilot

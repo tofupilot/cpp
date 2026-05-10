@@ -10,6 +10,7 @@
 * [get](#get) - Get run
 * [update](#update) - Update run
 * [create_attachment](#create_attachment) - Attach file to run
+* [update_metadata](#update_metadata) - Update run metadata
 
 ## list
 
@@ -63,6 +64,8 @@ int main() {
 | `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
 | `sort_by` | `std::optional<RunListSortBy>` | :heavy_minus_sign: | Field to sort results by. |
 | `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
+| `metadata` | `std::optional<nlohmann::json>` | :heavy_minus_sign: | Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
+| `include_metadata` | `std::optional<bool>` | :heavy_minus_sign: | When true, includes the run metadata array in the response. Defaults to false to keep payloads small. |
 
 ### Response
 
@@ -124,6 +127,8 @@ int main() {
 | `docstring` | `std::optional<std::string>` | :heavy_minus_sign: | Additional notes or documentation about this test run. |
 | `phases` | `std::optional<std::vector<RunCreatePhases>>` | :heavy_minus_sign: | Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data. |
 | `logs` | `std::optional<std::vector<RunCreateLogs>>` | :heavy_minus_sign: | Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries. |
+| `metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. |
+| `unit_metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit. |
 
 ### Response
 
@@ -307,6 +312,51 @@ int main() {
 ### Response
 
 **[`RunCreateAttachmentResponse`](../../models/runcreateattachmentresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `NotFoundError` | 404 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
+## update_metadata
+
+Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics by default (omitted keys preserved). Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.runs().update_metadata()
+            .id("550e8400-e29b-41d4-a716-446655440000")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `std::string` | :heavy_check_mark: | Unique identifier of the run to update. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. Pass `metadata_replace: true` to drop all keys not present. |
+| `metadata_replace` | `std::optional<bool>` | :heavy_minus_sign: | When true, removes any metadata keys not present in `metadata`. Default: false. |
+
+### Response
+
+**[`RunUpdateMetadataResponse`](../../models/runupdatemetadataresponse.md)**
 
 ### Errors
 

@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_create_logs.hpp"
 #include "tofupilot/models/run_create_phases.hpp"
@@ -48,6 +49,10 @@ struct RunCreateRequest {
     std::optional<std::vector<RunCreatePhases>> phases;
     /// Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
     std::optional<std::vector<RunCreateLogs>> logs;
+    /// Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    /// Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> unit_metadata;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
@@ -94,6 +99,12 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
     }
     if (v.logs.has_value()) {
         j["logs"] = v.logs.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
+    if (v.unit_metadata.has_value()) {
+        j["unit_metadata"] = v.unit_metadata.value();
     }
 }
 
@@ -160,6 +171,12 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
     }
     if (j.contains("logs") && !j["logs"].is_null()) {
         v.logs = j["logs"].get<std::vector<RunCreateLogs>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+    }
+    if (j.contains("unit_metadata") && !j["unit_metadata"].is_null()) {
+        v.unit_metadata = j["unit_metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
     }
 }
 
@@ -281,6 +298,20 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    RunCreateRequestBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `unit_metadata` field.
+    /// Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
+    RunCreateRequestBuilder& unit_metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        unit_metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunCreateRequest build() const& {
         RunCreateRequest result;
@@ -314,6 +345,8 @@ public:
         result.docstring = docstring_;
         result.phases = phases_;
         result.logs = logs_;
+        result.metadata = metadata_;
+        result.unit_metadata = unit_metadata_;
         return result;
     }
 
@@ -350,6 +383,8 @@ public:
         result.docstring = std::move(docstring_);
         result.phases = std::move(phases_);
         result.logs = std::move(logs_);
+        result.metadata = std::move(metadata_);
+        result.unit_metadata = std::move(unit_metadata_);
         return result;
     }
 
@@ -369,6 +404,8 @@ private:
     std::optional<std::string> docstring_;
     std::optional<std::vector<RunCreatePhases>> phases_;
     std::optional<std::vector<RunCreateLogs>> logs_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> unit_metadata_;
 };
 
 } // namespace tofupilot

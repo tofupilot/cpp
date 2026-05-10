@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/unit_list_batch.hpp"
 #include "tofupilot/models/unit_list_children.hpp"
 #include "tofupilot/models/unit_list_created_by_station.hpp"
@@ -46,6 +47,8 @@ struct UnitListData {
     UnitListPart part;
     /// Most recent test run performed on this unit. Null if no runs have been executed.
     NullableField<UnitListLastRun> last_run;
+    /// Custom metadata key/value pairs on the unit. Only present when the request sets `include_metadata=true`.
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitListData& v) {
@@ -92,6 +95,9 @@ inline void to_json(nlohmann::json& j, const UnitListData& v) {
         } else {
             j["last_run"] = v.last_run.get();
         }
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -156,6 +162,9 @@ inline void from_json(const nlohmann::json& j, UnitListData& v) {
         } else {
             v.last_run = NullableField<UnitListLastRun>::value(j["last_run"].get<UnitListLastRun>());
         }
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
     }
 }
 
@@ -269,6 +278,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata key/value pairs on the unit. Only present when the request sets `include_metadata=true`.
+    UnitListDataBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     UnitListData build() const& {
         UnitListData result;
@@ -297,6 +313,7 @@ public:
         }
         result.part = part_.value();
         result.last_run = last_run_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -328,6 +345,7 @@ public:
         }
         result.part = std::move(part_.value());
         result.last_run = std::move(last_run_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -343,6 +361,7 @@ private:
     std::optional<std::vector<UnitListChildren>> children_;
     std::optional<UnitListPart> part_;
     NullableField<UnitListLastRun> last_run_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
 };
 
 } // namespace tofupilot

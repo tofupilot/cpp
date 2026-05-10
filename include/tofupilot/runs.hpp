@@ -37,6 +37,8 @@ public:
     UpdateBuilder update();
     class CreateAttachmentBuilder;
     CreateAttachmentBuilder create_attachment();
+    class UpdateMetadataBuilder;
+    UpdateMetadataBuilder update_metadata();
 
     // Attachment sub-resource (defined in upload.hpp)
     inline RunAttachments attachments();
@@ -147,6 +149,14 @@ public:
     }
     ListBuilder& sort_order(ListSortOrder value) {
         sort_order_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& metadata(nlohmann::json value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
         return *this;
     }
 
@@ -316,6 +326,16 @@ public:
                 qs << "sort_order=" << detail::url_encode(detail::to_query_string(sort_order_.value()));
                 first = false;
             }
+            if (metadata_.has_value()) {
+                if (!first) qs << "&";
+                qs << "metadata=" << detail::url_encode(detail::to_query_string(metadata_.value()));
+                first = false;
+            }
+            if (include_metadata_.has_value()) {
+                if (!first) qs << "&";
+                qs << "include_metadata=" << detail::url_encode(detail::to_query_string(include_metadata_.value()));
+                first = false;
+            }
             query_string = qs.str();
         }
 
@@ -363,6 +383,8 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<RunListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
+    std::optional<nlohmann::json> metadata_;
+    std::optional<bool> include_metadata_;
     RequestConfig request_config_;
 };
 
@@ -438,6 +460,14 @@ public:
         logs_ = std::move(value);
         return *this;
     }
+    CreateBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& unit_metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+        unit_metadata_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& body(RunCreateRequest b) {
         outcome_ = std::move(b.outcome);
         procedure_id_ = std::move(b.procedure_id);
@@ -454,6 +484,8 @@ public:
         if (b.docstring.has_value()) docstring_ = std::move(b.docstring);
         if (b.phases.has_value()) phases_ = std::move(b.phases);
         if (b.logs.has_value()) logs_ = std::move(b.logs);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
+        if (b.unit_metadata.has_value()) unit_metadata_ = std::move(b.unit_metadata);
         return *this;
     }
 
@@ -496,6 +528,8 @@ public:
             req_body.docstring = docstring_;
             req_body.phases = phases_;
             req_body.logs = logs_;
+            req_body.metadata = metadata_;
+            req_body.unit_metadata = unit_metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -531,6 +565,8 @@ private:
     std::optional<std::string> docstring_;
     std::optional<std::vector<RunCreatePhases>> phases_;
     std::optional<std::vector<RunCreateLogs>> logs_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
+    std::optional<std::map<std::string, OneOfBooleanNumberStr>> unit_metadata_;
     RequestConfig request_config_;
 };
 
@@ -768,6 +804,76 @@ private:
     RequestConfig request_config_;
 };
 
+class RunsClient::UpdateMetadataBuilder {
+public:
+    explicit UpdateMetadataBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    UpdateMetadataBuilder& id(std::string value) {
+        id_ = std::move(value);
+        return *this;
+    }
+    UpdateMetadataBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    UpdateMetadataBuilder& metadata_replace(bool value) {
+        metadata_replace_ = std::move(value);
+        return *this;
+    }
+    UpdateMetadataBuilder& body(RunUpdateMetadataRequestBody b) {
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
+        if (b.metadata_replace.has_value()) metadata_replace_ = std::move(b.metadata_replace);
+        return *this;
+    }
+
+    UpdateMetadataBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    UpdateMetadataBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    RunUpdateMetadataResponse send() {
+        if (!id_.has_value()) throw ValidationError("missing required path parameter: id");
+
+        std::string path = "/v2/runs/" + detail::url_encode(id_.value()) + "/metadata";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            RunUpdateMetadataRequestBody req_body;
+            req_body.metadata = metadata_;
+            req_body.metadata_replace = metadata_replace_;
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("PATCH", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return RunUpdateMetadataResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<RunUpdateMetadataResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<bool> metadata_replace_;
+    RequestConfig request_config_;
+};
+
 inline RunsClient::ListBuilder RunsClient::list() {
     return ListBuilder(client_);
 }
@@ -785,6 +891,9 @@ inline RunsClient::UpdateBuilder RunsClient::update() {
 }
 inline RunsClient::CreateAttachmentBuilder RunsClient::create_attachment() {
     return CreateAttachmentBuilder(client_);
+}
+inline RunsClient::UpdateMetadataBuilder RunsClient::update_metadata() {
+    return UpdateMetadataBuilder(client_);
 }
 
 } // namespace tofupilot
