@@ -27,6 +27,8 @@ struct UnitUpdateRequestBody {
     NullableField<std::string> batch_number;
     /// Array of upload IDs to attach to the unit.
     std::optional<std::vector<std::string>> attachments;
+    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+    NullableField<std::string> sample;
 };
 
 inline void to_json(nlohmann::json& j, const UnitUpdateRequestBody& v) {
@@ -50,6 +52,13 @@ inline void to_json(nlohmann::json& j, const UnitUpdateRequestBody& v) {
     if (v.attachments.has_value()) {
         j["attachments"] = v.attachments.value();
     }
+    if (!v.sample.is_absent()) {
+        if (v.sample.is_null()) {
+            j["sample"] = nullptr;
+        } else {
+            j["sample"] = v.sample.get();
+        }
+    }
 }
 
 inline void from_json(const nlohmann::json& j, UnitUpdateRequestBody& v) {
@@ -71,6 +80,13 @@ inline void from_json(const nlohmann::json& j, UnitUpdateRequestBody& v) {
     }
     if (j.contains("attachments") && !j["attachments"].is_null()) {
         v.attachments = j["attachments"].get<std::vector<std::string>>();
+    }
+    if (j.contains("sample")) {
+        if (j["sample"].is_null()) {
+            v.sample = NullableField<std::string>::make_null();
+        } else {
+            v.sample = NullableField<std::string>::value(j["sample"].get<std::string>());
+        }
     }
 }
 
@@ -118,6 +134,19 @@ public:
         return *this;
     }
 
+    /// Set the `sample` field.
+    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+    UnitUpdateRequestBodyBuilder& sample(std::string value) {
+        sample_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `sample` to null.
+    UnitUpdateRequestBodyBuilder& sample_null() {
+        sample_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     UnitUpdateRequestBody build() const& {
         UnitUpdateRequestBody result;
@@ -126,6 +155,7 @@ public:
         result.revision_number = revision_number_;
         result.batch_number = batch_number_;
         result.attachments = attachments_;
+        result.sample = sample_;
         return result;
     }
 
@@ -137,6 +167,7 @@ public:
         result.revision_number = std::move(revision_number_);
         result.batch_number = std::move(batch_number_);
         result.attachments = std::move(attachments_);
+        result.sample = std::move(sample_);
         return result;
     }
 
@@ -146,6 +177,7 @@ private:
     std::optional<std::string> revision_number_;
     NullableField<std::string> batch_number_;
     std::optional<std::vector<std::string>> attachments_;
+    NullableField<std::string> sample_;
 };
 
 } // namespace tofupilot

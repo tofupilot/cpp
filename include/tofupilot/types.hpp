@@ -15,6 +15,7 @@
 #include "tofupilot/models/phases_outcome.hpp"
 #include "tofupilot/models/validators_outcome.hpp"
 #include "tofupilot/models/level.hpp"
+#include "tofupilot/models/list_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/run_create_expected_value.hpp"
 #include "tofupilot/models/run_get_value.hpp"

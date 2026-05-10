@@ -32,6 +32,8 @@ struct UnitGetResponse {
     std::string serial_number;
     /// ISO 8601 timestamp when the unit was created.
     std::string created_at;
+    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    std::optional<std::string> sample;
     /// User who created this unit.
     NullableField<UnitGetCreatedByUser> created_by_user;
     /// Station that created this unit.
@@ -55,6 +57,9 @@ inline void to_json(nlohmann::json& j, const UnitGetResponse& v) {
     j["id"] = v.id;
     j["serial_number"] = v.serial_number;
     j["created_at"] = v.created_at;
+    if (v.sample.has_value()) {
+        j["sample"] = v.sample.value();
+    }
     if (!v.created_by_user.is_absent()) {
         if (v.created_by_user.is_null()) {
             j["created_by_user"] = nullptr;
@@ -111,6 +116,9 @@ inline void from_json(const nlohmann::json& j, UnitGetResponse& v) {
             "missing required field in response: created_at", &j);
     }
     v.created_at = j["created_at"].get<std::string>();
+    if (j.contains("sample") && !j["sample"].is_null()) {
+        v.sample = j["sample"].get<std::string>();
+    }
     if (j.contains("created_by_user")) {
         if (j["created_by_user"].is_null()) {
             v.created_by_user = NullableField<UnitGetCreatedByUser>::make_null();

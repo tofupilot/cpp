@@ -127,6 +127,10 @@ public:
         exclude_units_with_parent_ = std::move(value);
         return *this;
     }
+    ListBuilder& samples(std::vector<ListSample> value) {
+        samples_ = std::move(value);
+        return *this;
+    }
     ListBuilder& limit(int64_t value) {
         limit_ = std::move(value);
         return *this;
@@ -269,6 +273,13 @@ public:
                 qs << "exclude_units_with_parent=" << detail::url_encode(detail::to_query_string(exclude_units_with_parent_.value()));
                 first = false;
             }
+            if (samples_.has_value()) {
+                for (const auto& item : samples_.value()) {
+                    if (!first) qs << "&";
+                    qs << "samples=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
             if (limit_.has_value()) {
                 if (!first) qs << "&";
                 qs << "limit=" << detail::url_encode(detail::to_query_string(limit_.value()));
@@ -329,6 +340,7 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<bool> exclude_units_with_parent_;
+    std::optional<std::vector<ListSample>> samples_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;
@@ -352,10 +364,19 @@ public:
         revision_number_ = std::move(value);
         return *this;
     }
+    CreateBuilder& sample(std::string value) {
+        sample_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& sample_null() {
+        sample_ = NullableField<std::string>::make_null();
+        return *this;
+    }
     CreateBuilder& body(UnitCreateRequest b) {
         serial_number_ = std::move(b.serial_number);
         part_number_ = std::move(b.part_number);
         revision_number_ = std::move(b.revision_number);
+        sample_ = std::move(b.sample);
         return *this;
     }
 
@@ -384,6 +405,7 @@ public:
             req_body.part_number = part_number_.value();
             if (!revision_number_.has_value()) throw ValidationError("missing required field: revision_number");
             req_body.revision_number = revision_number_.value();
+            if (!sample_.is_absent()) req_body.sample = sample_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -407,6 +429,7 @@ private:
     std::optional<std::string> serial_number_;
     std::optional<std::string> part_number_;
     std::optional<std::string> revision_number_;
+    NullableField<std::string> sample_;
     RequestConfig request_config_;
 };
 
@@ -549,12 +572,21 @@ public:
         attachments_ = std::move(value);
         return *this;
     }
+    UpdateBuilder& sample(std::string value) {
+        sample_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    UpdateBuilder& sample_null() {
+        sample_ = NullableField<std::string>::make_null();
+        return *this;
+    }
     UpdateBuilder& body(UnitUpdateRequestBody b) {
         if (b.new_serial_number.has_value()) new_serial_number_ = std::move(b.new_serial_number);
         if (b.part_number.has_value()) part_number_ = std::move(b.part_number);
         if (b.revision_number.has_value()) revision_number_ = std::move(b.revision_number);
         batch_number_ = std::move(b.batch_number);
         if (b.attachments.has_value()) attachments_ = std::move(b.attachments);
+        sample_ = std::move(b.sample);
         return *this;
     }
 
@@ -583,6 +615,7 @@ public:
             req_body.revision_number = revision_number_;
             if (!batch_number_.is_absent()) req_body.batch_number = batch_number_;
             req_body.attachments = attachments_;
+            if (!sample_.is_absent()) req_body.sample = sample_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -609,6 +642,7 @@ private:
     std::optional<std::string> revision_number_;
     NullableField<std::string> batch_number_;
     std::optional<std::vector<std::string>> attachments_;
+    NullableField<std::string> sample_;
     RequestConfig request_config_;
 };
 

@@ -26,7 +26,7 @@ struct RunCreateRequest {
     std::string procedure_id;
     NullableField<std::string> deployment_id;
     NullableField<std::string> procedure_version;
-    /// Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
+    /// Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
     std::optional<std::string> operated_by;
     /// ISO 8601 timestamp when the test run began execution. This timestamp will be used to track when the test execution started and for historical analysis of test runs. A separate created_at timestamp is stored internally server side to track upload date.
     std::string started_at;
@@ -205,7 +205,7 @@ public:
     }
 
     /// Set the `operated_by` field.
-    /// Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test.
+    /// Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
     RunCreateRequestBuilder& operated_by(std::string value) {
         operated_by_ = std::move(value);
         return *this;

@@ -27,6 +27,8 @@ struct ProcedureUpdateRequestBody {
     std::optional<std::vector<std::string>> excluded_branch_patterns;
     /// Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
     NullableField<std::string> root_directory;
+    /// Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → ".", yaml → procedure.yaml auto-discovery).
+    NullableField<std::string> entry_point;
 };
 
 inline void to_json(nlohmann::json& j, const ProcedureUpdateRequestBody& v) {
@@ -54,6 +56,13 @@ inline void to_json(nlohmann::json& j, const ProcedureUpdateRequestBody& v) {
             j["root_directory"] = v.root_directory.get();
         }
     }
+    if (!v.entry_point.is_absent()) {
+        if (v.entry_point.is_null()) {
+            j["entry_point"] = nullptr;
+        } else {
+            j["entry_point"] = v.entry_point.get();
+        }
+    }
 }
 
 inline void from_json(const nlohmann::json& j, ProcedureUpdateRequestBody& v) {
@@ -78,6 +87,13 @@ inline void from_json(const nlohmann::json& j, ProcedureUpdateRequestBody& v) {
             v.root_directory = NullableField<std::string>::make_null();
         } else {
             v.root_directory = NullableField<std::string>::value(j["root_directory"].get<std::string>());
+        }
+    }
+    if (j.contains("entry_point")) {
+        if (j["entry_point"].is_null()) {
+            v.entry_point = NullableField<std::string>::make_null();
+        } else {
+            v.entry_point = NullableField<std::string>::value(j["entry_point"].get<std::string>());
         }
     }
 }
@@ -132,6 +148,19 @@ public:
         return *this;
     }
 
+    /// Set the `entry_point` field.
+    /// Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → ".", yaml → procedure.yaml auto-discovery).
+    ProcedureUpdateRequestBodyBuilder& entry_point(std::string value) {
+        entry_point_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `entry_point` to null.
+    ProcedureUpdateRequestBodyBuilder& entry_point_null() {
+        entry_point_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     ProcedureUpdateRequestBody build() const& {
         ProcedureUpdateRequestBody result;
@@ -140,6 +169,7 @@ public:
         result.auto_push_enabled = auto_push_enabled_;
         result.excluded_branch_patterns = excluded_branch_patterns_;
         result.root_directory = root_directory_;
+        result.entry_point = entry_point_;
         return result;
     }
 
@@ -151,6 +181,7 @@ public:
         result.auto_push_enabled = std::move(auto_push_enabled_);
         result.excluded_branch_patterns = std::move(excluded_branch_patterns_);
         result.root_directory = std::move(root_directory_);
+        result.entry_point = std::move(entry_point_);
         return result;
     }
 
@@ -160,6 +191,7 @@ private:
     std::optional<bool> auto_push_enabled_;
     std::optional<std::vector<std::string>> excluded_branch_patterns_;
     NullableField<std::string> root_directory_;
+    NullableField<std::string> entry_point_;
 };
 
 } // namespace tofupilot

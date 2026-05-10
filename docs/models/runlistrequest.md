@@ -11,6 +11,7 @@
 | `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `samples` | `std::optional<std::vector<ListSample>>` | :heavy_minus_sign: | N/A |
 | `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |

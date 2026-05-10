@@ -12,6 +12,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/nullable.hpp"
 
 namespace tofupilot {
 
@@ -22,6 +23,8 @@ struct UnitCreateRequest {
     std::string part_number;
     /// Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
     std::string revision_number;
+    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+    NullableField<std::string> sample;
 };
 
 inline void to_json(nlohmann::json& j, const UnitCreateRequest& v) {
@@ -29,6 +32,13 @@ inline void to_json(nlohmann::json& j, const UnitCreateRequest& v) {
     j["serial_number"] = v.serial_number;
     j["part_number"] = v.part_number;
     j["revision_number"] = v.revision_number;
+    if (!v.sample.is_absent()) {
+        if (v.sample.is_null()) {
+            j["sample"] = nullptr;
+        } else {
+            j["sample"] = v.sample.get();
+        }
+    }
 }
 
 inline void from_json(const nlohmann::json& j, UnitCreateRequest& v) {
@@ -47,6 +57,95 @@ inline void from_json(const nlohmann::json& j, UnitCreateRequest& v) {
             "missing required field in response: revision_number", &j);
     }
     v.revision_number = j["revision_number"].get<std::string>();
+    if (j.contains("sample")) {
+        if (j["sample"].is_null()) {
+            v.sample = NullableField<std::string>::make_null();
+        } else {
+            v.sample = NullableField<std::string>::value(j["sample"].get<std::string>());
+        }
+    }
 }
+
+/// Builder for UnitCreateRequest.
+class UnitCreateRequestBuilder {
+public:
+    /// Set the `serial_number` field.
+    /// Unique serial number identifier for the unit. Must be unique within the organization.
+    UnitCreateRequestBuilder& serial_number(std::string value) {
+        serial_number_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `part_number` field.
+    /// Component part number that defines what type of unit this is. If the part does not exist, it will be created.
+    UnitCreateRequestBuilder& part_number(std::string value) {
+        part_number_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `revision_number` field.
+    /// Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
+    UnitCreateRequestBuilder& revision_number(std::string value) {
+        revision_number_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `sample` field.
+    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+    UnitCreateRequestBuilder& sample(std::string value) {
+        sample_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `sample` to null.
+    UnitCreateRequestBuilder& sample_null() {
+        sample_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Build the struct. Throws std::runtime_error if required fields are missing.
+    UnitCreateRequest build() const& {
+        UnitCreateRequest result;
+        if (!serial_number_.has_value()) {
+            throw std::runtime_error("missing required field: serial_number");
+        }
+        result.serial_number = serial_number_.value();
+        if (!part_number_.has_value()) {
+            throw std::runtime_error("missing required field: part_number");
+        }
+        result.part_number = part_number_.value();
+        if (!revision_number_.has_value()) {
+            throw std::runtime_error("missing required field: revision_number");
+        }
+        result.revision_number = revision_number_.value();
+        result.sample = sample_;
+        return result;
+    }
+
+    /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
+    UnitCreateRequest build() && {
+        UnitCreateRequest result;
+        if (!serial_number_.has_value()) {
+            throw std::runtime_error("missing required field: serial_number");
+        }
+        result.serial_number = std::move(serial_number_.value());
+        if (!part_number_.has_value()) {
+            throw std::runtime_error("missing required field: part_number");
+        }
+        result.part_number = std::move(part_number_.value());
+        if (!revision_number_.has_value()) {
+            throw std::runtime_error("missing required field: revision_number");
+        }
+        result.revision_number = std::move(revision_number_.value());
+        result.sample = std::move(sample_);
+        return result;
+    }
+
+private:
+    std::optional<std::string> serial_number_;
+    std::optional<std::string> part_number_;
+    std::optional<std::string> revision_number_;
+    NullableField<std::string> sample_;
+};
 
 } // namespace tofupilot

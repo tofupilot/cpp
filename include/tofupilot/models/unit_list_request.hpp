@@ -12,6 +12,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/list_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/unit_list_sort_by.hpp"
@@ -37,6 +38,7 @@ struct UnitListRequest {
     std::optional<std::vector<std::string>> created_by_user_ids;
     std::optional<std::vector<std::string>> created_by_station_ids;
     std::optional<bool> exclude_units_with_parent;
+    std::optional<std::vector<ListSample>> samples;
     /// Maximum number of units to return.
     std::optional<int64_t> limit;
     std::optional<int64_t> cursor;
@@ -101,6 +103,9 @@ inline void to_json(nlohmann::json& j, const UnitListRequest& v) {
     }
     if (v.exclude_units_with_parent.has_value()) {
         j["exclude_units_with_parent"] = v.exclude_units_with_parent.value();
+    }
+    if (v.samples.has_value()) {
+        j["samples"] = v.samples.value();
     }
     if (v.limit.has_value()) {
         j["limit"] = v.limit.value();
@@ -170,6 +175,9 @@ inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
     }
     if (j.contains("exclude_units_with_parent") && !j["exclude_units_with_parent"].is_null()) {
         v.exclude_units_with_parent = j["exclude_units_with_parent"].get<bool>();
+    }
+    if (j.contains("samples") && !j["samples"].is_null()) {
+        v.samples = j["samples"].get<std::vector<ListSample>>();
     }
     if (j.contains("limit") && !j["limit"].is_null()) {
         v.limit = j["limit"].get<int64_t>();
@@ -296,6 +304,12 @@ public:
         return *this;
     }
 
+    /// Set the `samples` field.
+    UnitListRequestBuilder& samples(std::vector<ListSample> value) {
+        samples_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `limit` field.
     /// Maximum number of units to return.
     UnitListRequestBuilder& limit(int64_t value) {
@@ -344,6 +358,7 @@ public:
         result.created_by_user_ids = created_by_user_ids_;
         result.created_by_station_ids = created_by_station_ids_;
         result.exclude_units_with_parent = exclude_units_with_parent_;
+        result.samples = samples_;
         result.limit = limit_;
         result.cursor = cursor_;
         result.sort_by = sort_by_;
@@ -372,6 +387,7 @@ public:
         result.created_by_user_ids = std::move(created_by_user_ids_);
         result.created_by_station_ids = std::move(created_by_station_ids_);
         result.exclude_units_with_parent = std::move(exclude_units_with_parent_);
+        result.samples = std::move(samples_);
         result.limit = std::move(limit_);
         result.cursor = std::move(cursor_);
         result.sort_by = std::move(sort_by_);
@@ -398,6 +414,7 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<bool> exclude_units_with_parent_;
+    std::optional<std::vector<ListSample>> samples_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;

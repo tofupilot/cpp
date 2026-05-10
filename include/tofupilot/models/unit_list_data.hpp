@@ -30,6 +30,8 @@ struct UnitListData {
     std::string serial_number;
     /// ISO 8601 timestamp when the unit was created.
     std::string created_at;
+    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    std::optional<std::string> sample;
     /// User who created this unit. Null if created by a station or system.
     NullableField<UnitListCreatedByUser> created_by_user;
     /// Station that created this unit. Null if created by a user.
@@ -51,6 +53,9 @@ inline void to_json(nlohmann::json& j, const UnitListData& v) {
     j["id"] = v.id;
     j["serial_number"] = v.serial_number;
     j["created_at"] = v.created_at;
+    if (v.sample.has_value()) {
+        j["sample"] = v.sample.value();
+    }
     if (!v.created_by_user.is_absent()) {
         if (v.created_by_user.is_null()) {
             j["created_by_user"] = nullptr;
@@ -106,6 +111,9 @@ inline void from_json(const nlohmann::json& j, UnitListData& v) {
             "missing required field in response: created_at", &j);
     }
     v.created_at = j["created_at"].get<std::string>();
+    if (j.contains("sample") && !j["sample"].is_null()) {
+        v.sample = j["sample"].get<std::string>();
+    }
     if (j.contains("created_by_user")) {
         if (j["created_by_user"].is_null()) {
             v.created_by_user = NullableField<UnitListCreatedByUser>::make_null();
@@ -172,6 +180,13 @@ public:
     /// ISO 8601 timestamp when the unit was created.
     UnitListDataBuilder& created_at(std::string value) {
         created_at_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `sample` field.
+    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    UnitListDataBuilder& sample(std::string value) {
+        sample_ = std::move(value);
         return *this;
     }
 
@@ -269,6 +284,7 @@ public:
             throw std::runtime_error("missing required field: created_at");
         }
         result.created_at = created_at_.value();
+        result.sample = sample_;
         result.created_by_user = created_by_user_;
         result.created_by_station = created_by_station_;
         result.batch = batch_;
@@ -299,6 +315,7 @@ public:
             throw std::runtime_error("missing required field: created_at");
         }
         result.created_at = std::move(created_at_.value());
+        result.sample = std::move(sample_);
         result.created_by_user = std::move(created_by_user_);
         result.created_by_station = std::move(created_by_station_);
         result.batch = std::move(batch_);
@@ -318,6 +335,7 @@ private:
     std::optional<std::string> id_;
     std::optional<std::string> serial_number_;
     std::optional<std::string> created_at_;
+    std::optional<std::string> sample_;
     NullableField<UnitListCreatedByUser> created_by_user_;
     NullableField<UnitListCreatedByStation> created_by_station_;
     NullableField<UnitListBatch> batch_;

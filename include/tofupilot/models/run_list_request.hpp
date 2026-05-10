@@ -12,6 +12,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/list_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_list_sort_by.hpp"
@@ -25,6 +26,7 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> procedure_ids;
     std::optional<std::vector<std::string>> procedure_versions;
     std::optional<std::vector<std::string>> serial_numbers;
+    std::optional<std::vector<ListSample>> samples;
     std::optional<std::vector<std::string>> part_numbers;
     std::optional<std::vector<std::string>> revision_numbers;
     std::optional<std::vector<std::string>> batch_numbers;
@@ -67,6 +69,9 @@ inline void to_json(nlohmann::json& j, const RunListRequest& v) {
     }
     if (v.serial_numbers.has_value()) {
         j["serial_numbers"] = v.serial_numbers.value();
+    }
+    if (v.samples.has_value()) {
+        j["samples"] = v.samples.value();
     }
     if (v.part_numbers.has_value()) {
         j["part_numbers"] = v.part_numbers.value();
@@ -142,6 +147,9 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
     }
     if (j.contains("serial_numbers") && !j["serial_numbers"].is_null()) {
         v.serial_numbers = j["serial_numbers"].get<std::vector<std::string>>();
+    }
+    if (j.contains("samples") && !j["samples"].is_null()) {
+        v.samples = j["samples"].get<std::vector<ListSample>>();
     }
     if (j.contains("part_numbers") && !j["part_numbers"].is_null()) {
         v.part_numbers = j["part_numbers"].get<std::vector<std::string>>();
@@ -235,6 +243,12 @@ public:
     /// Set the `serial_numbers` field.
     RunListRequestBuilder& serial_numbers(std::vector<std::string> value) {
         serial_numbers_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `samples` field.
+    RunListRequestBuilder& samples(std::vector<ListSample> value) {
+        samples_ = std::move(value);
         return *this;
     }
 
@@ -358,6 +372,7 @@ public:
         result.procedure_ids = procedure_ids_;
         result.procedure_versions = procedure_versions_;
         result.serial_numbers = serial_numbers_;
+        result.samples = samples_;
         result.part_numbers = part_numbers_;
         result.revision_numbers = revision_numbers_;
         result.batch_numbers = batch_numbers_;
@@ -388,6 +403,7 @@ public:
         result.procedure_ids = std::move(procedure_ids_);
         result.procedure_versions = std::move(procedure_versions_);
         result.serial_numbers = std::move(serial_numbers_);
+        result.samples = std::move(samples_);
         result.part_numbers = std::move(part_numbers_);
         result.revision_numbers = std::move(revision_numbers_);
         result.batch_numbers = std::move(batch_numbers_);
@@ -416,6 +432,7 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> serial_numbers_;
+    std::optional<std::vector<ListSample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;

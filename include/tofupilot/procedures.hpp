@@ -326,12 +326,21 @@ public:
         root_directory_ = NullableField<std::string>::make_null();
         return *this;
     }
+    UpdateBuilder& entry_point(std::string value) {
+        entry_point_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    UpdateBuilder& entry_point_null() {
+        entry_point_ = NullableField<std::string>::make_null();
+        return *this;
+    }
     UpdateBuilder& body(ProcedureUpdateRequestBody b) {
         if (b.name.has_value()) name_ = std::move(b.name);
         production_branch_ = std::move(b.production_branch);
         if (b.auto_push_enabled.has_value()) auto_push_enabled_ = std::move(b.auto_push_enabled);
         if (b.excluded_branch_patterns.has_value()) excluded_branch_patterns_ = std::move(b.excluded_branch_patterns);
         root_directory_ = std::move(b.root_directory);
+        entry_point_ = std::move(b.entry_point);
         return *this;
     }
 
@@ -360,6 +369,7 @@ public:
             req_body.auto_push_enabled = auto_push_enabled_;
             req_body.excluded_branch_patterns = excluded_branch_patterns_;
             if (!root_directory_.is_absent()) req_body.root_directory = root_directory_;
+            if (!entry_point_.is_absent()) req_body.entry_point = entry_point_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -386,6 +396,7 @@ private:
     std::optional<bool> auto_push_enabled_;
     std::optional<std::vector<std::string>> excluded_branch_patterns_;
     NullableField<std::string> root_directory_;
+    NullableField<std::string> entry_point_;
     RequestConfig request_config_;
 };
 

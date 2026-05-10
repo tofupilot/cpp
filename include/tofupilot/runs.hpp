@@ -73,6 +73,10 @@ public:
         serial_numbers_ = std::move(value);
         return *this;
     }
+    ListBuilder& samples(std::vector<ListSample> value) {
+        samples_ = std::move(value);
+        return *this;
+    }
     ListBuilder& part_numbers(std::vector<std::string> value) {
         part_numbers_ = std::move(value);
         return *this;
@@ -200,6 +204,13 @@ public:
                 for (const auto& item : serial_numbers_.value()) {
                     if (!first) qs << "&";
                     qs << "serial_numbers=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (samples_.has_value()) {
+                for (const auto& item : samples_.value()) {
+                    if (!first) qs << "&";
+                    qs << "samples=" << detail::url_encode(detail::to_query_string(item));
                     first = false;
                 }
             }
@@ -333,6 +344,7 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> serial_numbers_;
+    std::optional<std::vector<ListSample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;

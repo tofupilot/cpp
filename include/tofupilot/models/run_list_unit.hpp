@@ -24,6 +24,8 @@ struct RunListUnit {
     std::string id;
     /// Unit serial number.
     std::string serial_number;
+    /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    std::optional<std::string> sample;
     /// Part information with revision details.
     RunListPart part;
     /// Batch information for this unit.
@@ -34,6 +36,9 @@ inline void to_json(nlohmann::json& j, const RunListUnit& v) {
     j = nlohmann::json::object();
     j["id"] = v.id;
     j["serial_number"] = v.serial_number;
+    if (v.sample.has_value()) {
+        j["sample"] = v.sample.value();
+    }
     j["part"] = v.part;
     if (!v.batch.is_absent()) {
         if (v.batch.is_null()) {
@@ -55,6 +60,9 @@ inline void from_json(const nlohmann::json& j, RunListUnit& v) {
             "missing required field in response: serial_number", &j);
     }
     v.serial_number = j["serial_number"].get<std::string>();
+    if (j.contains("sample") && !j["sample"].is_null()) {
+        v.sample = j["sample"].get<std::string>();
+    }
     if (!j.contains("part")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: part", &j);
@@ -83,6 +91,13 @@ public:
     /// Unit serial number.
     RunListUnitBuilder& serial_number(std::string value) {
         serial_number_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `sample` field.
+    /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    RunListUnitBuilder& sample(std::string value) {
+        sample_ = std::move(value);
         return *this;
     }
 
@@ -117,6 +132,7 @@ public:
             throw std::runtime_error("missing required field: serial_number");
         }
         result.serial_number = serial_number_.value();
+        result.sample = sample_;
         if (!part_.has_value()) {
             throw std::runtime_error("missing required field: part");
         }
@@ -136,6 +152,7 @@ public:
             throw std::runtime_error("missing required field: serial_number");
         }
         result.serial_number = std::move(serial_number_.value());
+        result.sample = std::move(sample_);
         if (!part_.has_value()) {
             throw std::runtime_error("missing required field: part");
         }
@@ -147,6 +164,7 @@ public:
 private:
     std::optional<std::string> id_;
     std::optional<std::string> serial_number_;
+    std::optional<std::string> sample_;
     std::optional<RunListPart> part_;
     NullableField<RunListBatch> batch_;
 };
