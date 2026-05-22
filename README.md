@@ -1,9 +1,9 @@
-# TofuPilot C++ Client
+# TofuPilot C++ SDK
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://isocpp.org/)
 
-The official C++ client for [TofuPilot](https://tofupilot.com). Integrate your hardware test runs into one app with just a few lines of C++.
+The official C++ SDK for [TofuPilot](https://tofupilot.com). Integrate your hardware test runs into one app with just a few lines of C++.
 
 ## Installation
 
@@ -168,8 +168,9 @@ try {
 
 ## Documentation
 
-- [Getting Started](https://tofupilot.com/docs/dashboard)
-- [API Reference](https://tofupilot.com/docs/dashboard/api/v2)
+- [Getting Started](https://tofupilot.com/docs/getting-started-with-tofupilot)
+- [C++ SDK Guide](https://tofupilot.com/docs/sdk/cpp)
+- [API Reference](https://tofupilot.com/docs/api/rest-api)
 - [Changelog](https://tofupilot.com/changelog)
 
 ## License
