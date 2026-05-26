@@ -24,21 +24,86 @@ class StationsClient {
 public:
     explicit StationsClient(TofuPilot& client) noexcept : client_(client) {}
 
-    class ListBuilder;
-    ListBuilder list();
     class CreateBuilder;
     CreateBuilder create();
+    class ListBuilder;
+    ListBuilder list();
     class GetCurrentBuilder;
     GetCurrentBuilder get_current();
     class GetBuilder;
     GetBuilder get();
-    class RemoveBuilder;
-    RemoveBuilder remove();
     class UpdateBuilder;
     UpdateBuilder update();
+    class RemoveBuilder;
+    RemoveBuilder remove();
 
 private:
     TofuPilot& client_;
+};
+
+class StationsClient::CreateBuilder {
+public:
+    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    CreateBuilder& name(std::string value) {
+        name_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& procedure_id(std::string value) {
+        procedure_id_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& body(StationCreateRequest b) {
+        name_ = std::move(b.name);
+        if (b.procedure_id.has_value()) procedure_id_ = std::move(b.procedure_id);
+        return *this;
+    }
+
+    CreateBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    CreateBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    StationCreateResponse send() {
+
+        std::string path = "/v2/stations";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            StationCreateRequest req_body;
+            if (!name_.has_value()) throw ValidationError("missing required field: name");
+            req_body.name = name_.value();
+            req_body.procedure_id = procedure_id_;
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return StationCreateResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<StationCreateResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> name_;
+    std::optional<std::string> procedure_id_;
+    RequestConfig request_config_;
 };
 
 class StationsClient::ListBuilder {
@@ -127,71 +192,6 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> procedure_ids_;
-    RequestConfig request_config_;
-};
-
-class StationsClient::CreateBuilder {
-public:
-    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    CreateBuilder& name(std::string value) {
-        name_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& procedure_id(std::string value) {
-        procedure_id_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& body(StationCreateRequest b) {
-        name_ = std::move(b.name);
-        if (b.procedure_id.has_value()) procedure_id_ = std::move(b.procedure_id);
-        return *this;
-    }
-
-    CreateBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    CreateBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    StationCreateResponse send() {
-
-        std::string path = "/v2/stations";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-        {
-            StationCreateRequest req_body;
-            if (!name_.has_value()) throw ValidationError("missing required field: name");
-            req_body.name = name_.value();
-            req_body.procedure_id = procedure_id_;
-            body_str = nlohmann::json(req_body).dump();
-            content_type = "application/json";
-        }
-
-        auto result = client_.execute("POST", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return StationCreateResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<StationCreateResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> name_;
-    std::optional<std::string> procedure_id_;
     RequestConfig request_config_;
 };
 
@@ -285,54 +285,6 @@ private:
     RequestConfig request_config_;
 };
 
-class StationsClient::RemoveBuilder {
-public:
-    explicit RemoveBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    RemoveBuilder& id(std::string value) {
-        id_ = std::move(value);
-        return *this;
-    }
-
-    RemoveBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    RemoveBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    StationRemoveResponse send() {
-        if (!id_.has_value()) throw ValidationError("missing required path parameter: id");
-
-        std::string path = "/v2/stations/" + detail::url_encode(id_.value()) + "";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-
-        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return StationRemoveResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<StationRemoveResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> id_;
-    RequestConfig request_config_;
-};
-
 class StationsClient::UpdateBuilder {
 public:
     explicit UpdateBuilder(TofuPilot& client) noexcept : client_(client) {}
@@ -414,11 +366,59 @@ private:
     RequestConfig request_config_;
 };
 
-inline StationsClient::ListBuilder StationsClient::list() {
-    return ListBuilder(client_);
-}
+class StationsClient::RemoveBuilder {
+public:
+    explicit RemoveBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    RemoveBuilder& id(std::string value) {
+        id_ = std::move(value);
+        return *this;
+    }
+
+    RemoveBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    RemoveBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    StationRemoveResponse send() {
+        if (!id_.has_value()) throw ValidationError("missing required path parameter: id");
+
+        std::string path = "/v2/stations/" + detail::url_encode(id_.value()) + "";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+
+        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return StationRemoveResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<StationRemoveResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> id_;
+    RequestConfig request_config_;
+};
+
 inline StationsClient::CreateBuilder StationsClient::create() {
     return CreateBuilder(client_);
+}
+inline StationsClient::ListBuilder StationsClient::list() {
+    return ListBuilder(client_);
 }
 inline StationsClient::GetCurrentBuilder StationsClient::get_current() {
     return GetCurrentBuilder(client_);
@@ -426,11 +426,11 @@ inline StationsClient::GetCurrentBuilder StationsClient::get_current() {
 inline StationsClient::GetBuilder StationsClient::get() {
     return GetBuilder(client_);
 }
-inline StationsClient::RemoveBuilder StationsClient::remove() {
-    return RemoveBuilder(client_);
-}
 inline StationsClient::UpdateBuilder StationsClient::update() {
     return UpdateBuilder(client_);
+}
+inline StationsClient::RemoveBuilder StationsClient::remove() {
+    return RemoveBuilder(client_);
 }
 
 } // namespace tofupilot

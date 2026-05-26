@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// User who created the revision.
 struct PartGetRevisionCreatedByUser {
     /// Unique identifier of the user.
     std::string id;

@@ -14,6 +14,7 @@
 
 #include "tofupilot/models/nullable.hpp"
 #include "tofupilot/models/run_create_measurements_aggregations_validators.hpp"
+#include "tofupilot/models/validators_outcome.hpp"
 
 namespace tofupilot {
 
@@ -22,7 +23,7 @@ struct RunCreateMeasurementsAggregations {
     /// Aggregation function: "min", "max", "avg", "sum", "count", "std", "median", "percentile_95", etc.
     std::string type;
     /// Computed result of aggregation validation. Server stores as-is.
-    NullableField<std::string> outcome;
+    NullableField<ValidatorsOutcome> outcome;
     /// Computed aggregation value.
     NullableField<nlohmann::json> value;
     /// Unit for the aggregated value.
@@ -72,9 +73,9 @@ inline void from_json(const nlohmann::json& j, RunCreateMeasurementsAggregations
     v.type = j["type"].get<std::string>();
     if (j.contains("outcome")) {
         if (j["outcome"].is_null()) {
-            v.outcome = NullableField<std::string>::make_null();
+            v.outcome = NullableField<ValidatorsOutcome>::make_null();
         } else {
-            v.outcome = NullableField<std::string>::value(j["outcome"].get<std::string>());
+            v.outcome = NullableField<ValidatorsOutcome>::value(j["outcome"].get<ValidatorsOutcome>());
         }
     }
     if (j.contains("value")) {
@@ -112,14 +113,14 @@ public:
 
     /// Set the `outcome` field.
     /// Computed result of aggregation validation. Server stores as-is.
-    RunCreateMeasurementsAggregationsBuilder& outcome(std::string value) {
-        outcome_ = NullableField<std::string>::value(std::move(value));
+    RunCreateMeasurementsAggregationsBuilder& outcome(ValidatorsOutcome value) {
+        outcome_ = NullableField<ValidatorsOutcome>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `outcome` to null.
     RunCreateMeasurementsAggregationsBuilder& outcome_null() {
-        outcome_ = NullableField<std::string>::make_null();
+        outcome_ = NullableField<ValidatorsOutcome>::make_null();
         return *this;
     }
 
@@ -192,7 +193,7 @@ public:
 
 private:
     std::optional<std::string> type_;
-    NullableField<std::string> outcome_;
+    NullableField<ValidatorsOutcome> outcome_;
     NullableField<nlohmann::json> value_;
     NullableField<std::string> unit_;
     NullableField<std::vector<RunCreateMeasurementsAggregationsValidators>> validators_;

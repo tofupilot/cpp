@@ -16,6 +16,7 @@
 
 namespace tofupilot {
 
+/// Linked repository for this procedure.
 struct ProcedureListLinkedRepository {
     /// Unique identifier for the linked repository.
     std::string id;

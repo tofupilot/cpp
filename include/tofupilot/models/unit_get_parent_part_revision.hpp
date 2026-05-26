@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Part revision information.
 struct UnitGetParentPartRevision {
     /// Revision ID.
     std::string id;

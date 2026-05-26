@@ -4,8 +4,8 @@
 
 ### Available Operations
 
-* [list](#list) - List and filter units
 * [create](#create) - Create unit
+* [list](#list) - List and filter units
 * [delete_](#delete_) - Delete units
 * [get](#get) - Get unit
 * [update](#update) - Update unit
@@ -14,9 +14,59 @@
 * [create_attachment](#create_attachment) - Attach file to unit
 * [delete_attachment](#delete_attachment) - Delete unit attachments
 
+## create
+
+Create a unit with a serial number and link it to a part revision.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.units().create()
+            .serial_number("SN-001234")
+            .part_number("PCB-V1.2")
+            .revision_number("REV-A")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `serial_number` | `std::string` | :heavy_check_mark: | Unique serial number identifier for the unit. Must be unique within the organization. |
+| `part_number` | `std::string` | :heavy_check_mark: | Component part number that defines what type of unit this is. If the part does not exist, it will be created. |
+| `revision_number` | `std::string` | :heavy_check_mark: | Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created. |
+| `sample` | `NullableField<Sample>` | :heavy_minus_sign: | Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. |
+
+### Response
+
+**[`UnitCreateResponse`](../../models/unitcreateresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `NotFoundError` | 404 | application/json |
+| `ConflictError` | 409 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
 ## list
 
-Retrieve a paginated list of units with filtering by serial number, part number, and batch. Uses cursor-based pagination for efficient large dataset traversal.
+List units with filtering by serial number, part number, and batch. Cursor-paginated.
 
 ### Example Usage
 
@@ -59,12 +109,12 @@ int main() {
 | `created_by_user_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `created_by_station_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `exclude_units_with_parent` | `std::optional<bool>` | :heavy_minus_sign: | N/A |
-| `samples` | `std::optional<std::vector<ListSample>>` | :heavy_minus_sign: | N/A |
+| `samples` | `std::optional<std::vector<Sample>>` | :heavy_minus_sign: | N/A |
 | `limit` | `std::optional<int64_t>` | :heavy_minus_sign: | Maximum number of units to return. |
 | `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
 | `sort_by` | `std::optional<UnitListSortBy>` | :heavy_minus_sign: | Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run. |
 | `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
-| `metadata` | `std::optional<nlohmann::json>` | :heavy_minus_sign: | Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
 | `include_metadata` | `std::optional<bool>` | :heavy_minus_sign: | When true, includes the unit metadata array in the response. Defaults to false to keep payloads small. |
 
 ### Response
@@ -79,59 +129,9 @@ int main() {
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
-## create
-
-Create a new unit with a serial number and link it to a part revision. Units represent individual hardware items tracked for manufacturing traceability.
-
-### Example Usage
-
-```cpp
-#include <tofupilot/tofupilot.hpp>
-
-int main() {
-    auto client = tofupilot::TofuPilot("your-api-key");
-
-    try {
-        auto result = client.units().create()
-            .serial_number("SN-001234")
-            .part_number("PCB-V1.2")
-            .revision_number("REV-A")
-            .send();
-    } catch (const tofupilot::ApiException& e) {
-        // Handle error
-    }
-
-    return 0;
-}
-```
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `serial_number` | `std::string` | :heavy_check_mark: | Unique serial number identifier for the unit. Must be unique within the organization. |
-| `part_number` | `std::string` | :heavy_check_mark: | Component part number that defines what type of unit this is. If the part does not exist, it will be created. |
-| `revision_number` | `std::string` | :heavy_check_mark: | Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created. |
-| `sample` | `NullableField<std::string>` | :heavy_minus_sign: | Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units. |
-| `metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. |
-
-### Response
-
-**[`UnitCreateResponse`](../../models/unitcreateresponse.md)**
-
-### Errors
-
-| Error Type | Status Code | Content Type |
-| --- | --- | --- |
-| `UnauthorizedError` | 401 | application/json |
-| `NotFoundError` | 404 | application/json |
-| `ConflictError` | 409 | application/json |
-| `InternalServerError` | 500 | application/json |
-| `ApiException` | 4XX, 5XX | \*/\* |
-
 ## delete_
 
-Permanently delete units by serial number. This action will remove all nested elements and relationships associated with the units.
+Delete units by serial number. Sub-units are unlinked, not deleted. Irreversible.
 
 ### Example Usage
 
@@ -174,7 +174,7 @@ int main() {
 
 ## get
 
-Retrieve a single unit by its serial number. Returns comprehensive unit data including part information, parent/child relationships, and test run history.
+Get a unit by serial number, with its part, parent/child links, and run history.
 
 ### Example Usage
 
@@ -218,7 +218,7 @@ int main() {
 
 ## update
 
-Update unit properties including serial number, part revision, batch assignment, and file attachments with case-insensitive matching.
+Update a unit: serial number, part revision, batch, and file attachments.
 
 ### Example Usage
 
@@ -250,7 +250,7 @@ int main() {
 | `revision_number` | `std::optional<std::string>` | :heavy_minus_sign: | New revision number for the unit. |
 | `batch_number` | `NullableField<std::string>` | :heavy_minus_sign: | New batch number for the unit. Set to null to remove batch. |
 | `attachments` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | Array of upload IDs to attach to the unit. |
-| `sample` | `NullableField<std::string>` | :heavy_minus_sign: | Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit. |
+| `sample` | `NullableField<Sample>` | :heavy_minus_sign: | Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit. |
 | `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. |
 
 ### Response
@@ -269,7 +269,7 @@ int main() {
 
 ## add_child
 
-Add a sub-unit to a parent unit to track component assemblies and multi-level hardware traceability.
+Link a sub-unit to a parent unit to track assemblies.
 
 ### Example Usage
 
@@ -315,7 +315,7 @@ int main() {
 
 ## remove_child
 
-Remove a sub-unit relationship from a parent unit by serial number. Only unlinks the parent-child relationship; neither unit is deleted from the system.
+Unlink a sub-unit from its parent. Neither unit is deleted.
 
 ### Example Usage
 
@@ -361,7 +361,7 @@ int main() {
 
 ## create_attachment
 
-Create an attachment linked to a unit and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+Attach a file to a unit. Returns an upload ID and pre-signed URL; PUT the file to the URL, then call Finalize upload to commit.
 
 ### Example Usage
 
@@ -406,7 +406,7 @@ int main() {
 
 ## delete_attachment
 
-Delete attachments from a unit by their IDs. Removes the files from storage and unlinks them from the unit.
+Delete attachments from a unit by ID. Removes the files from storage and unlinks them.
 
 ### Example Usage
 

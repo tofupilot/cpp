@@ -12,9 +12,9 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/list_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/outcome.hpp"
+#include "tofupilot/models/sample.hpp"
 #include "tofupilot/models/unit_list_sort_by.hpp"
 
 namespace tofupilot {
@@ -38,7 +38,7 @@ struct UnitListRequest {
     std::optional<std::vector<std::string>> created_by_user_ids;
     std::optional<std::vector<std::string>> created_by_station_ids;
     std::optional<bool> exclude_units_with_parent;
-    std::optional<std::vector<ListSample>> samples;
+    std::optional<std::vector<Sample>> samples;
     /// Maximum number of units to return.
     std::optional<int64_t> limit;
     std::optional<int64_t> cursor;
@@ -47,7 +47,7 @@ struct UnitListRequest {
     /// Sort order direction.
     std::optional<ListSortOrder> sort_order;
     /// Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
-    std::optional<nlohmann::json> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
     /// When true, includes the unit metadata array in the response. Defaults to false to keep payloads small.
     std::optional<bool> include_metadata;
 };
@@ -187,7 +187,7 @@ inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
         v.exclude_units_with_parent = j["exclude_units_with_parent"].get<bool>();
     }
     if (j.contains("samples") && !j["samples"].is_null()) {
-        v.samples = j["samples"].get<std::vector<ListSample>>();
+        v.samples = j["samples"].get<std::vector<Sample>>();
     }
     if (j.contains("limit") && !j["limit"].is_null()) {
         v.limit = j["limit"].get<int64_t>();
@@ -202,7 +202,7 @@ inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
         v.sort_order = j["sort_order"].get<ListSortOrder>();
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<nlohmann::json>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
     if (j.contains("include_metadata") && !j["include_metadata"].is_null()) {
         v.include_metadata = j["include_metadata"].get<bool>();
@@ -321,7 +321,7 @@ public:
     }
 
     /// Set the `samples` field.
-    UnitListRequestBuilder& samples(std::vector<ListSample> value) {
+    UnitListRequestBuilder& samples(std::vector<Sample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -355,7 +355,7 @@ public:
 
     /// Set the `metadata` field.
     /// Filter units by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
-    UnitListRequestBuilder& metadata(nlohmann::json value) {
+    UnitListRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
@@ -448,12 +448,12 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<bool> exclude_units_with_parent_;
-    std::optional<std::vector<ListSample>> samples_;
+    std::optional<std::vector<Sample>> samples_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
-    std::optional<nlohmann::json> metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<bool> include_metadata_;
 };
 

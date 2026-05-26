@@ -15,10 +15,13 @@
 
 namespace tofupilot {
 
+/// User whose API key was used to create this run. Only returned if `all` or `created_by` is included.
 struct RunGetCreatedByUser {
     /// User ID.
     std::string id;
+    /// User display name.
     std::optional<std::string> name;
+    /// User email address.
     std::optional<std::string> email;
 };
 
@@ -58,12 +61,14 @@ public:
     }
 
     /// Set the `name` field.
+    /// User display name.
     RunGetCreatedByUserBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;
     }
 
     /// Set the `email` field.
+    /// User email address.
     RunGetCreatedByUserBuilder& email(std::string value) {
         email_ = std::move(value);
         return *this;

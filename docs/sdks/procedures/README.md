@@ -4,15 +4,57 @@
 
 ### Available Operations
 
-* [list](#list) - List and filter procedures
 * [create](#create) - Create procedure
+* [list](#list) - List and filter procedures
 * [get](#get) - Get procedure
 * [delete_](#delete_) - Delete procedure
 * [update](#update) - Update procedure
 
+## create
+
+Create a procedure to group and track related runs.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.procedures().create()
+            .name("My Test Procedure")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | `std::string` | :heavy_check_mark: | Name of the procedure. Must be unique within the organization. |
+
+### Response
+
+**[`ProcedureCreateResponse`](../../models/procedurecreateresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
 ## list
 
-Retrieve procedures with optional filtering and search. Returns procedure data including creator and linked repository.
+List procedures with filtering and search. Includes creator and linked repository. Cursor-paginated.
 
 ### Example Usage
 
@@ -56,51 +98,9 @@ int main() {
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
-## create
-
-Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
-
-### Example Usage
-
-```cpp
-#include <tofupilot/tofupilot.hpp>
-
-int main() {
-    auto client = tofupilot::TofuPilot("your-api-key");
-
-    try {
-        auto result = client.procedures().create()
-            .name("My Test Procedure")
-            .send();
-    } catch (const tofupilot::ApiException& e) {
-        // Handle error
-    }
-
-    return 0;
-}
-```
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `name` | `std::string` | :heavy_check_mark: | Name of the procedure. Must be unique within the organization. |
-
-### Response
-
-**[`ProcedureCreateResponse`](../../models/procedurecreateresponse.md)**
-
-### Errors
-
-| Error Type | Status Code | Content Type |
-| --- | --- | --- |
-| `UnauthorizedError` | 401 | application/json |
-| `InternalServerError` | 500 | application/json |
-| `ApiException` | 4XX, 5XX | \*/\* |
-
 ## get
 
-Retrieve a single procedure by ID, including recent test runs, linked stations, and version history.
+Get a procedure by ID, with recent runs, linked stations, and version history.
 
 ### Example Usage
 
@@ -143,7 +143,7 @@ int main() {
 
 ## delete_
 
-Permanently delete a procedure, removing all associated runs, phases, measurements, and attachments.
+Delete a procedure and all its runs, phases, measurements, and attachments. Irreversible.
 
 ### Example Usage
 
@@ -187,7 +187,7 @@ int main() {
 
 ## update
 
-Update a test procedure's name or configuration. The procedure is identified by its unique ID in the URL path. Only provided fields are modified.
+Update a procedure's name or configuration. Only provided fields are changed.
 
 ### Example Usage
 

@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Production batch this unit belongs to. Null if not part of a batch.
 struct UnitListBatch {
     /// Unique identifier for the batch.
     std::string id;

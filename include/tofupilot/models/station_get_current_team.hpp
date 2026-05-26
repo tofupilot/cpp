@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Team this station is assigned to
 struct StationGetCurrentTeam {
     std::string id;
     std::string name;

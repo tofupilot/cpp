@@ -15,9 +15,11 @@
 
 namespace tofupilot {
 
+/// User who created this batch.
 struct BatchListCreatedByUser {
     /// User ID.
     std::string id;
+    /// User display name.
     std::optional<std::string> name;
 };
 
@@ -51,6 +53,7 @@ public:
     }
 
     /// Set the `name` field.
+    /// User display name.
     BatchListCreatedByUserBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;

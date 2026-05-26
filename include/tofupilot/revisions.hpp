@@ -26,10 +26,10 @@ public:
 
     class GetBuilder;
     GetBuilder get();
-    class DeleteBuilder;
-    DeleteBuilder delete_();
     class UpdateBuilder;
     UpdateBuilder update();
+    class DeleteBuilder;
+    DeleteBuilder delete_();
     class CreateBuilder;
     CreateBuilder create();
 
@@ -79,60 +79,6 @@ public:
         }
         try {
             return nlohmann::json::parse(resp_body).get<PartGetRevisionResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> part_number_;
-    std::optional<std::string> revision_number_;
-    RequestConfig request_config_;
-};
-
-class RevisionsClient::DeleteBuilder {
-public:
-    explicit DeleteBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    DeleteBuilder& part_number(std::string value) {
-        part_number_ = std::move(value);
-        return *this;
-    }
-    DeleteBuilder& revision_number(std::string value) {
-        revision_number_ = std::move(value);
-        return *this;
-    }
-
-    DeleteBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    DeleteBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    PartDeleteRevisionResponse send() {
-        if (!part_number_.has_value()) throw ValidationError("missing required path parameter: part_number");
-        if (!revision_number_.has_value()) throw ValidationError("missing required path parameter: revision_number");
-
-        std::string path = "/v2/parts/" + detail::url_encode(part_number_.value()) + "/revisions/" + detail::url_encode(revision_number_.value()) + "";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-
-        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return PartDeleteRevisionResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<PartDeleteRevisionResponse>();
         } catch (const nlohmann::json::parse_error& e) {
             throw HttpError(std::string("Invalid JSON in response: ") + e.what());
         }
@@ -221,6 +167,60 @@ private:
     RequestConfig request_config_;
 };
 
+class RevisionsClient::DeleteBuilder {
+public:
+    explicit DeleteBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    DeleteBuilder& part_number(std::string value) {
+        part_number_ = std::move(value);
+        return *this;
+    }
+    DeleteBuilder& revision_number(std::string value) {
+        revision_number_ = std::move(value);
+        return *this;
+    }
+
+    DeleteBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    DeleteBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    PartDeleteRevisionResponse send() {
+        if (!part_number_.has_value()) throw ValidationError("missing required path parameter: part_number");
+        if (!revision_number_.has_value()) throw ValidationError("missing required path parameter: revision_number");
+
+        std::string path = "/v2/parts/" + detail::url_encode(part_number_.value()) + "/revisions/" + detail::url_encode(revision_number_.value()) + "";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+
+        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return PartDeleteRevisionResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<PartDeleteRevisionResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> part_number_;
+    std::optional<std::string> revision_number_;
+    RequestConfig request_config_;
+};
+
 class RevisionsClient::CreateBuilder {
 public:
     explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
@@ -288,11 +288,11 @@ private:
 inline RevisionsClient::GetBuilder RevisionsClient::get() {
     return GetBuilder(client_);
 }
-inline RevisionsClient::DeleteBuilder RevisionsClient::delete_() {
-    return DeleteBuilder(client_);
-}
 inline RevisionsClient::UpdateBuilder RevisionsClient::update() {
     return UpdateBuilder(client_);
+}
+inline RevisionsClient::DeleteBuilder RevisionsClient::delete_() {
+    return DeleteBuilder(client_);
 }
 inline RevisionsClient::CreateBuilder RevisionsClient::create() {
     return CreateBuilder(client_);

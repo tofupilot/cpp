@@ -13,7 +13,6 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_get_attachments.hpp"
 #include "tofupilot/models/run_get_created_by_station.hpp"
@@ -61,7 +60,7 @@ struct RunGetResponse {
     /// Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included.
     std::optional<std::vector<RunGetSubUnits>> sub_units;
     /// Custom metadata key/value pairs on the run.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
@@ -201,7 +200,7 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
         v.sub_units = j["sub_units"].get<std::vector<RunGetSubUnits>>();
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 

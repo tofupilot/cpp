@@ -4,85 +4,17 @@
 
 ### Available Operations
 
-* [list](#list) - List and filter runs
 * [create](#create) - Create run
+* [list](#list) - List and filter runs
 * [delete_](#delete_) - Delete runs
 * [get](#get) - Get run
 * [update](#update) - Update run
 * [create_attachment](#create_attachment) - Attach file to run
 * [update_metadata](#update_metadata) - Update run metadata
 
-## list
-
-Retrieve a paginated list of test runs with filtering by unit, procedure, date range, outcome, and station.
-
-### Example Usage
-
-```cpp
-#include <tofupilot/tofupilot.hpp>
-
-int main() {
-    auto client = tofupilot::TofuPilot("your-api-key");
-
-    try {
-        auto result = client.runs().list()
-            .send();
-    } catch (const tofupilot::ApiException& e) {
-        // Handle error
-    }
-
-    return 0;
-}
-```
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `search_query` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `outcomes` | `std::optional<std::vector<Outcome>>` | :heavy_minus_sign: | N/A |
-| `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `samples` | `std::optional<std::vector<ListSample>>` | :heavy_minus_sign: | N/A |
-| `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `duration_min` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `duration_max` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `started_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `started_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `ended_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `ended_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `created_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `created_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `created_by_user_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `created_by_station_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `operated_by_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `limit` | `std::optional<int64_t>` | :heavy_minus_sign: | Maximum number of runs to return per page. |
-| `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
-| `sort_by` | `std::optional<RunListSortBy>` | :heavy_minus_sign: | Field to sort results by. |
-| `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
-| `metadata` | `std::optional<nlohmann::json>` | :heavy_minus_sign: | Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
-| `include_metadata` | `std::optional<bool>` | :heavy_minus_sign: | When true, includes the run metadata array in the response. Defaults to false to keep payloads small. |
-
-### Response
-
-**[`RunListResponse`](../../models/runlistresponse.md)**
-
-### Errors
-
-| Error Type | Status Code | Content Type |
-| --- | --- | --- |
-| `BadRequestError` | 400 | application/json |
-| `UnauthorizedError` | 401 | application/json |
-| `InternalServerError` | 500 | application/json |
-| `ApiException` | 4XX, 5XX | \*/\* |
-
 ## create
 
-Create a new test run, linking it to a procedure and unit. Existing entities are reused automatically.
+Create a run linked to a procedure and unit. Existing procedures and units are reused automatically.
 
 ### Example Usage
 
@@ -114,8 +46,8 @@ int main() {
 | --- | --- | --- | --- |
 | `outcome` | `Outcome` | :heavy_check_mark: | Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption. |
 | `procedure_id` | `std::string` | :heavy_check_mark: | Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page. |
-| `deployment_id` | `NullableField<std::string>` | :heavy_minus_sign: | N/A |
-| `procedure_version` | `NullableField<std::string>` | :heavy_minus_sign: | N/A |
+| `deployment_id` | `NullableField<std::string>` | :heavy_minus_sign: | Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs. |
+| `procedure_version` | `NullableField<std::string>` | :heavy_minus_sign: | Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version. |
 | `operated_by` | `std::optional<std::string>` | :heavy_minus_sign: | Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test. |
 | `started_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the test run began execution. This timestamp will be used to track when the test execution started and for historical analysis of test runs. A separate created_at timestamp is stored internally server side to track upload date. |
 | `ended_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the test run finished execution. |
@@ -127,8 +59,8 @@ int main() {
 | `docstring` | `std::optional<std::string>` | :heavy_minus_sign: | Additional notes or documentation about this test run. |
 | `phases` | `std::optional<std::vector<RunCreatePhases>>` | :heavy_minus_sign: | Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data. |
 | `logs` | `std::optional<std::vector<RunCreateLogs>>` | :heavy_minus_sign: | Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries. |
-| `metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. |
-| `unit_metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. |
+| `unit_metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit. |
 
 ### Response
 
@@ -146,9 +78,77 @@ int main() {
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
+## list
+
+List runs with filtering by unit, procedure, date range, outcome, and station. Cursor-paginated.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.runs().list()
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `search_query` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `outcomes` | `std::optional<std::vector<Outcome>>` | :heavy_minus_sign: | N/A |
+| `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `samples` | `std::optional<std::vector<Sample>>` | :heavy_minus_sign: | N/A |
+| `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `duration_min` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `duration_max` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `started_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `started_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `ended_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `ended_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `created_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `created_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
+| `created_by_user_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `created_by_station_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `operated_by_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `limit` | `std::optional<int64_t>` | :heavy_minus_sign: | Maximum number of runs to return per page. |
+| `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
+| `sort_by` | `std::optional<RunListSortBy>` | :heavy_minus_sign: | Field to sort results by. |
+| `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
+| `include_metadata` | `std::optional<bool>` | :heavy_minus_sign: | When true, includes the run metadata array in the response. Defaults to false to keep payloads small. |
+
+### Response
+
+**[`RunListResponse`](../../models/runlistresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `BadRequestError` | 400 | application/json |
+| `UnauthorizedError` | 401 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
 ## delete_
 
-Permanently delete test runs by their IDs. Removes all associated phases, measurements, and attachments.
+Delete runs by ID. Also removes their phases, measurements, and attachments. Irreversible.
 
 ### Example Usage
 
@@ -191,7 +191,7 @@ int main() {
 
 ## get
 
-Retrieve a single test run by its ID. Returns comprehensive run data including metadata, phases, measurements, and logs.
+Get a run by ID, with its metadata, phases, measurements, and logs.
 
 ### Example Usage
 
@@ -235,7 +235,7 @@ int main() {
 
 ## update
 
-Update a test run, including linking file attachments. Files must be uploaded via Initialize upload and Finalize upload before linking.
+Link uploaded files to a run. Upload files via Initialize and Finalize first, then call this to attach them.
 
 ### Example Usage
 
@@ -279,7 +279,7 @@ int main() {
 
 ## create_attachment
 
-Create an attachment linked to a run and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+Attach a file to a run. Returns an upload ID and pre-signed URL; PUT the file to the URL, then call Finalize upload to commit.
 
 ### Example Usage
 
@@ -324,7 +324,7 @@ int main() {
 
 ## update_metadata
 
-Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics: omitted keys preserved. Pass `null` as a value to delete a key.
+Upsert custom metadata on a run as a key/value object. Omitted keys are preserved; pass `null` to delete a key.
 
 ### Example Usage
 

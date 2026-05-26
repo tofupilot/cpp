@@ -14,6 +14,7 @@
 
 #include "tofupilot/models/nullable.hpp"
 #include "tofupilot/models/run_get_aggregations_validators.hpp"
+#include "tofupilot/models/validators_outcome.hpp"
 
 namespace tofupilot {
 
@@ -24,7 +25,7 @@ struct RunGetAggregations {
     /// Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV).
     std::string type;
     /// Aggregation validation result: PASS, FAIL, UNSET, or null if no validators.
-    std::optional<std::string> outcome;
+    std::optional<ValidatorsOutcome> outcome;
     /// Computed aggregation value. Type depends on aggregation type.
     std::optional<nlohmann::json> value;
     /// Unit of measurement for the aggregated value.
@@ -71,7 +72,7 @@ inline void from_json(const nlohmann::json& j, RunGetAggregations& v) {
     }
     v.type = j["type"].get<std::string>();
     if (j.contains("outcome") && !j["outcome"].is_null()) {
-        v.outcome = j["outcome"].get<std::string>();
+        v.outcome = j["outcome"].get<ValidatorsOutcome>();
     }
     if (j.contains("value") && !j["value"].is_null()) {
         v.value = j["value"].get<nlohmann::json>();
@@ -111,7 +112,7 @@ public:
 
     /// Set the `outcome` field.
     /// Aggregation validation result: PASS, FAIL, UNSET, or null if no validators.
-    RunGetAggregationsBuilder& outcome(std::string value) {
+    RunGetAggregationsBuilder& outcome(ValidatorsOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -188,7 +189,7 @@ public:
 private:
     std::optional<std::string> id_;
     std::optional<std::string> type_;
-    std::optional<std::string> outcome_;
+    std::optional<ValidatorsOutcome> outcome_;
     std::optional<nlohmann::json> value_;
     NullableField<std::string> unit_;
     NullableField<std::vector<RunGetAggregationsValidators>> validators_;

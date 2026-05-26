@@ -17,6 +17,7 @@
 
 namespace tofupilot {
 
+/// Deployment information for this procedure on this station
 struct StationGetDeployment {
     /// When the procedure was deployed
     std::string deployed_at;

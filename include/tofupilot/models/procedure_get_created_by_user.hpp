@@ -15,10 +15,13 @@
 
 namespace tofupilot {
 
+/// User who created this procedure.
 struct ProcedureGetCreatedByUser {
     /// User ID.
     std::string id;
+    /// User display name.
     std::optional<std::string> name;
+    /// User email address.
     std::optional<std::string> email;
 };
 
@@ -58,12 +61,14 @@ public:
     }
 
     /// Set the `name` field.
+    /// User display name.
     ProcedureGetCreatedByUserBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;
     }
 
     /// Set the `email` field.
+    /// User email address.
     ProcedureGetCreatedByUserBuilder& email(std::string value) {
         email_ = std::move(value);
         return *this;

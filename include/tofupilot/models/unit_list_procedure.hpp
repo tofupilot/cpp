@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Test procedure that was executed. Null if run had no associated procedure.
 struct UnitListProcedure {
     /// Unique identifier for the procedure.
     std::string id;

@@ -11,7 +11,7 @@
 | `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `samples` | `std::optional<std::vector<ListSample>>` | :heavy_minus_sign: | N/A |
+| `samples` | `std::optional<std::vector<Sample>>` | :heavy_minus_sign: | N/A |
 | `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
@@ -30,5 +30,5 @@
 | `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
 | `sort_by` | `std::optional<RunListSortBy>` | :heavy_minus_sign: | Field to sort results by. |
 | `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
-| `metadata` | `std::optional<nlohmann::json>` | :heavy_minus_sign: | Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`. |
 | `include_metadata` | `std::optional<bool>` | :heavy_minus_sign: | When true, includes the run metadata array in the response. Defaults to false to keep payloads small. |

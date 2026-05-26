@@ -15,6 +15,7 @@
 #include "tofupilot/models/nullable.hpp"
 #include "tofupilot/models/run_get_batch.hpp"
 #include "tofupilot/models/run_get_part.hpp"
+#include "tofupilot/models/sample.hpp"
 
 namespace tofupilot {
 
@@ -25,7 +26,7 @@ struct RunGetUnit {
     /// Unit serial number.
     std::string serial_number;
     /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
-    std::optional<std::string> sample;
+    std::optional<Sample> sample;
     /// Part information with revision details.
     RunGetPart part;
     /// Batch information for this unit.
@@ -61,7 +62,7 @@ inline void from_json(const nlohmann::json& j, RunGetUnit& v) {
     }
     v.serial_number = j["serial_number"].get<std::string>();
     if (j.contains("sample") && !j["sample"].is_null()) {
-        v.sample = j["sample"].get<std::string>();
+        v.sample = j["sample"].get<Sample>();
     }
     if (!j.contains("part")) {
         throw nlohmann::json::other_error::create(501,
@@ -96,7 +97,7 @@ public:
 
     /// Set the `sample` field.
     /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
-    RunGetUnitBuilder& sample(std::string value) {
+    RunGetUnitBuilder& sample(Sample value) {
         sample_ = std::move(value);
         return *this;
     }
@@ -164,7 +165,7 @@ public:
 private:
     std::optional<std::string> id_;
     std::optional<std::string> serial_number_;
-    std::optional<std::string> sample_;
+    std::optional<Sample> sample_;
     std::optional<RunGetPart> part_;
     NullableField<RunGetBatch> batch_;
 };

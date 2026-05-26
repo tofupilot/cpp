@@ -27,7 +27,8 @@ class PartsClient;
 class RevisionsClient;
 class BatchesClient;
 class StationsClient;
-class UserClient;
+class UsersClient;
+class ImportsClient;
 
 /// TofuPilot API client. **Not** thread-safe — use one per thread.
 class TofuPilot {
@@ -58,7 +59,8 @@ public:
     inline RevisionsClient revisions();
     inline BatchesClient batches();
     inline StationsClient stations();
-    inline UserClient user();
+    inline UsersClient users();
+    inline ImportsClient imports();
 
     httplib::Result execute(
         const std::string& method, const std::string& path,

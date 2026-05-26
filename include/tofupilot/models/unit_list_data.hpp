@@ -13,7 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/one_of_boolean_number_str.hpp"
+#include "tofupilot/models/sample.hpp"
 #include "tofupilot/models/unit_list_batch.hpp"
 #include "tofupilot/models/unit_list_children.hpp"
 #include "tofupilot/models/unit_list_created_by_station.hpp"
@@ -32,7 +32,7 @@ struct UnitListData {
     /// ISO 8601 timestamp when the unit was created.
     std::string created_at;
     /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
-    std::optional<std::string> sample;
+    std::optional<Sample> sample;
     /// User who created this unit. Null if created by a station or system.
     NullableField<UnitListCreatedByUser> created_by_user;
     /// Station that created this unit. Null if created by a user.
@@ -48,7 +48,7 @@ struct UnitListData {
     /// Most recent test run performed on this unit. Null if no runs have been executed.
     NullableField<UnitListLastRun> last_run;
     /// Custom metadata key/value pairs on the unit. Only present when the request sets `include_metadata=true`.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitListData& v) {
@@ -118,7 +118,7 @@ inline void from_json(const nlohmann::json& j, UnitListData& v) {
     }
     v.created_at = j["created_at"].get<std::string>();
     if (j.contains("sample") && !j["sample"].is_null()) {
-        v.sample = j["sample"].get<std::string>();
+        v.sample = j["sample"].get<Sample>();
     }
     if (j.contains("created_by_user")) {
         if (j["created_by_user"].is_null()) {
@@ -164,7 +164,7 @@ inline void from_json(const nlohmann::json& j, UnitListData& v) {
         }
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -194,7 +194,7 @@ public:
 
     /// Set the `sample` field.
     /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
-    UnitListDataBuilder& sample(std::string value) {
+    UnitListDataBuilder& sample(Sample value) {
         sample_ = std::move(value);
         return *this;
     }
@@ -280,7 +280,7 @@ public:
 
     /// Set the `metadata` field.
     /// Custom metadata key/value pairs on the unit. Only present when the request sets `include_metadata=true`.
-    UnitListDataBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+    UnitListDataBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
@@ -353,7 +353,7 @@ private:
     std::optional<std::string> id_;
     std::optional<std::string> serial_number_;
     std::optional<std::string> created_at_;
-    std::optional<std::string> sample_;
+    std::optional<Sample> sample_;
     NullableField<UnitListCreatedByUser> created_by_user_;
     NullableField<UnitListCreatedByStation> created_by_station_;
     NullableField<UnitListBatch> batch_;
@@ -361,7 +361,7 @@ private:
     std::optional<std::vector<UnitListChildren>> children_;
     std::optional<UnitListPart> part_;
     NullableField<UnitListLastRun> last_run_;
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

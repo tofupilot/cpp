@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Station that created this unit. Null if created by a user.
 struct UnitListCreatedByStation {
     /// Unique identifier for the station.
     std::string id;

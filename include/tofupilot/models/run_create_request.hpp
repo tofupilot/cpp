@@ -13,7 +13,6 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_create_logs.hpp"
 #include "tofupilot/models/run_create_phases.hpp"
@@ -25,7 +24,9 @@ struct RunCreateRequest {
     Outcome outcome;
     /// Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
     std::string procedure_id;
+    /// Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
     NullableField<std::string> deployment_id;
+    /// Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
     NullableField<std::string> procedure_version;
     /// Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
     std::optional<std::string> operated_by;
@@ -50,9 +51,9 @@ struct RunCreateRequest {
     /// Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
     std::optional<std::vector<RunCreateLogs>> logs;
     /// Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
     /// Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> unit_metadata;
+    std::optional<std::map<std::string, nlohmann::json>> unit_metadata;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
@@ -173,10 +174,10 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
         v.logs = j["logs"].get<std::vector<RunCreateLogs>>();
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
     if (j.contains("unit_metadata") && !j["unit_metadata"].is_null()) {
-        v.unit_metadata = j["unit_metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.unit_metadata = j["unit_metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -198,6 +199,7 @@ public:
     }
 
     /// Set the `deployment_id` field.
+    /// Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
     RunCreateRequestBuilder& deployment_id(std::string value) {
         deployment_id_ = NullableField<std::string>::value(std::move(value));
         return *this;
@@ -210,6 +212,7 @@ public:
     }
 
     /// Set the `procedure_version` field.
+    /// Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
     RunCreateRequestBuilder& procedure_version(std::string value) {
         procedure_version_ = NullableField<std::string>::value(std::move(value));
         return *this;
@@ -300,14 +303,14 @@ public:
 
     /// Set the `metadata` field.
     /// Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
-    RunCreateRequestBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+    RunCreateRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
 
     /// Set the `unit_metadata` field.
     /// Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
-    RunCreateRequestBuilder& unit_metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+    RunCreateRequestBuilder& unit_metadata(std::map<std::string, nlohmann::json> value) {
         unit_metadata_ = std::move(value);
         return *this;
     }
@@ -404,8 +407,8 @@ private:
     std::optional<std::string> docstring_;
     std::optional<std::vector<RunCreatePhases>> phases_;
     std::optional<std::vector<RunCreateLogs>> logs_;
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> unit_metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> unit_metadata_;
 };
 
 } // namespace tofupilot

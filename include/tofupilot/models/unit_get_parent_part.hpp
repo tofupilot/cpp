@@ -16,6 +16,7 @@
 
 namespace tofupilot {
 
+/// Part information for the parent unit.
 struct UnitGetParentPart {
     /// Part ID.
     std::string id;

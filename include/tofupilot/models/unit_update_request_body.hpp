@@ -13,6 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/sample.hpp"
 
 namespace tofupilot {
 
@@ -28,7 +29,7 @@ struct UnitUpdateRequestBody {
     /// Array of upload IDs to attach to the unit.
     std::optional<std::vector<std::string>> attachments;
     /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
-    NullableField<std::string> sample;
+    NullableField<Sample> sample;
     /// Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
@@ -88,9 +89,9 @@ inline void from_json(const nlohmann::json& j, UnitUpdateRequestBody& v) {
     }
     if (j.contains("sample")) {
         if (j["sample"].is_null()) {
-            v.sample = NullableField<std::string>::make_null();
+            v.sample = NullableField<Sample>::make_null();
         } else {
-            v.sample = NullableField<std::string>::value(j["sample"].get<std::string>());
+            v.sample = NullableField<Sample>::value(j["sample"].get<Sample>());
         }
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
@@ -144,14 +145,14 @@ public:
 
     /// Set the `sample` field.
     /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
-    UnitUpdateRequestBodyBuilder& sample(std::string value) {
-        sample_ = NullableField<std::string>::value(std::move(value));
+    UnitUpdateRequestBodyBuilder& sample(Sample value) {
+        sample_ = NullableField<Sample>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `sample` to null.
     UnitUpdateRequestBodyBuilder& sample_null() {
-        sample_ = NullableField<std::string>::make_null();
+        sample_ = NullableField<Sample>::make_null();
         return *this;
     }
 
@@ -194,7 +195,7 @@ private:
     std::optional<std::string> revision_number_;
     NullableField<std::string> batch_number_;
     std::optional<std::vector<std::string>> attachments_;
-    NullableField<std::string> sample_;
+    NullableField<Sample> sample_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 

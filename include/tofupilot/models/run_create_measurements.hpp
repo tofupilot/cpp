@@ -26,10 +26,11 @@ struct RunCreateMeasurements {
     std::string name;
     /// Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed.
     ValidatorsOutcome outcome;
-    /// X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations.
+    /// Data series with numeric data, unit, and optional validators/aggregations.
     NullableField<RunCreateXAxis> x_axis;
     /// Y-axis data series (one or more) for multi-dimensional measurements. Each series can have its own validators and aggregations.
     NullableField<std::vector<RunCreateYAxis>> y_axis;
+    /// The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead.
     NullableField<nlohmann::json> measured_value;
     /// [LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead.
     NullableField<nlohmann::json> units;
@@ -37,8 +38,11 @@ struct RunCreateMeasurements {
     std::optional<double> lower_limit;
     /// Use validators with operator "<=" instead. Will be converted to a validator automatically.
     std::optional<double> upper_limit;
+    /// Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value.
     NullableField<std::vector<RunCreateMeasurementsValidators>> validators;
+    /// Aggregations computed over measurement values (min, max, avg, etc.). Each aggregation can have its own validators.
     NullableField<std::vector<RunCreateMeasurementsAggregations>> aggregations;
+    /// Additional notes or documentation about this measurement.
     NullableField<std::string> docstring;
 };
 
@@ -189,7 +193,7 @@ public:
     }
 
     /// Set the `x_axis` field.
-    /// X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations.
+    /// Data series with numeric data, unit, and optional validators/aggregations.
     RunCreateMeasurementsBuilder& x_axis(RunCreateXAxis value) {
         x_axis_ = NullableField<RunCreateXAxis>::value(std::move(value));
         return *this;
@@ -215,6 +219,7 @@ public:
     }
 
     /// Set the `measured_value` field.
+    /// The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead.
     RunCreateMeasurementsBuilder& measured_value(nlohmann::json value) {
         measured_value_ = NullableField<nlohmann::json>::value(std::move(value));
         return *this;
@@ -254,6 +259,7 @@ public:
     }
 
     /// Set the `validators` field.
+    /// Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value.
     RunCreateMeasurementsBuilder& validators(std::vector<RunCreateMeasurementsValidators> value) {
         validators_ = NullableField<std::vector<RunCreateMeasurementsValidators>>::value(std::move(value));
         return *this;
@@ -266,6 +272,7 @@ public:
     }
 
     /// Set the `aggregations` field.
+    /// Aggregations computed over measurement values (min, max, avg, etc.). Each aggregation can have its own validators.
     RunCreateMeasurementsBuilder& aggregations(std::vector<RunCreateMeasurementsAggregations> value) {
         aggregations_ = NullableField<std::vector<RunCreateMeasurementsAggregations>>::value(std::move(value));
         return *this;
@@ -278,6 +285,7 @@ public:
     }
 
     /// Set the `docstring` field.
+    /// Additional notes or documentation about this measurement.
     RunCreateMeasurementsBuilder& docstring(std::string value) {
         docstring_ = NullableField<std::string>::value(std::move(value));
         return *this;

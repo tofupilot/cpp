@@ -13,7 +13,6 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/one_of_boolean_number_str.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_list_created_by_station.hpp"
 #include "tofupilot/models/run_list_created_by_user.hpp"
@@ -49,7 +48,7 @@ struct RunListData {
     /// Unit under test information.
     RunListUnit unit;
     /// Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const RunListData& v) {
@@ -165,7 +164,7 @@ inline void from_json(const nlohmann::json& j, RunListData& v) {
     }
     v.unit = j["unit"].get<RunListUnit>();
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -282,7 +281,7 @@ public:
 
     /// Set the `metadata` field.
     /// Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`.
-    RunListDataBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+    RunListDataBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
@@ -386,7 +385,7 @@ private:
     NullableField<RunListOperatedBy> operated_by_;
     std::optional<RunListProcedure> procedure_;
     std::optional<RunListUnit> unit_;
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

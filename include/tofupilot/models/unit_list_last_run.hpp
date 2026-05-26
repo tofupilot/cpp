@@ -17,6 +17,7 @@
 
 namespace tofupilot {
 
+/// Most recent test run performed on this unit. Null if no runs have been executed.
 struct UnitListLastRun {
     /// Unique identifier for the run.
     std::string id;

@@ -4,15 +4,60 @@
 
 ### Available Operations
 
-* [list](#list) - List and filter parts
 * [create](#create) - Create part
+* [list](#list) - List and filter parts
 * [get](#get) - Get part
-* [delete_](#delete_) - Delete part
 * [update](#update) - Update part
+* [delete_](#delete_) - Delete part
+
+## create
+
+Create a part, optionally with an initial revision. Part numbers match case-insensitively ("PART-001" == "part-001").
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.parts().create()
+            .number("PART-001")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `number` | `std::string` | :heavy_check_mark: | Unique identifier number for the part. |
+| `name` | `std::optional<std::string>` | :heavy_minus_sign: | Human-readable name for the part. If not provided, a default name will be used. |
+| `revision_number` | `std::optional<std::string>` | :heavy_minus_sign: | Revision identifier for the part version. If not provided, default revision identifier will be used. |
+
+### Response
+
+**[`PartCreateResponse`](../../models/partcreateresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `ConflictError` | 409 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
 
 ## list
 
-Retrieve a paginated list of parts and components in your organization. Filter and search by part name, number, or revision number for inventory management.
+List parts. Filter and search by name, number, or revision number. Cursor-paginated.
 
 ### Example Usage
 
@@ -56,54 +101,9 @@ int main() {
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
-## create
-
-Create a new part. Optionally create with a revision. Part numbers are matched case-insensitively (e.g., "PART-001" and "part-001" are considered the same).
-
-### Example Usage
-
-```cpp
-#include <tofupilot/tofupilot.hpp>
-
-int main() {
-    auto client = tofupilot::TofuPilot("your-api-key");
-
-    try {
-        auto result = client.parts().create()
-            .number("PART-001")
-            .send();
-    } catch (const tofupilot::ApiException& e) {
-        // Handle error
-    }
-
-    return 0;
-}
-```
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `number` | `std::string` | :heavy_check_mark: | Unique identifier number for the part. |
-| `name` | `std::optional<std::string>` | :heavy_minus_sign: | Human-readable name for the part. If not provided, a default name will be used. |
-| `revision_number` | `std::optional<std::string>` | :heavy_minus_sign: | Revision identifier for the part version. If not provided, default revision identifier will be used. |
-
-### Response
-
-**[`PartCreateResponse`](../../models/partcreateresponse.md)**
-
-### Errors
-
-| Error Type | Status Code | Content Type |
-| --- | --- | --- |
-| `UnauthorizedError` | 401 | application/json |
-| `ConflictError` | 409 | application/json |
-| `InternalServerError` | 500 | application/json |
-| `ApiException` | 4XX, 5XX | \*/\* |
-
 ## get
 
-Retrieve a single part by its number, including all revisions, metadata, and linked units. Part numbers are matched case-insensitively.
+Get a part by number, with its revisions, metadata, and linked units. Numbers match case-insensitively.
 
 ### Example Usage
 
@@ -144,52 +144,9 @@ int main() {
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
-## delete_
-
-Permanently delete a part and all its revisions. This removes all associated data and cannot be undone.
-
-### Example Usage
-
-```cpp
-#include <tofupilot/tofupilot.hpp>
-
-int main() {
-    auto client = tofupilot::TofuPilot("your-api-key");
-
-    try {
-        auto result = client.parts().delete_()
-            .number("PART-001")
-            .send();
-    } catch (const tofupilot::ApiException& e) {
-        // Handle error
-    }
-
-    return 0;
-}
-```
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `number` | `std::string` | :heavy_check_mark: | Part number to delete. |
-
-### Response
-
-**[`PartDeleteResponse`](../../models/partdeleteresponse.md)**
-
-### Errors
-
-| Error Type | Status Code | Content Type |
-| --- | --- | --- |
-| `UnauthorizedError` | 401 | application/json |
-| `NotFoundError` | 404 | application/json |
-| `InternalServerError` | 500 | application/json |
-| `ApiException` | 4XX, 5XX | \*/\* |
-
 ## update
 
-Update a part's number or name. Identifies the part by its current number in the URL with case-insensitive matching.
+Update a part's number or name. Numbers match case-insensitively.
 
 ### Example Usage
 
@@ -230,6 +187,49 @@ int main() {
 | `UnauthorizedError` | 401 | application/json |
 | `NotFoundError` | 404 | application/json |
 | `ConflictError` | 409 | application/json |
+| `InternalServerError` | 500 | application/json |
+| `ApiException` | 4XX, 5XX | \*/\* |
+
+## delete_
+
+Delete a part and all its revisions. Irreversible.
+
+### Example Usage
+
+```cpp
+#include <tofupilot/tofupilot.hpp>
+
+int main() {
+    auto client = tofupilot::TofuPilot("your-api-key");
+
+    try {
+        auto result = client.parts().delete_()
+            .number("PART-001")
+            .send();
+    } catch (const tofupilot::ApiException& e) {
+        // Handle error
+    }
+
+    return 0;
+}
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `number` | `std::string` | :heavy_check_mark: | Part number to delete. |
+
+### Response
+
+**[`PartDeleteResponse`](../../models/partdeleteresponse.md)**
+
+### Errors
+
+| Error Type | Status Code | Content Type |
+| --- | --- | --- |
+| `UnauthorizedError` | 401 | application/json |
+| `NotFoundError` | 404 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 

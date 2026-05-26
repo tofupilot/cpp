@@ -12,10 +12,10 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/list_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_list_sort_by.hpp"
+#include "tofupilot/models/sample.hpp"
 
 namespace tofupilot {
 
@@ -26,7 +26,7 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> procedure_ids;
     std::optional<std::vector<std::string>> procedure_versions;
     std::optional<std::vector<std::string>> serial_numbers;
-    std::optional<std::vector<ListSample>> samples;
+    std::optional<std::vector<Sample>> samples;
     std::optional<std::vector<std::string>> part_numbers;
     std::optional<std::vector<std::string>> revision_numbers;
     std::optional<std::vector<std::string>> batch_numbers;
@@ -49,7 +49,7 @@ struct RunListRequest {
     /// Sort order direction.
     std::optional<ListSortOrder> sort_order;
     /// Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
-    std::optional<nlohmann::json> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
     /// When true, includes the run metadata array in the response. Defaults to false to keep payloads small.
     std::optional<bool> include_metadata;
 };
@@ -159,7 +159,7 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
         v.serial_numbers = j["serial_numbers"].get<std::vector<std::string>>();
     }
     if (j.contains("samples") && !j["samples"].is_null()) {
-        v.samples = j["samples"].get<std::vector<ListSample>>();
+        v.samples = j["samples"].get<std::vector<Sample>>();
     }
     if (j.contains("part_numbers") && !j["part_numbers"].is_null()) {
         v.part_numbers = j["part_numbers"].get<std::vector<std::string>>();
@@ -216,7 +216,7 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
         v.sort_order = j["sort_order"].get<ListSortOrder>();
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<nlohmann::json>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
     if (j.contains("include_metadata") && !j["include_metadata"].is_null()) {
         v.include_metadata = j["include_metadata"].get<bool>();
@@ -263,7 +263,7 @@ public:
     }
 
     /// Set the `samples` field.
-    RunListRequestBuilder& samples(std::vector<ListSample> value) {
+    RunListRequestBuilder& samples(std::vector<Sample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -381,7 +381,7 @@ public:
 
     /// Set the `metadata` field.
     /// Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
-    RunListRequestBuilder& metadata(nlohmann::json value) {
+    RunListRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
@@ -466,7 +466,7 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> serial_numbers_;
-    std::optional<std::vector<ListSample>> samples_;
+    std::optional<std::vector<Sample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;
@@ -485,7 +485,7 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<RunListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
-    std::optional<nlohmann::json> metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<bool> include_metadata_;
 };
 

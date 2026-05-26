@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Station whose API key was used to create this run. Only returned if `all` or `created_by` is included.
 struct RunListCreatedByStation {
     /// Station ID.
     std::string id;

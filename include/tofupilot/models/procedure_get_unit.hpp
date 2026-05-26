@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Unit information.
 struct ProcedureGetUnit {
     /// Unit serial number.
     std::string serial_number;

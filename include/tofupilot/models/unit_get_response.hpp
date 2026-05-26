@@ -13,7 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/one_of_boolean_number_str.hpp"
+#include "tofupilot/models/sample.hpp"
 #include "tofupilot/models/unit_get_attachments.hpp"
 #include "tofupilot/models/unit_get_batch.hpp"
 #include "tofupilot/models/unit_get_children.hpp"
@@ -34,7 +34,7 @@ struct UnitGetResponse {
     /// ISO 8601 timestamp when the unit was created.
     std::string created_at;
     /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
-    std::optional<std::string> sample;
+    std::optional<Sample> sample;
     /// User who created this unit.
     NullableField<UnitGetCreatedByUser> created_by_user;
     /// Station that created this unit.
@@ -52,7 +52,7 @@ struct UnitGetResponse {
     /// Files attached to this unit.
     std::optional<std::vector<UnitGetAttachments>> attachments;
     /// Custom metadata key/value pairs on the unit.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitGetResponse& v) {
@@ -123,7 +123,7 @@ inline void from_json(const nlohmann::json& j, UnitGetResponse& v) {
     }
     v.created_at = j["created_at"].get<std::string>();
     if (j.contains("sample") && !j["sample"].is_null()) {
-        v.sample = j["sample"].get<std::string>();
+        v.sample = j["sample"].get<Sample>();
     }
     if (j.contains("created_by_user")) {
         if (j["created_by_user"].is_null()) {
@@ -168,7 +168,7 @@ inline void from_json(const nlohmann::json& j, UnitGetResponse& v) {
         v.attachments = j["attachments"].get<std::vector<UnitGetAttachments>>();
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 

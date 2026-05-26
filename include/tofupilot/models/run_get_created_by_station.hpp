@@ -15,9 +15,11 @@
 
 namespace tofupilot {
 
+/// Station whose API key was used to create this run. Only returned if `all` or `created_by` is included.
 struct RunGetCreatedByStation {
     /// Station ID.
     std::string id;
+    /// Station name.
     std::optional<std::string> name;
 };
 
@@ -51,6 +53,7 @@ public:
     }
 
     /// Set the `name` field.
+    /// Station name.
     RunGetCreatedByStationBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;

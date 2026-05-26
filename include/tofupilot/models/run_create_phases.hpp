@@ -27,7 +27,9 @@ struct RunCreatePhases {
     std::string started_at;
     /// ISO 8601 timestamp when the phase execution completed.
     std::string ended_at;
+    /// Additional notes or documentation about this test phase.
     NullableField<std::string> docstring;
+    /// Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data.
     NullableField<std::vector<RunCreateMeasurements>> measurements;
     /// Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count.
     std::optional<int64_t> retry_count;
@@ -130,6 +132,7 @@ public:
     }
 
     /// Set the `docstring` field.
+    /// Additional notes or documentation about this test phase.
     RunCreatePhasesBuilder& docstring(std::string value) {
         docstring_ = NullableField<std::string>::value(std::move(value));
         return *this;
@@ -142,6 +145,7 @@ public:
     }
 
     /// Set the `measurements` field.
+    /// Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data.
     RunCreatePhasesBuilder& measurements(std::vector<RunCreateMeasurements> value) {
         measurements_ = NullableField<std::vector<RunCreateMeasurements>>::value(std::move(value));
         return *this;

@@ -38,29 +38,29 @@ inline void to_json(nlohmann::json& j, const ProcedureUpdateRequestBody& v) {
     }
     if (!v.production_branch.is_absent()) {
         if (v.production_branch.is_null()) {
-            j["production_branch"] = nullptr;
+            j["productionBranch"] = nullptr;
         } else {
-            j["production_branch"] = v.production_branch.get();
+            j["productionBranch"] = v.production_branch.get();
         }
     }
     if (v.auto_push_enabled.has_value()) {
-        j["auto_push_enabled"] = v.auto_push_enabled.value();
+        j["autoPushEnabled"] = v.auto_push_enabled.value();
     }
     if (v.excluded_branch_patterns.has_value()) {
-        j["excluded_branch_patterns"] = v.excluded_branch_patterns.value();
+        j["excludedBranchPatterns"] = v.excluded_branch_patterns.value();
     }
     if (!v.root_directory.is_absent()) {
         if (v.root_directory.is_null()) {
-            j["root_directory"] = nullptr;
+            j["rootDirectory"] = nullptr;
         } else {
-            j["root_directory"] = v.root_directory.get();
+            j["rootDirectory"] = v.root_directory.get();
         }
     }
     if (!v.entry_point.is_absent()) {
         if (v.entry_point.is_null()) {
-            j["entry_point"] = nullptr;
+            j["entryPoint"] = nullptr;
         } else {
-            j["entry_point"] = v.entry_point.get();
+            j["entryPoint"] = v.entry_point.get();
         }
     }
 }
@@ -69,31 +69,31 @@ inline void from_json(const nlohmann::json& j, ProcedureUpdateRequestBody& v) {
     if (j.contains("name") && !j["name"].is_null()) {
         v.name = j["name"].get<std::string>();
     }
-    if (j.contains("production_branch")) {
-        if (j["production_branch"].is_null()) {
+    if (j.contains("productionBranch")) {
+        if (j["productionBranch"].is_null()) {
             v.production_branch = NullableField<std::string>::make_null();
         } else {
-            v.production_branch = NullableField<std::string>::value(j["production_branch"].get<std::string>());
+            v.production_branch = NullableField<std::string>::value(j["productionBranch"].get<std::string>());
         }
     }
-    if (j.contains("auto_push_enabled") && !j["auto_push_enabled"].is_null()) {
-        v.auto_push_enabled = j["auto_push_enabled"].get<bool>();
+    if (j.contains("autoPushEnabled") && !j["autoPushEnabled"].is_null()) {
+        v.auto_push_enabled = j["autoPushEnabled"].get<bool>();
     }
-    if (j.contains("excluded_branch_patterns") && !j["excluded_branch_patterns"].is_null()) {
-        v.excluded_branch_patterns = j["excluded_branch_patterns"].get<std::vector<std::string>>();
+    if (j.contains("excludedBranchPatterns") && !j["excludedBranchPatterns"].is_null()) {
+        v.excluded_branch_patterns = j["excludedBranchPatterns"].get<std::vector<std::string>>();
     }
-    if (j.contains("root_directory")) {
-        if (j["root_directory"].is_null()) {
+    if (j.contains("rootDirectory")) {
+        if (j["rootDirectory"].is_null()) {
             v.root_directory = NullableField<std::string>::make_null();
         } else {
-            v.root_directory = NullableField<std::string>::value(j["root_directory"].get<std::string>());
+            v.root_directory = NullableField<std::string>::value(j["rootDirectory"].get<std::string>());
         }
     }
-    if (j.contains("entry_point")) {
-        if (j["entry_point"].is_null()) {
+    if (j.contains("entryPoint")) {
+        if (j["entryPoint"].is_null()) {
             v.entry_point = NullableField<std::string>::make_null();
         } else {
-            v.entry_point = NullableField<std::string>::value(j["entry_point"].get<std::string>());
+            v.entry_point = NullableField<std::string>::value(j["entryPoint"].get<std::string>());
         }
     }
 }
@@ -108,54 +108,54 @@ public:
         return *this;
     }
 
-    /// Set the `production_branch` field.
+    /// Set the `productionBranch` field.
     /// Branch treated as production. Pushes to this branch deploy as production; every other branch deploys as preview. Null = no branch promoted to production.
     ProcedureUpdateRequestBodyBuilder& production_branch(std::string value) {
         production_branch_ = NullableField<std::string>::value(std::move(value));
         return *this;
     }
 
-    /// Explicitly set `production_branch` to null.
+    /// Explicitly set `productionBranch` to null.
     ProcedureUpdateRequestBodyBuilder& production_branch_null() {
         production_branch_ = NullableField<std::string>::make_null();
         return *this;
     }
 
-    /// Set the `auto_push_enabled` field.
+    /// Set the `autoPushEnabled` field.
     /// Master switch for auto-pushing builds to linked stations. Build artifacts are always recorded; this only gates the station fan-out.
     ProcedureUpdateRequestBodyBuilder& auto_push_enabled(bool value) {
         auto_push_enabled_ = std::move(value);
         return *this;
     }
 
-    /// Set the `excluded_branch_patterns` field.
+    /// Set the `excludedBranchPatterns` field.
     /// Branches matching any of these patterns (exact name or minimatch glob, e.g. "renovate/*") skip preview deployments. Empty array = no exclusions.
     ProcedureUpdateRequestBodyBuilder& excluded_branch_patterns(std::vector<std::string> value) {
         excluded_branch_patterns_ = std::move(value);
         return *this;
     }
 
-    /// Set the `root_directory` field.
+    /// Set the `rootDirectory` field.
     /// Path within the linked repo to the directory holding this procedure's `pyproject.toml` (and `procedure.yaml` for framework procedures). Empty/null = repo root.
     ProcedureUpdateRequestBodyBuilder& root_directory(std::string value) {
         root_directory_ = NullableField<std::string>::value(std::move(value));
         return *this;
     }
 
-    /// Explicitly set `root_directory` to null.
+    /// Explicitly set `rootDirectory` to null.
     ProcedureUpdateRequestBodyBuilder& root_directory_null() {
         root_directory_ = NullableField<std::string>::make_null();
         return *this;
     }
 
-    /// Set the `entry_point` field.
+    /// Set the `entryPoint` field.
     /// Entry-point path inside the procedure's package dir, relative to it. Forwarded to the CLI through the deployment manifest. Empty/null = use the framework default (openhtf/plain → main.py, pytest → ".", yaml → procedure.yaml auto-discovery).
     ProcedureUpdateRequestBodyBuilder& entry_point(std::string value) {
         entry_point_ = NullableField<std::string>::value(std::move(value));
         return *this;
     }
 
-    /// Explicitly set `entry_point` to null.
+    /// Explicitly set `entryPoint` to null.
     ProcedureUpdateRequestBodyBuilder& entry_point_null() {
         entry_point_ = NullableField<std::string>::make_null();
         return *this;

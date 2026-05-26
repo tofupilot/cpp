@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Version of the procedure used for this run.
 struct RunGetVersion {
     /// Procedure version ID.
     std::string id;

@@ -6,7 +6,7 @@ Structured validator specification with operator, expected value, and outcome.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `outcome` | `NullableField<std::string>` | :heavy_minus_sign: | Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate. |
+| `outcome` | `NullableField<ValidatorsOutcome>` | :heavy_minus_sign: | Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate. |
 | `operator_` | `NullableField<std::string>` | :heavy_minus_sign: | Comparison operator: ">", ">=", "<", "<=", "==", "!=", "matches", "in", "range" |
 | `expected_value` | `NullableField<nlohmann::json>` | :heavy_minus_sign: | Expected value for comparison. Type depends on operator. |
 | `expression` | `NullableField<std::string>` | :heavy_minus_sign: | Original expression string for display/audit purposes. |

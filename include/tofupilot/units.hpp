@@ -25,10 +25,10 @@ class UnitsClient {
 public:
     explicit UnitsClient(TofuPilot& client) noexcept : client_(client) {}
 
-    class ListBuilder;
-    ListBuilder list();
     class CreateBuilder;
     CreateBuilder create();
+    class ListBuilder;
+    ListBuilder list();
     class DeleteBuilder;
     DeleteBuilder delete_();
     class GetBuilder;
@@ -49,6 +49,98 @@ public:
 
 private:
     TofuPilot& client_;
+};
+
+class UnitsClient::CreateBuilder {
+public:
+    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    CreateBuilder& serial_number(std::string value) {
+        serial_number_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& part_number(std::string value) {
+        part_number_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& revision_number(std::string value) {
+        revision_number_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& sample(Sample value) {
+        sample_ = NullableField<Sample>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& sample_null() {
+        sample_ = NullableField<Sample>::make_null();
+        return *this;
+    }
+    CreateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& body(UnitCreateRequest b) {
+        serial_number_ = std::move(b.serial_number);
+        part_number_ = std::move(b.part_number);
+        revision_number_ = std::move(b.revision_number);
+        sample_ = std::move(b.sample);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
+        return *this;
+    }
+
+    CreateBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    CreateBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    UnitCreateResponse send() {
+
+        std::string path = "/v2/units";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            UnitCreateRequest req_body;
+            if (!serial_number_.has_value()) throw ValidationError("missing required field: serial_number");
+            req_body.serial_number = serial_number_.value();
+            if (!part_number_.has_value()) throw ValidationError("missing required field: part_number");
+            req_body.part_number = part_number_.value();
+            if (!revision_number_.has_value()) throw ValidationError("missing required field: revision_number");
+            req_body.revision_number = revision_number_.value();
+            if (!sample_.is_absent()) req_body.sample = sample_;
+            req_body.metadata = metadata_;
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return UnitCreateResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<UnitCreateResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> serial_number_;
+    std::optional<std::string> part_number_;
+    std::optional<std::string> revision_number_;
+    NullableField<Sample> sample_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    RequestConfig request_config_;
 };
 
 class UnitsClient::ListBuilder {
@@ -127,7 +219,7 @@ public:
         exclude_units_with_parent_ = std::move(value);
         return *this;
     }
-    ListBuilder& samples(std::vector<ListSample> value) {
+    ListBuilder& samples(std::vector<Sample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -147,7 +239,7 @@ public:
         sort_order_ = std::move(value);
         return *this;
     }
-    ListBuilder& metadata(nlohmann::json value) {
+    ListBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
@@ -358,105 +450,13 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<bool> exclude_units_with_parent_;
-    std::optional<std::vector<ListSample>> samples_;
+    std::optional<std::vector<Sample>> samples_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
-    std::optional<nlohmann::json> metadata_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<bool> include_metadata_;
-    RequestConfig request_config_;
-};
-
-class UnitsClient::CreateBuilder {
-public:
-    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    CreateBuilder& serial_number(std::string value) {
-        serial_number_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& part_number(std::string value) {
-        part_number_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& revision_number(std::string value) {
-        revision_number_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& sample(std::string value) {
-        sample_ = NullableField<std::string>::value(std::move(value));
-        return *this;
-    }
-    CreateBuilder& sample_null() {
-        sample_ = NullableField<std::string>::make_null();
-        return *this;
-    }
-    CreateBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
-        metadata_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& body(UnitCreateRequest b) {
-        serial_number_ = std::move(b.serial_number);
-        part_number_ = std::move(b.part_number);
-        revision_number_ = std::move(b.revision_number);
-        sample_ = std::move(b.sample);
-        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
-        return *this;
-    }
-
-    CreateBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    CreateBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    UnitCreateResponse send() {
-
-        std::string path = "/v2/units";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-        {
-            UnitCreateRequest req_body;
-            if (!serial_number_.has_value()) throw ValidationError("missing required field: serial_number");
-            req_body.serial_number = serial_number_.value();
-            if (!part_number_.has_value()) throw ValidationError("missing required field: part_number");
-            req_body.part_number = part_number_.value();
-            if (!revision_number_.has_value()) throw ValidationError("missing required field: revision_number");
-            req_body.revision_number = revision_number_.value();
-            if (!sample_.is_absent()) req_body.sample = sample_;
-            req_body.metadata = metadata_;
-            body_str = nlohmann::json(req_body).dump();
-            content_type = "application/json";
-        }
-
-        auto result = client_.execute("POST", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return UnitCreateResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<UnitCreateResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> serial_number_;
-    std::optional<std::string> part_number_;
-    std::optional<std::string> revision_number_;
-    NullableField<std::string> sample_;
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
     RequestConfig request_config_;
 };
 
@@ -599,12 +599,12 @@ public:
         attachments_ = std::move(value);
         return *this;
     }
-    UpdateBuilder& sample(std::string value) {
-        sample_ = NullableField<std::string>::value(std::move(value));
+    UpdateBuilder& sample(Sample value) {
+        sample_ = NullableField<Sample>::value(std::move(value));
         return *this;
     }
     UpdateBuilder& sample_null() {
-        sample_ = NullableField<std::string>::make_null();
+        sample_ = NullableField<Sample>::make_null();
         return *this;
     }
     UpdateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
@@ -675,7 +675,7 @@ private:
     std::optional<std::string> revision_number_;
     NullableField<std::string> batch_number_;
     std::optional<std::vector<std::string>> attachments_;
-    NullableField<std::string> sample_;
+    NullableField<Sample> sample_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
@@ -936,11 +936,11 @@ private:
     RequestConfig request_config_;
 };
 
-inline UnitsClient::ListBuilder UnitsClient::list() {
-    return ListBuilder(client_);
-}
 inline UnitsClient::CreateBuilder UnitsClient::create() {
     return CreateBuilder(client_);
+}
+inline UnitsClient::ListBuilder UnitsClient::list() {
+    return ListBuilder(client_);
 }
 inline UnitsClient::DeleteBuilder UnitsClient::delete_() {
     return DeleteBuilder(client_);

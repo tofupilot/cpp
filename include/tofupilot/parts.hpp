@@ -24,19 +24,91 @@ class PartsClient {
 public:
     explicit PartsClient(TofuPilot& client) noexcept : client_(client) {}
 
-    class ListBuilder;
-    ListBuilder list();
     class CreateBuilder;
     CreateBuilder create();
+    class ListBuilder;
+    ListBuilder list();
     class GetBuilder;
     GetBuilder get();
-    class DeleteBuilder;
-    DeleteBuilder delete_();
     class UpdateBuilder;
     UpdateBuilder update();
+    class DeleteBuilder;
+    DeleteBuilder delete_();
 
 private:
     TofuPilot& client_;
+};
+
+class PartsClient::CreateBuilder {
+public:
+    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    CreateBuilder& number(std::string value) {
+        number_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& name(std::string value) {
+        name_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& revision_number(std::string value) {
+        revision_number_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& body(PartCreateRequest b) {
+        number_ = std::move(b.number);
+        if (b.name.has_value()) name_ = std::move(b.name);
+        if (b.revision_number.has_value()) revision_number_ = std::move(b.revision_number);
+        return *this;
+    }
+
+    CreateBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    CreateBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    PartCreateResponse send() {
+
+        std::string path = "/v2/parts";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            PartCreateRequest req_body;
+            if (!number_.has_value()) throw ValidationError("missing required field: number");
+            req_body.number = number_.value();
+            req_body.name = name_;
+            req_body.revision_number = revision_number_;
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return PartCreateResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<PartCreateResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> number_;
+    std::optional<std::string> name_;
+    std::optional<std::string> revision_number_;
+    RequestConfig request_config_;
 };
 
 class PartsClient::ListBuilder {
@@ -148,78 +220,6 @@ private:
     RequestConfig request_config_;
 };
 
-class PartsClient::CreateBuilder {
-public:
-    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    CreateBuilder& number(std::string value) {
-        number_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& name(std::string value) {
-        name_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& revision_number(std::string value) {
-        revision_number_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& body(PartCreateRequest b) {
-        number_ = std::move(b.number);
-        if (b.name.has_value()) name_ = std::move(b.name);
-        if (b.revision_number.has_value()) revision_number_ = std::move(b.revision_number);
-        return *this;
-    }
-
-    CreateBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    CreateBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    PartCreateResponse send() {
-
-        std::string path = "/v2/parts";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-        {
-            PartCreateRequest req_body;
-            if (!number_.has_value()) throw ValidationError("missing required field: number");
-            req_body.number = number_.value();
-            req_body.name = name_;
-            req_body.revision_number = revision_number_;
-            body_str = nlohmann::json(req_body).dump();
-            content_type = "application/json";
-        }
-
-        auto result = client_.execute("POST", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return PartCreateResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<PartCreateResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> number_;
-    std::optional<std::string> name_;
-    std::optional<std::string> revision_number_;
-    RequestConfig request_config_;
-};
-
 class PartsClient::GetBuilder {
 public:
     explicit GetBuilder(TofuPilot& client) noexcept : client_(client) {}
@@ -257,54 +257,6 @@ public:
         }
         try {
             return nlohmann::json::parse(resp_body).get<PartGetResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> number_;
-    RequestConfig request_config_;
-};
-
-class PartsClient::DeleteBuilder {
-public:
-    explicit DeleteBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    DeleteBuilder& number(std::string value) {
-        number_ = std::move(value);
-        return *this;
-    }
-
-    DeleteBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    DeleteBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    PartDeleteResponse send() {
-        if (!number_.has_value()) throw ValidationError("missing required path parameter: number");
-
-        std::string path = "/v2/parts/" + detail::url_encode(number_.value()) + "";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-
-        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return PartDeleteResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<PartDeleteResponse>();
         } catch (const nlohmann::json::parse_error& e) {
             throw HttpError(std::string("Invalid JSON in response: ") + e.what());
         }
@@ -386,20 +338,68 @@ private:
     RequestConfig request_config_;
 };
 
-inline PartsClient::ListBuilder PartsClient::list() {
-    return ListBuilder(client_);
-}
+class PartsClient::DeleteBuilder {
+public:
+    explicit DeleteBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    DeleteBuilder& number(std::string value) {
+        number_ = std::move(value);
+        return *this;
+    }
+
+    DeleteBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    DeleteBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    PartDeleteResponse send() {
+        if (!number_.has_value()) throw ValidationError("missing required path parameter: number");
+
+        std::string path = "/v2/parts/" + detail::url_encode(number_.value()) + "";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+
+        auto result = client_.execute("DELETE", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return PartDeleteResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<PartDeleteResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> number_;
+    RequestConfig request_config_;
+};
+
 inline PartsClient::CreateBuilder PartsClient::create() {
     return CreateBuilder(client_);
+}
+inline PartsClient::ListBuilder PartsClient::list() {
+    return ListBuilder(client_);
 }
 inline PartsClient::GetBuilder PartsClient::get() {
     return GetBuilder(client_);
 }
-inline PartsClient::DeleteBuilder PartsClient::delete_() {
-    return DeleteBuilder(client_);
-}
 inline PartsClient::UpdateBuilder PartsClient::update() {
     return UpdateBuilder(client_);
+}
+inline PartsClient::DeleteBuilder PartsClient::delete_() {
+    return DeleteBuilder(client_);
 }
 
 } // namespace tofupilot

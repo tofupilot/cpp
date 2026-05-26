@@ -16,7 +16,8 @@
 #include "revisions.hpp"
 #include "batches.hpp"
 #include "stations.hpp"
-#include "user.hpp"
+#include "users.hpp"
+#include "imports.hpp"
 #include "upload.hpp"
 
 namespace tofupilot {
@@ -47,7 +48,10 @@ inline BatchesClient TofuPilot::batches() {
 inline StationsClient TofuPilot::stations() {
     return StationsClient(*this);
 }
-inline UserClient TofuPilot::user() {
-    return UserClient(*this);
+inline UsersClient TofuPilot::users() {
+    return UsersClient(*this);
+}
+inline ImportsClient TofuPilot::imports() {
+    return ImportsClient(*this);
 }
 } // namespace tofupilot

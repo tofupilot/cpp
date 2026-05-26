@@ -24,10 +24,10 @@ class ProceduresClient {
 public:
     explicit ProceduresClient(TofuPilot& client) noexcept : client_(client) {}
 
-    class ListBuilder;
-    ListBuilder list();
     class CreateBuilder;
     CreateBuilder create();
+    class ListBuilder;
+    ListBuilder list();
     class GetBuilder;
     GetBuilder get();
     class DeleteBuilder;
@@ -37,6 +37,64 @@ public:
 
 private:
     TofuPilot& client_;
+};
+
+class ProceduresClient::CreateBuilder {
+public:
+    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    CreateBuilder& name(std::string value) {
+        name_ = std::move(value);
+        return *this;
+    }
+    CreateBuilder& body(ProcedureCreateRequest b) {
+        name_ = std::move(b.name);
+        return *this;
+    }
+
+    CreateBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    CreateBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    ProcedureCreateResponse send() {
+
+        std::string path = "/v2/procedures";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            ProcedureCreateRequest req_body;
+            if (!name_.has_value()) throw ValidationError("missing required field: name");
+            req_body.name = name_.value();
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return ProcedureCreateResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<ProcedureCreateResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> name_;
+    RequestConfig request_config_;
 };
 
 class ProceduresClient::ListBuilder {
@@ -133,64 +191,6 @@ private:
     std::optional<std::string> search_query_;
     std::optional<std::string> created_after_;
     std::optional<std::string> created_before_;
-    RequestConfig request_config_;
-};
-
-class ProceduresClient::CreateBuilder {
-public:
-    explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
-
-    CreateBuilder& name(std::string value) {
-        name_ = std::move(value);
-        return *this;
-    }
-    CreateBuilder& body(ProcedureCreateRequest b) {
-        name_ = std::move(b.name);
-        return *this;
-    }
-
-    CreateBuilder& server_url(std::string url) {
-        request_config_.server_url = std::move(url);
-        return *this;
-    }
-    CreateBuilder& timeout(std::chrono::seconds t) {
-        request_config_.timeout = t;
-        return *this;
-    }
-
-    ProcedureCreateResponse send() {
-
-        std::string path = "/v2/procedures";
-
-        std::string query_string;
-
-        std::string body_str;
-        std::string content_type;
-        {
-            ProcedureCreateRequest req_body;
-            if (!name_.has_value()) throw ValidationError("missing required field: name");
-            req_body.name = name_.value();
-            body_str = nlohmann::json(req_body).dump();
-            content_type = "application/json";
-        }
-
-        auto result = client_.execute("POST", path, body_str, content_type, query_string,
-            request_config_.is_default() ? nullptr : &request_config_);
-
-        const auto& resp_body = result->body;
-        if (resp_body.empty()) {
-            return ProcedureCreateResponse{};
-        }
-        try {
-            return nlohmann::json::parse(resp_body).get<ProcedureCreateResponse>();
-        } catch (const nlohmann::json::parse_error& e) {
-            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
-        }
-    }
-
-private:
-    TofuPilot& client_;
-    std::optional<std::string> name_;
     RequestConfig request_config_;
 };
 
@@ -400,11 +400,11 @@ private:
     RequestConfig request_config_;
 };
 
-inline ProceduresClient::ListBuilder ProceduresClient::list() {
-    return ListBuilder(client_);
-}
 inline ProceduresClient::CreateBuilder ProceduresClient::create() {
     return CreateBuilder(client_);
+}
+inline ProceduresClient::ListBuilder ProceduresClient::list() {
+    return ListBuilder(client_);
 }
 inline ProceduresClient::GetBuilder ProceduresClient::get() {
     return GetBuilder(client_);

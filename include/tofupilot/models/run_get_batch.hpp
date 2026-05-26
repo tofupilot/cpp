@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Batch information for this unit.
 struct RunGetBatch {
     /// Batch ID.
     std::string id;

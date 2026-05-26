@@ -17,4 +17,4 @@
 | `operated_by` | `NullableField<RunListOperatedBy>` | :heavy_minus_sign: | User who operated this run. Only returned if `all` or `operated_by` is included. |
 | `procedure` | `RunListProcedure` | :heavy_check_mark: | Test procedure associated with this run. |
 | `unit` | `RunListUnit` | :heavy_check_mark: | Unit under test information. |
-| `metadata` | `std::optional<std::map<std::string, OneOfBooleanNumberStr>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`. |

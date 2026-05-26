@@ -20,9 +20,9 @@ namespace tofupilot {
 
 class TofuPilot;
 
-class UserClient {
+class UsersClient {
 public:
-    explicit UserClient(TofuPilot& client) noexcept : client_(client) {}
+    explicit UsersClient(TofuPilot& client) noexcept : client_(client) {}
 
     class ListBuilder;
     ListBuilder list();
@@ -31,7 +31,7 @@ private:
     TofuPilot& client_;
 };
 
-class UserClient::ListBuilder {
+class UsersClient::ListBuilder {
 public:
     explicit ListBuilder(TofuPilot& client) noexcept : client_(client) {}
 
@@ -88,7 +88,7 @@ private:
     RequestConfig request_config_;
 };
 
-inline UserClient::ListBuilder UserClient::list() {
+inline UsersClient::ListBuilder UsersClient::list() {
     return ListBuilder(client_);
 }
 

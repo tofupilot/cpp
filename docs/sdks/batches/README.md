@@ -12,7 +12,7 @@
 
 ## get
 
-Retrieve a single batch by its number, including all associated units, serial numbers, and part revisions.
+Get a batch by number, with its units, serial numbers, and part revisions.
 
 ### Example Usage
 
@@ -56,7 +56,7 @@ int main() {
 
 ## delete_
 
-Permanently delete a batch by number. Units associated with the batch will be disassociated but not deleted. No nested elements are removed.
+Delete a batch by number. Linked units are unlinked, not deleted.
 
 ### Example Usage
 
@@ -99,7 +99,7 @@ int main() {
 
 ## update
 
-Update a batch number. The current batch number is specified in the URL path with case-insensitive matching.
+Rename a batch. The current number matches case-insensitively.
 
 ### Example Usage
 
@@ -145,7 +145,7 @@ int main() {
 
 ## list
 
-Retrieve batches with associated units, serial numbers, and part revisions using cursor-based pagination.
+List batches with their units, serial numbers, and part revisions. Cursor-paginated.
 
 ### Example Usage
 
@@ -197,7 +197,7 @@ int main() {
 
 ## create
 
-Create a new batch without any units attached. Batch numbers are matched case-insensitively (e.g., "BATCH-001" and "batch-001" are considered the same).
+Create an empty batch. Batch numbers match case-insensitively ("BATCH-001" == "batch-001").
 
 ### Example Usage
 

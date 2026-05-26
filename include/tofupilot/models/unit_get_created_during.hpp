@@ -17,6 +17,7 @@
 
 namespace tofupilot {
 
+/// Run that created this unit.
 struct UnitGetCreatedDuring {
     /// Run ID.
     std::string id;

@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Station that created this procedure version.
 struct ProcedureGetVersionCreatedByStation {
     /// Station ID.
     std::string id;

@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Station that created the revision.
 struct PartGetRevisionCreatedByStation {
     /// Unique identifier of the station.
     std::string id;

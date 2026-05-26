@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Station that created this unit.
 struct UnitGetCreatedByStation {
     /// Station ID.
     std::string id;

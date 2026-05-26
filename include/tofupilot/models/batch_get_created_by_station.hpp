@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Station that created this batch.
 struct BatchGetCreatedByStation {
     /// Station ID.
     std::string id;

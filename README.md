@@ -11,7 +11,7 @@ Add to your `CMakeLists.txt`:
 
 ```cmake
 include(FetchContent)
-FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.5.0 GIT_SHALLOW TRUE)
+FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.6.1 GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(tofupilot)
 target_link_libraries(your_target PRIVATE tofupilot)
 ```
@@ -71,16 +71,17 @@ auto client = tofupilot::TofuPilot(
 
 | Resource | Operations |
 |----------|-----------|
-| `client.procedures()` | list, create, get, delete_, update |
+| `client.procedures()` | create, list, get, delete_, update |
 | `client.versions()` | get, delete_, create |
-| `client.runs()` | list, create, delete_, get, update, create_attachment, update_metadata |
+| `client.runs()` | create, list, delete_, get, update, create_attachment, update_metadata |
 | `client.attachments()` | initialize, finalize |
-| `client.units()` | list, create, delete_, get, update, add_child, remove_child, create_attachment, delete_attachment |
-| `client.parts()` | list, create, get, delete_, update |
-| `client.revisions()` | get, delete_, update, create |
+| `client.units()` | create, list, delete_, get, update, add_child, remove_child, create_attachment, delete_attachment |
+| `client.parts()` | create, list, get, update, delete_ |
+| `client.revisions()` | get, update, delete_, create |
 | `client.batches()` | get, delete_, update, list, create |
-| `client.stations()` | list, create, get_current, get, remove, update |
-| `client.user()` | list |
+| `client.stations()` | create, list, get_current, get, update, remove |
+| `client.users()` | list |
+| `client.imports()` | create_from_files |
 
 ## Usage Examples
 

@@ -15,9 +15,11 @@
 
 namespace tofupilot {
 
+/// User who created this procedure version.
 struct ProcedureGetVersionCreatedByUser {
     /// User ID.
     std::string id;
+    /// User display name.
     std::optional<std::string> name;
 };
 
@@ -51,6 +53,7 @@ public:
     }
 
     /// Set the `name` field.
+    /// User display name.
     ProcedureGetVersionCreatedByUserBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;

@@ -15,6 +15,7 @@
 
 namespace tofupilot {
 
+/// Parent unit in the assembly hierarchy. Null if this is a top-level unit.
 struct UnitListParent {
     /// Unique identifier for the parent unit.
     std::string id;

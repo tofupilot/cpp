@@ -13,7 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/one_of_boolean_number_str.hpp"
+#include "tofupilot/models/sample.hpp"
 
 namespace tofupilot {
 
@@ -25,9 +25,9 @@ struct UnitCreateRequest {
     /// Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
     std::string revision_number;
     /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
-    NullableField<std::string> sample;
+    NullableField<Sample> sample;
     /// Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata;
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const UnitCreateRequest& v) {
@@ -65,13 +65,13 @@ inline void from_json(const nlohmann::json& j, UnitCreateRequest& v) {
     v.revision_number = j["revision_number"].get<std::string>();
     if (j.contains("sample")) {
         if (j["sample"].is_null()) {
-            v.sample = NullableField<std::string>::make_null();
+            v.sample = NullableField<Sample>::make_null();
         } else {
-            v.sample = NullableField<std::string>::value(j["sample"].get<std::string>());
+            v.sample = NullableField<Sample>::value(j["sample"].get<Sample>());
         }
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
-        v.metadata = j["metadata"].get<std::map<std::string, OneOfBooleanNumberStr>>();
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -101,20 +101,20 @@ public:
 
     /// Set the `sample` field.
     /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
-    UnitCreateRequestBuilder& sample(std::string value) {
-        sample_ = NullableField<std::string>::value(std::move(value));
+    UnitCreateRequestBuilder& sample(Sample value) {
+        sample_ = NullableField<Sample>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `sample` to null.
     UnitCreateRequestBuilder& sample_null() {
-        sample_ = NullableField<std::string>::make_null();
+        sample_ = NullableField<Sample>::make_null();
         return *this;
     }
 
     /// Set the `metadata` field.
     /// Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
-    UnitCreateRequestBuilder& metadata(std::map<std::string, OneOfBooleanNumberStr> value) {
+    UnitCreateRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
     }
@@ -163,8 +163,8 @@ private:
     std::optional<std::string> serial_number_;
     std::optional<std::string> part_number_;
     std::optional<std::string> revision_number_;
-    NullableField<std::string> sample_;
-    std::optional<std::map<std::string, OneOfBooleanNumberStr>> metadata_;
+    NullableField<Sample> sample_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

@@ -17,13 +17,18 @@ namespace tofupilot {
 
 /// Run created successfully
 struct RunCreateResponse {
-    /// Unique identifier of the created run.
+    /// Unique identifier of the created run. For a file that yields several runs (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document), this is the first run; see `ids` for the full set.
     std::string id;
+    /// All run identifiers created from the file. Present when the import produced more than one run; a single-run import omits it (use `id`).
+    std::optional<std::vector<std::string>> ids;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreateResponse& v) {
     j = nlohmann::json::object();
     j["id"] = v.id;
+    if (v.ids.has_value()) {
+        j["ids"] = v.ids.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, RunCreateResponse& v) {
@@ -32,6 +37,9 @@ inline void from_json(const nlohmann::json& j, RunCreateResponse& v) {
             "missing required field in response: id", &j);
     }
     v.id = j["id"].get<std::string>();
+    if (j.contains("ids") && !j["ids"].is_null()) {
+        v.ids = j["ids"].get<std::vector<std::string>>();
+    }
 }
 
 } // namespace tofupilot

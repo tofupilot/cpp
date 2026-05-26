@@ -15,10 +15,13 @@
 
 namespace tofupilot {
 
+/// User who operated this run. Only returned if `all` or `operated_by` is included.
 struct RunGetOperatedBy {
     /// Operator ID.
     std::string id;
+    /// Operator display name.
     std::optional<std::string> name;
+    /// Operator email address.
     std::optional<std::string> email;
 };
 
@@ -58,12 +61,14 @@ public:
     }
 
     /// Set the `name` field.
+    /// Operator display name.
     RunGetOperatedByBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;
     }
 
     /// Set the `email` field.
+    /// Operator email address.
     RunGetOperatedByBuilder& email(std::string value) {
         email_ = std::move(value);
         return *this;
