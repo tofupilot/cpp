@@ -13,10 +13,10 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_get_aggregations.hpp"
 #include "tofupilot/models/run_get_data_series.hpp"
 #include "tofupilot/models/run_get_validators.hpp"
-#include "tofupilot/models/validators_outcome.hpp"
 
 namespace tofupilot {
 
@@ -26,7 +26,7 @@ struct RunGetMeasurements {
     /// Measurement name.
     std::string name;
     /// Measurement validation result.
-    ValidatorsOutcome outcome;
+    Outcome outcome;
     /// Units of measurement. Not present for multi-dimensional measurements (units are per data series).
     NullableField<std::string> units;
     /// Structured validation rules with outcome and expected values.
@@ -84,7 +84,7 @@ inline void from_json(const nlohmann::json& j, RunGetMeasurements& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<ValidatorsOutcome>();
+    v.outcome = j["outcome"].get<Outcome>();
     if (j.contains("units")) {
         if (j["units"].is_null()) {
             v.units = NullableField<std::string>::make_null();
@@ -129,7 +129,7 @@ public:
 
     /// Set the `outcome` field.
     /// Measurement validation result.
-    RunGetMeasurementsBuilder& outcome(ValidatorsOutcome value) {
+    RunGetMeasurementsBuilder& outcome(Outcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -230,7 +230,7 @@ public:
 private:
     std::optional<std::string> id_;
     std::optional<std::string> name_;
-    std::optional<ValidatorsOutcome> outcome_;
+    std::optional<Outcome> outcome_;
     NullableField<std::string> units_;
     std::optional<std::vector<RunGetValidators>> validators_;
     NullableField<std::vector<RunGetAggregations>> aggregations_;

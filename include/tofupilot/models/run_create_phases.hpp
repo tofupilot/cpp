@@ -13,8 +13,8 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/phases_outcome.hpp"
 #include "tofupilot/models/run_create_measurements.hpp"
+#include "tofupilot/models/run_get_phases_outcome.hpp"
 
 namespace tofupilot {
 
@@ -22,7 +22,7 @@ struct RunCreatePhases {
     /// Name identifier for the test phase. Each phase should have a descriptive name that identifies the specific stage of testing being performed. Analytics at phase level are computed using this name as unique identifier.
     std::string name;
     /// Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed.
-    PhasesOutcome outcome;
+    RunGetPhasesOutcome outcome;
     /// ISO 8601 timestamp when the phase execution began.
     std::string started_at;
     /// ISO 8601 timestamp when the phase execution completed.
@@ -70,7 +70,7 @@ inline void from_json(const nlohmann::json& j, RunCreatePhases& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<PhasesOutcome>();
+    v.outcome = j["outcome"].get<RunGetPhasesOutcome>();
     if (!j.contains("started_at")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: started_at", &j);
@@ -112,7 +112,7 @@ public:
 
     /// Set the `outcome` field.
     /// Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed.
-    RunCreatePhasesBuilder& outcome(PhasesOutcome value) {
+    RunCreatePhasesBuilder& outcome(RunGetPhasesOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -216,7 +216,7 @@ public:
 
 private:
     std::optional<std::string> name_;
-    std::optional<PhasesOutcome> outcome_;
+    std::optional<RunGetPhasesOutcome> outcome_;
     std::optional<std::string> started_at_;
     std::optional<std::string> ended_at_;
     NullableField<std::string> docstring_;

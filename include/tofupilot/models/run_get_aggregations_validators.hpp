@@ -12,14 +12,14 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/validators_outcome.hpp"
+#include "tofupilot/models/outcome.hpp"
 
 namespace tofupilot {
 
 /// Validator result with outcome and comparison details.
 struct RunGetAggregationsValidators {
     /// Validation result: PASS, FAIL, or UNSET.
-    ValidatorsOutcome outcome;
+    Outcome outcome;
     /// Comparison operator used for validation.
     std::optional<std::string> operator_;
     /// Expected value for comparison. Type depends on measurement type.
@@ -61,7 +61,7 @@ inline void from_json(const nlohmann::json& j, RunGetAggregationsValidators& v) 
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<ValidatorsOutcome>();
+    v.outcome = j["outcome"].get<Outcome>();
     if (j.contains("operator") && !j["operator"].is_null()) {
         v.operator_ = j["operator"].get<std::string>();
     }
@@ -96,7 +96,7 @@ class RunGetAggregationsValidatorsBuilder {
 public:
     /// Set the `outcome` field.
     /// Validation result: PASS, FAIL, or UNSET.
-    RunGetAggregationsValidatorsBuilder& outcome(ValidatorsOutcome value) {
+    RunGetAggregationsValidatorsBuilder& outcome(Outcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -203,7 +203,7 @@ public:
     }
 
 private:
-    std::optional<ValidatorsOutcome> outcome_;
+    std::optional<Outcome> outcome_;
     std::optional<std::string> operator__;
     std::optional<nlohmann::json> expected_value_;
     std::optional<std::string> expression_;

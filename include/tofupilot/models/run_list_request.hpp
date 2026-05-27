@@ -13,7 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/list_sort_order.hpp"
-#include "tofupilot/models/outcome.hpp"
+#include "tofupilot/models/run_get_outcome.hpp"
 #include "tofupilot/models/run_list_sort_by.hpp"
 #include "tofupilot/models/sample.hpp"
 
@@ -22,7 +22,7 @@ namespace tofupilot {
 struct RunListRequest {
     std::optional<std::string> search_query;
     std::optional<std::vector<std::string>> ids;
-    std::optional<std::vector<Outcome>> outcomes;
+    std::optional<std::vector<RunGetOutcome>> outcomes;
     std::optional<std::vector<std::string>> procedure_ids;
     std::optional<std::vector<std::string>> procedure_versions;
     std::optional<std::vector<std::string>> serial_numbers;
@@ -147,7 +147,7 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
         v.ids = j["ids"].get<std::vector<std::string>>();
     }
     if (j.contains("outcomes") && !j["outcomes"].is_null()) {
-        v.outcomes = j["outcomes"].get<std::vector<Outcome>>();
+        v.outcomes = j["outcomes"].get<std::vector<RunGetOutcome>>();
     }
     if (j.contains("procedure_ids") && !j["procedure_ids"].is_null()) {
         v.procedure_ids = j["procedure_ids"].get<std::vector<std::string>>();
@@ -239,7 +239,7 @@ public:
     }
 
     /// Set the `outcomes` field.
-    RunListRequestBuilder& outcomes(std::vector<Outcome> value) {
+    RunListRequestBuilder& outcomes(std::vector<RunGetOutcome> value) {
         outcomes_ = std::move(value);
         return *this;
     }
@@ -462,7 +462,7 @@ public:
 private:
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> ids_;
-    std::optional<std::vector<Outcome>> outcomes_;
+    std::optional<std::vector<RunGetOutcome>> outcomes_;
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> serial_numbers_;

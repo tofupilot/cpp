@@ -175,7 +175,7 @@ public:
         procedure_ids_ = std::move(value);
         return *this;
     }
-    ListBuilder& outcomes(std::vector<Outcome> value) {
+    ListBuilder& outcomes(std::vector<RunGetOutcome> value) {
         outcomes_ = std::move(value);
         return *this;
     }
@@ -439,7 +439,7 @@ private:
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;
     std::optional<std::vector<std::string>> procedure_ids_;
-    std::optional<std::vector<Outcome>> outcomes_;
+    std::optional<std::vector<RunGetOutcome>> outcomes_;
     std::optional<std::string> started_after_;
     std::optional<std::string> started_before_;
     std::optional<bool> latest_only_;

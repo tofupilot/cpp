@@ -12,7 +12,7 @@
 | `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `outcomes` | `std::optional<std::vector<Outcome>>` | :heavy_minus_sign: | N/A |
+| `outcomes` | `std::optional<std::vector<RunGetOutcome>>` | :heavy_minus_sign: | N/A |
 | `started_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `started_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `latest_only` | `std::optional<bool>` | :heavy_minus_sign: | N/A |

@@ -13,14 +13,14 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/validators_outcome.hpp"
+#include "tofupilot/models/outcome.hpp"
 
 namespace tofupilot {
 
 /// Structured validator specification with operator and expected value.
 struct RunCreateValidators {
     /// Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate.
-    NullableField<ValidatorsOutcome> outcome;
+    NullableField<Outcome> outcome;
     /// Comparison operator: ">", ">=", "<", "<=", "==", "!=", "matches", "in", "range"
     NullableField<std::string> operator_;
     /// Expected value for comparison. Type depends on operator.
@@ -73,9 +73,9 @@ inline void to_json(nlohmann::json& j, const RunCreateValidators& v) {
 inline void from_json(const nlohmann::json& j, RunCreateValidators& v) {
     if (j.contains("outcome")) {
         if (j["outcome"].is_null()) {
-            v.outcome = NullableField<ValidatorsOutcome>::make_null();
+            v.outcome = NullableField<Outcome>::make_null();
         } else {
-            v.outcome = NullableField<ValidatorsOutcome>::value(j["outcome"].get<ValidatorsOutcome>());
+            v.outcome = NullableField<Outcome>::value(j["outcome"].get<Outcome>());
         }
     }
     if (j.contains("operator")) {
@@ -113,14 +113,14 @@ class RunCreateValidatorsBuilder {
 public:
     /// Set the `outcome` field.
     /// Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate.
-    RunCreateValidatorsBuilder& outcome(ValidatorsOutcome value) {
-        outcome_ = NullableField<ValidatorsOutcome>::value(std::move(value));
+    RunCreateValidatorsBuilder& outcome(Outcome value) {
+        outcome_ = NullableField<Outcome>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `outcome` to null.
     RunCreateValidatorsBuilder& outcome_null() {
-        outcome_ = NullableField<ValidatorsOutcome>::make_null();
+        outcome_ = NullableField<Outcome>::make_null();
         return *this;
     }
 
@@ -199,7 +199,7 @@ public:
     }
 
 private:
-    NullableField<ValidatorsOutcome> outcome_;
+    NullableField<Outcome> outcome_;
     NullableField<std::string> operator__;
     NullableField<nlohmann::json> expected_value_;
     NullableField<std::string> expression_;

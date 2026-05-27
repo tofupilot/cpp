@@ -7,7 +7,7 @@
 | --- | --- | --- | --- |
 | `id` | `std::string` | :heavy_check_mark: | Measurement ID. |
 | `name` | `std::string` | :heavy_check_mark: | Measurement name. |
-| `outcome` | `ValidatorsOutcome` | :heavy_check_mark: | Measurement validation result. |
+| `outcome` | `Outcome` | :heavy_check_mark: | Measurement validation result. |
 | `units` | `NullableField<std::string>` | :heavy_minus_sign: | Units of measurement. Not present for multi-dimensional measurements (units are per data series). |
 | `validators` | `std::optional<std::vector<RunGetValidators>>` | :heavy_minus_sign: | Structured validation rules with outcome and expected values. |
 | `aggregations` | `NullableField<std::vector<RunGetAggregations>>` | :heavy_minus_sign: | Aggregations computed over this measurement. |

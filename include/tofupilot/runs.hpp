@@ -51,7 +51,7 @@ class RunsClient::CreateBuilder {
 public:
     explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
 
-    CreateBuilder& outcome(Outcome value) {
+    CreateBuilder& outcome(RunGetOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -209,7 +209,7 @@ public:
 
 private:
     TofuPilot& client_;
-    std::optional<Outcome> outcome_;
+    std::optional<RunGetOutcome> outcome_;
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
     NullableField<std::string> procedure_version_;
@@ -241,7 +241,7 @@ public:
         ids_ = std::move(value);
         return *this;
     }
-    ListBuilder& outcomes(std::vector<Outcome> value) {
+    ListBuilder& outcomes(std::vector<RunGetOutcome> value) {
         outcomes_ = std::move(value);
         return *this;
     }
@@ -542,7 +542,7 @@ private:
     TofuPilot& client_;
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> ids_;
-    std::optional<std::vector<Outcome>> outcomes_;
+    std::optional<std::vector<RunGetOutcome>> outcomes_;
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> serial_numbers_;

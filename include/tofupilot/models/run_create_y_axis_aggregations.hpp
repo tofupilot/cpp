@@ -13,8 +13,8 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_create_y_axis_aggregations_validators.hpp"
-#include "tofupilot/models/validators_outcome.hpp"
 
 namespace tofupilot {
 
@@ -23,7 +23,7 @@ struct RunCreateYAxisAggregations {
     /// Aggregation function: "min", "max", "avg", "sum", "count", "std", "median", "percentile_95", etc.
     std::string type;
     /// Computed result of aggregation validation. Server stores as-is.
-    NullableField<ValidatorsOutcome> outcome;
+    NullableField<Outcome> outcome;
     /// Computed aggregation value.
     NullableField<nlohmann::json> value;
     /// Unit for the aggregated value.
@@ -73,9 +73,9 @@ inline void from_json(const nlohmann::json& j, RunCreateYAxisAggregations& v) {
     v.type = j["type"].get<std::string>();
     if (j.contains("outcome")) {
         if (j["outcome"].is_null()) {
-            v.outcome = NullableField<ValidatorsOutcome>::make_null();
+            v.outcome = NullableField<Outcome>::make_null();
         } else {
-            v.outcome = NullableField<ValidatorsOutcome>::value(j["outcome"].get<ValidatorsOutcome>());
+            v.outcome = NullableField<Outcome>::value(j["outcome"].get<Outcome>());
         }
     }
     if (j.contains("value")) {
@@ -113,14 +113,14 @@ public:
 
     /// Set the `outcome` field.
     /// Computed result of aggregation validation. Server stores as-is.
-    RunCreateYAxisAggregationsBuilder& outcome(ValidatorsOutcome value) {
-        outcome_ = NullableField<ValidatorsOutcome>::value(std::move(value));
+    RunCreateYAxisAggregationsBuilder& outcome(Outcome value) {
+        outcome_ = NullableField<Outcome>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `outcome` to null.
     RunCreateYAxisAggregationsBuilder& outcome_null() {
-        outcome_ = NullableField<ValidatorsOutcome>::make_null();
+        outcome_ = NullableField<Outcome>::make_null();
         return *this;
     }
 
@@ -193,7 +193,7 @@ public:
 
 private:
     std::optional<std::string> type_;
-    NullableField<ValidatorsOutcome> outcome_;
+    NullableField<Outcome> outcome_;
     NullableField<nlohmann::json> value_;
     NullableField<std::string> unit_;
     NullableField<std::vector<RunCreateYAxisAggregationsValidators>> validators_;

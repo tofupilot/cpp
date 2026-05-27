@@ -12,7 +12,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/outcome.hpp"
+#include "tofupilot/models/run_get_outcome.hpp"
 #include "tofupilot/models/unit_get_procedure.hpp"
 
 namespace tofupilot {
@@ -30,7 +30,7 @@ struct UnitGetCreatedDuring {
     /// ISO 8601 duration of the run (computed from started_at and ended_at).
     std::string duration;
     /// Final result of the run execution.
-    Outcome outcome;
+    RunGetOutcome outcome;
     /// Procedure information.
     UnitGetProcedure procedure;
 };
@@ -76,7 +76,7 @@ inline void from_json(const nlohmann::json& j, UnitGetCreatedDuring& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<Outcome>();
+    v.outcome = j["outcome"].get<RunGetOutcome>();
     if (!j.contains("procedure")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: procedure", &j);

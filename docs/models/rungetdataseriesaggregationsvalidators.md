@@ -6,7 +6,7 @@ Validator result with outcome and comparison details.
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `outcome` | `ValidatorsOutcome` | :heavy_check_mark: | Validation result: PASS, FAIL, or UNSET. |
+| `outcome` | `Outcome` | :heavy_check_mark: | Validation result: PASS, FAIL, or UNSET. |
 | `operator_` | `std::optional<std::string>` | :heavy_minus_sign: | Comparison operator used for validation. |
 | `expected_value` | `std::optional<nlohmann::json>` | :heavy_minus_sign: | Expected value for comparison. Type depends on measurement type. |
 | `expression` | `std::string` | :heavy_check_mark: | Human-readable expression string for display. |

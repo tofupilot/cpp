@@ -13,11 +13,11 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/outcome.hpp"
 #include "tofupilot/models/run_create_measurements_aggregations.hpp"
 #include "tofupilot/models/run_create_measurements_validators.hpp"
 #include "tofupilot/models/run_create_x_axis.hpp"
 #include "tofupilot/models/run_create_y_axis.hpp"
-#include "tofupilot/models/validators_outcome.hpp"
 
 namespace tofupilot {
 
@@ -25,7 +25,7 @@ struct RunCreateMeasurements {
     /// Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier.
     std::string name;
     /// Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed.
-    ValidatorsOutcome outcome;
+    Outcome outcome;
     /// Data series with numeric data, unit, and optional validators/aggregations.
     NullableField<RunCreateXAxis> x_axis;
     /// Y-axis data series (one or more) for multi-dimensional measurements. Each series can have its own validators and aggregations.
@@ -117,7 +117,7 @@ inline void from_json(const nlohmann::json& j, RunCreateMeasurements& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<ValidatorsOutcome>();
+    v.outcome = j["outcome"].get<Outcome>();
     if (j.contains("x_axis")) {
         if (j["x_axis"].is_null()) {
             v.x_axis = NullableField<RunCreateXAxis>::make_null();
@@ -187,7 +187,7 @@ public:
 
     /// Set the `outcome` field.
     /// Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed.
-    RunCreateMeasurementsBuilder& outcome(ValidatorsOutcome value) {
+    RunCreateMeasurementsBuilder& outcome(Outcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -345,7 +345,7 @@ public:
 
 private:
     std::optional<std::string> name_;
-    std::optional<ValidatorsOutcome> outcome_;
+    std::optional<Outcome> outcome_;
     NullableField<RunCreateXAxis> x_axis_;
     NullableField<std::vector<RunCreateYAxis>> y_axis_;
     NullableField<nlohmann::json> measured_value_;

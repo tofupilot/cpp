@@ -13,7 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/list_sort_order.hpp"
-#include "tofupilot/models/outcome.hpp"
+#include "tofupilot/models/run_get_outcome.hpp"
 #include "tofupilot/models/sample.hpp"
 #include "tofupilot/models/unit_list_sort_by.hpp"
 
@@ -27,7 +27,7 @@ struct UnitListRequest {
     std::optional<std::vector<std::string>> revision_numbers;
     std::optional<std::vector<std::string>> batch_numbers;
     std::optional<std::vector<std::string>> procedure_ids;
-    std::optional<std::vector<Outcome>> outcomes;
+    std::optional<std::vector<RunGetOutcome>> outcomes;
     std::optional<std::string> started_after;
     std::optional<std::string> started_before;
     std::optional<bool> latest_only;
@@ -154,7 +154,7 @@ inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
         v.procedure_ids = j["procedure_ids"].get<std::vector<std::string>>();
     }
     if (j.contains("outcomes") && !j["outcomes"].is_null()) {
-        v.outcomes = j["outcomes"].get<std::vector<Outcome>>();
+        v.outcomes = j["outcomes"].get<std::vector<RunGetOutcome>>();
     }
     if (j.contains("started_after") && !j["started_after"].is_null()) {
         v.started_after = j["started_after"].get<std::string>();
@@ -255,7 +255,7 @@ public:
     }
 
     /// Set the `outcomes` field.
-    UnitListRequestBuilder& outcomes(std::vector<Outcome> value) {
+    UnitListRequestBuilder& outcomes(std::vector<RunGetOutcome> value) {
         outcomes_ = std::move(value);
         return *this;
     }
@@ -437,7 +437,7 @@ private:
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;
     std::optional<std::vector<std::string>> procedure_ids_;
-    std::optional<std::vector<Outcome>> outcomes_;
+    std::optional<std::vector<RunGetOutcome>> outcomes_;
     std::optional<std::string> started_after_;
     std::optional<std::string> started_before_;
     std::optional<bool> latest_only_;

@@ -24,45 +24,47 @@ class ImportsClient {
 public:
     explicit ImportsClient(TofuPilot& client) noexcept : client_(client) {}
 
-    class CreateFromFilesBuilder;
-    CreateFromFilesBuilder create_from_files();
+    class StructuredBuilder;
+    StructuredBuilder structured();
+    class TabularBuilder;
+    TabularBuilder tabular();
 
 private:
     TofuPilot& client_;
 };
 
-class ImportsClient::CreateFromFilesBuilder {
+class ImportsClient::StructuredBuilder {
 public:
-    explicit CreateFromFilesBuilder(TofuPilot& client) noexcept : client_(client) {}
+    explicit StructuredBuilder(TofuPilot& client) noexcept : client_(client) {}
 
-    CreateFromFilesBuilder& items(std::vector<ImportCreateFromFilesItems> value) {
+    StructuredBuilder& items(std::vector<ImportStructuredItems> value) {
         items_ = std::move(value);
         return *this;
     }
-    CreateFromFilesBuilder& body(ImportCreateFromFilesRequest b) {
+    StructuredBuilder& body(ImportStructuredRequest b) {
         items_ = std::move(b.items);
         return *this;
     }
 
-    CreateFromFilesBuilder& server_url(std::string url) {
+    StructuredBuilder& server_url(std::string url) {
         request_config_.server_url = std::move(url);
         return *this;
     }
-    CreateFromFilesBuilder& timeout(std::chrono::seconds t) {
+    StructuredBuilder& timeout(std::chrono::seconds t) {
         request_config_.timeout = t;
         return *this;
     }
 
-    ImportCreateFromFilesResponse send() {
+    ImportStructuredResponse send() {
 
-        std::string path = "/v2/import";
+        std::string path = "/v2/imports/structured";
 
         std::string query_string;
 
         std::string body_str;
         std::string content_type;
         {
-            ImportCreateFromFilesRequest req_body;
+            ImportStructuredRequest req_body;
             if (items_.has_value()) req_body.items = items_.value();
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
@@ -73,10 +75,10 @@ public:
 
         const auto& resp_body = result->body;
         if (resp_body.empty()) {
-            return ImportCreateFromFilesResponse{};
+            return ImportStructuredResponse{};
         }
         try {
-            return nlohmann::json::parse(resp_body).get<ImportCreateFromFilesResponse>();
+            return nlohmann::json::parse(resp_body).get<ImportStructuredResponse>();
         } catch (const nlohmann::json::parse_error& e) {
             throw HttpError(std::string("Invalid JSON in response: ") + e.what());
         }
@@ -84,12 +86,95 @@ public:
 
 private:
     TofuPilot& client_;
-    std::optional<std::vector<ImportCreateFromFilesItems>> items_;
+    std::optional<std::vector<ImportStructuredItems>> items_;
     RequestConfig request_config_;
 };
 
-inline ImportsClient::CreateFromFilesBuilder ImportsClient::create_from_files() {
-    return CreateFromFilesBuilder(client_);
+class ImportsClient::TabularBuilder {
+public:
+    explicit TabularBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+    TabularBuilder& upload_id(std::string value) {
+        upload_id_ = std::move(value);
+        return *this;
+    }
+    TabularBuilder& procedure_id(std::string value) {
+        procedure_id_ = std::move(value);
+        return *this;
+    }
+    TabularBuilder& mapping(ImportTabularMapping value) {
+        mapping_ = std::move(value);
+        return *this;
+    }
+    TabularBuilder& template_id(std::string value) {
+        template_id_ = std::move(value);
+        return *this;
+    }
+    TabularBuilder& body(ImportTabularRequest b) {
+        upload_id_ = std::move(b.upload_id);
+        procedure_id_ = std::move(b.procedure_id);
+        if (b.mapping.has_value()) mapping_ = std::move(b.mapping);
+        if (b.template_id.has_value()) template_id_ = std::move(b.template_id);
+        return *this;
+    }
+
+    TabularBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    TabularBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    ImportTabularResponse send() {
+
+        std::string path = "/v2/imports/tabular";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+        {
+            ImportTabularRequest req_body;
+            if (!upload_id_.has_value()) throw ValidationError("missing required field: upload_id");
+            req_body.upload_id = upload_id_.value();
+            if (!procedure_id_.has_value()) throw ValidationError("missing required field: procedure_id");
+            req_body.procedure_id = procedure_id_.value();
+            req_body.mapping = mapping_;
+            req_body.template_id = template_id_;
+            body_str = nlohmann::json(req_body).dump();
+            content_type = "application/json";
+        }
+
+        auto result = client_.execute("POST", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return ImportTabularResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<ImportTabularResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
+    std::optional<std::string> upload_id_;
+    std::optional<std::string> procedure_id_;
+    std::optional<ImportTabularMapping> mapping_;
+    std::optional<std::string> template_id_;
+    RequestConfig request_config_;
+};
+
+inline ImportsClient::StructuredBuilder ImportsClient::structured() {
+    return StructuredBuilder(client_);
+}
+inline ImportsClient::TabularBuilder ImportsClient::tabular() {
+    return TabularBuilder(client_);
 }
 
 } // namespace tofupilot

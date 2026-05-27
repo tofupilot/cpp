@@ -8,30 +8,24 @@
 
 namespace tofupilot {
 
-/// Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
+/// Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed.
 enum class Outcome {
     Pass,
     Fail,
-    Error,
-    Timeout,
-    Aborted,
+    Unset,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Outcome, {
     { Outcome::Pass, "PASS" },
     { Outcome::Fail, "FAIL" },
-    { Outcome::Error, "ERROR" },
-    { Outcome::Timeout, "TIMEOUT" },
-    { Outcome::Aborted, "ABORTED" },
+    { Outcome::Unset, "UNSET" },
 })
 
 inline std::string to_string(Outcome e) {
     switch (e) {
         case Outcome::Pass: return "PASS";
         case Outcome::Fail: return "FAIL";
-        case Outcome::Error: return "ERROR";
-        case Outcome::Timeout: return "TIMEOUT";
-        case Outcome::Aborted: return "ABORTED";
+        case Outcome::Unset: return "UNSET";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }
