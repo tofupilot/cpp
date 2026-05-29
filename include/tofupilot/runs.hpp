@@ -509,8 +509,10 @@ public:
                 first = false;
             }
             if (metadata_.has_value()) {
+                // Object/record query param: serialize the whole value to a
+                // single JSON-encoded query string.
                 if (!first) qs << "&";
-                qs << "metadata=" << detail::url_encode(detail::to_query_string(metadata_.value()));
+                qs << "metadata=" << detail::url_encode(nlohmann::json(metadata_.value()).dump());
                 first = false;
             }
             if (include_metadata_.has_value()) {
