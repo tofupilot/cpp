@@ -13,7 +13,7 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
-#include "tofupilot/models/run_get_outcome.hpp"
+#include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_list_created_by_station.hpp"
 #include "tofupilot/models/run_list_created_by_user.hpp"
 #include "tofupilot/models/run_list_operated_by.hpp"
@@ -34,7 +34,7 @@ struct RunListData {
     /// ISO 8601 duration of the run (computed from started_at and ended_at).
     std::string duration;
     /// Final result of the run execution.
-    RunGetOutcome outcome;
+    LogGetOutcome outcome;
     /// Additional notes or documentation about this test run.
     NullableField<std::string> docstring;
     /// User whose API key was used to create this run. Only returned if `all` or `created_by` is included.
@@ -124,7 +124,7 @@ inline void from_json(const nlohmann::json& j, RunListData& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<RunGetOutcome>();
+    v.outcome = j["outcome"].get<LogGetOutcome>();
     if (j.contains("docstring")) {
         if (j["docstring"].is_null()) {
             v.docstring = NullableField<std::string>::make_null();
@@ -208,7 +208,7 @@ public:
 
     /// Set the `outcome` field.
     /// Final result of the run execution.
-    RunListDataBuilder& outcome(RunGetOutcome value) {
+    RunListDataBuilder& outcome(LogGetOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -378,7 +378,7 @@ private:
     std::optional<std::string> started_at_;
     std::optional<std::string> ended_at_;
     std::optional<std::string> duration_;
-    std::optional<RunGetOutcome> outcome_;
+    std::optional<LogGetOutcome> outcome_;
     NullableField<std::string> docstring_;
     NullableField<RunListCreatedByUser> created_by_user_;
     NullableField<RunListCreatedByStation> created_by_station_;

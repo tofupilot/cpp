@@ -9,26 +9,26 @@
 namespace tofupilot {
 
 /// Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed.
-enum class RunGetPhasesOutcome {
+enum class PhaseGetOutcome {
     Pass,
     Fail,
     Skip,
     Error,
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(RunGetPhasesOutcome, {
-    { RunGetPhasesOutcome::Pass, "PASS" },
-    { RunGetPhasesOutcome::Fail, "FAIL" },
-    { RunGetPhasesOutcome::Skip, "SKIP" },
-    { RunGetPhasesOutcome::Error, "ERROR" },
+NLOHMANN_JSON_SERIALIZE_ENUM(PhaseGetOutcome, {
+    { PhaseGetOutcome::Pass, "PASS" },
+    { PhaseGetOutcome::Fail, "FAIL" },
+    { PhaseGetOutcome::Skip, "SKIP" },
+    { PhaseGetOutcome::Error, "ERROR" },
 })
 
-inline std::string to_string(RunGetPhasesOutcome e) {
+inline std::string to_string(PhaseGetOutcome e) {
     switch (e) {
-        case RunGetPhasesOutcome::Pass: return "PASS";
-        case RunGetPhasesOutcome::Fail: return "FAIL";
-        case RunGetPhasesOutcome::Skip: return "SKIP";
-        case RunGetPhasesOutcome::Error: return "ERROR";
+        case PhaseGetOutcome::Pass: return "PASS";
+        case PhaseGetOutcome::Fail: return "FAIL";
+        case PhaseGetOutcome::Skip: return "SKIP";
+        case PhaseGetOutcome::Error: return "ERROR";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }

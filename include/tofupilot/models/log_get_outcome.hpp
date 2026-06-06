@@ -9,7 +9,7 @@
 namespace tofupilot {
 
 /// Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
-enum class RunGetOutcome {
+enum class LogGetOutcome {
     Pass,
     Fail,
     Error,
@@ -17,21 +17,21 @@ enum class RunGetOutcome {
     Aborted,
 };
 
-NLOHMANN_JSON_SERIALIZE_ENUM(RunGetOutcome, {
-    { RunGetOutcome::Pass, "PASS" },
-    { RunGetOutcome::Fail, "FAIL" },
-    { RunGetOutcome::Error, "ERROR" },
-    { RunGetOutcome::Timeout, "TIMEOUT" },
-    { RunGetOutcome::Aborted, "ABORTED" },
+NLOHMANN_JSON_SERIALIZE_ENUM(LogGetOutcome, {
+    { LogGetOutcome::Pass, "PASS" },
+    { LogGetOutcome::Fail, "FAIL" },
+    { LogGetOutcome::Error, "ERROR" },
+    { LogGetOutcome::Timeout, "TIMEOUT" },
+    { LogGetOutcome::Aborted, "ABORTED" },
 })
 
-inline std::string to_string(RunGetOutcome e) {
+inline std::string to_string(LogGetOutcome e) {
     switch (e) {
-        case RunGetOutcome::Pass: return "PASS";
-        case RunGetOutcome::Fail: return "FAIL";
-        case RunGetOutcome::Error: return "ERROR";
-        case RunGetOutcome::Timeout: return "TIMEOUT";
-        case RunGetOutcome::Aborted: return "ABORTED";
+        case LogGetOutcome::Pass: return "PASS";
+        case LogGetOutcome::Fail: return "FAIL";
+        case LogGetOutcome::Error: return "ERROR";
+        case LogGetOutcome::Timeout: return "TIMEOUT";
+        case LogGetOutcome::Aborted: return "ABORTED";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }

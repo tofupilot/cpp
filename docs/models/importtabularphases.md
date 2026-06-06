@@ -9,4 +9,4 @@
 | `outcome_column` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `started_column` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `ended_column` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
-| `value_map` | `std::optional<std::map<std::string, RunGetPhasesOutcome>>` | :heavy_minus_sign: | N/A |
+| `value_map` | `std::optional<std::map<std::string, PhaseGetOutcome>>` | :heavy_minus_sign: | N/A |

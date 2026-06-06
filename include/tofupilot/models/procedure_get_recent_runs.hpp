@@ -12,8 +12,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/procedure_get_unit.hpp"
-#include "tofupilot/models/run_get_outcome.hpp"
 
 namespace tofupilot {
 
@@ -23,7 +23,7 @@ struct ProcedureGetRecentRuns {
     /// ISO 8601 timestamp when the run started.
     std::string started_at;
     /// Run outcome.
-    RunGetOutcome outcome;
+    LogGetOutcome outcome;
     /// Unit information.
     std::optional<ProcedureGetUnit> unit;
 };
@@ -53,7 +53,7 @@ inline void from_json(const nlohmann::json& j, ProcedureGetRecentRuns& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<RunGetOutcome>();
+    v.outcome = j["outcome"].get<LogGetOutcome>();
     if (j.contains("unit") && !j["unit"].is_null()) {
         v.unit = j["unit"].get<ProcedureGetUnit>();
     }
@@ -78,7 +78,7 @@ public:
 
     /// Set the `outcome` field.
     /// Run outcome.
-    ProcedureGetRecentRunsBuilder& outcome(RunGetOutcome value) {
+    ProcedureGetRecentRunsBuilder& outcome(LogGetOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -131,7 +131,7 @@ public:
 private:
     std::optional<std::string> id_;
     std::optional<std::string> started_at_;
-    std::optional<RunGetOutcome> outcome_;
+    std::optional<LogGetOutcome> outcome_;
     std::optional<ProcedureGetUnit> unit_;
 };
 

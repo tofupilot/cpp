@@ -12,8 +12,9 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/environment.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
-#include "tofupilot/models/run_get_outcome.hpp"
+#include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_list_sort_by.hpp"
 #include "tofupilot/models/sample.hpp"
 
@@ -22,9 +23,11 @@ namespace tofupilot {
 struct RunListRequest {
     std::optional<std::string> search_query;
     std::optional<std::vector<std::string>> ids;
-    std::optional<std::vector<RunGetOutcome>> outcomes;
+    std::optional<std::vector<LogGetOutcome>> outcomes;
     std::optional<std::vector<std::string>> procedure_ids;
     std::optional<std::vector<std::string>> procedure_versions;
+    std::optional<std::vector<std::string>> deployment_ids;
+    std::optional<std::vector<Environment>> environments;
     std::optional<std::vector<std::string>> serial_numbers;
     std::optional<std::vector<Sample>> samples;
     std::optional<std::vector<std::string>> part_numbers;
@@ -70,6 +73,12 @@ inline void to_json(nlohmann::json& j, const RunListRequest& v) {
     }
     if (v.procedure_versions.has_value()) {
         j["procedure_versions"] = v.procedure_versions.value();
+    }
+    if (v.deployment_ids.has_value()) {
+        j["deployment_ids"] = v.deployment_ids.value();
+    }
+    if (v.environments.has_value()) {
+        j["environments"] = v.environments.value();
     }
     if (v.serial_numbers.has_value()) {
         j["serial_numbers"] = v.serial_numbers.value();
@@ -147,13 +156,19 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
         v.ids = j["ids"].get<std::vector<std::string>>();
     }
     if (j.contains("outcomes") && !j["outcomes"].is_null()) {
-        v.outcomes = j["outcomes"].get<std::vector<RunGetOutcome>>();
+        v.outcomes = j["outcomes"].get<std::vector<LogGetOutcome>>();
     }
     if (j.contains("procedure_ids") && !j["procedure_ids"].is_null()) {
         v.procedure_ids = j["procedure_ids"].get<std::vector<std::string>>();
     }
     if (j.contains("procedure_versions") && !j["procedure_versions"].is_null()) {
         v.procedure_versions = j["procedure_versions"].get<std::vector<std::string>>();
+    }
+    if (j.contains("deployment_ids") && !j["deployment_ids"].is_null()) {
+        v.deployment_ids = j["deployment_ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("environments") && !j["environments"].is_null()) {
+        v.environments = j["environments"].get<std::vector<Environment>>();
     }
     if (j.contains("serial_numbers") && !j["serial_numbers"].is_null()) {
         v.serial_numbers = j["serial_numbers"].get<std::vector<std::string>>();
@@ -239,7 +254,7 @@ public:
     }
 
     /// Set the `outcomes` field.
-    RunListRequestBuilder& outcomes(std::vector<RunGetOutcome> value) {
+    RunListRequestBuilder& outcomes(std::vector<LogGetOutcome> value) {
         outcomes_ = std::move(value);
         return *this;
     }
@@ -253,6 +268,18 @@ public:
     /// Set the `procedure_versions` field.
     RunListRequestBuilder& procedure_versions(std::vector<std::string> value) {
         procedure_versions_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `deployment_ids` field.
+    RunListRequestBuilder& deployment_ids(std::vector<std::string> value) {
+        deployment_ids_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `environments` field.
+    RunListRequestBuilder& environments(std::vector<Environment> value) {
+        environments_ = std::move(value);
         return *this;
     }
 
@@ -401,6 +428,8 @@ public:
         result.outcomes = outcomes_;
         result.procedure_ids = procedure_ids_;
         result.procedure_versions = procedure_versions_;
+        result.deployment_ids = deployment_ids_;
+        result.environments = environments_;
         result.serial_numbers = serial_numbers_;
         result.samples = samples_;
         result.part_numbers = part_numbers_;
@@ -434,6 +463,8 @@ public:
         result.outcomes = std::move(outcomes_);
         result.procedure_ids = std::move(procedure_ids_);
         result.procedure_versions = std::move(procedure_versions_);
+        result.deployment_ids = std::move(deployment_ids_);
+        result.environments = std::move(environments_);
         result.serial_numbers = std::move(serial_numbers_);
         result.samples = std::move(samples_);
         result.part_numbers = std::move(part_numbers_);
@@ -462,9 +493,11 @@ public:
 private:
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> ids_;
-    std::optional<std::vector<RunGetOutcome>> outcomes_;
+    std::optional<std::vector<LogGetOutcome>> outcomes_;
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
+    std::optional<std::vector<std::string>> deployment_ids_;
+    std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
     std::optional<std::vector<Sample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;

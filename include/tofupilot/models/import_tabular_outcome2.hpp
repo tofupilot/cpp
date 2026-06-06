@@ -12,12 +12,12 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/run_get_outcome.hpp"
+#include "tofupilot/models/log_get_outcome.hpp"
 
 namespace tofupilot {
 
 struct ImportTabularOutcome2 {
-    RunGetOutcome value;
+    LogGetOutcome value;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularOutcome2& v) {
@@ -30,7 +30,7 @@ inline void from_json(const nlohmann::json& j, ImportTabularOutcome2& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: value", &j);
     }
-    v.value = j["value"].get<RunGetOutcome>();
+    v.value = j["value"].get<LogGetOutcome>();
 }
 
 } // namespace tofupilot

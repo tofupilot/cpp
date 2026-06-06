@@ -18,6 +18,10 @@
 #include "stations.hpp"
 #include "users.hpp"
 #include "imports.hpp"
+#include "logs.hpp"
+#include "phases.hpp"
+#include "measurements.hpp"
+#include "deployments.hpp"
 #include "upload.hpp"
 
 namespace tofupilot {
@@ -53,5 +57,17 @@ inline UsersClient TofuPilot::users() {
 }
 inline ImportsClient TofuPilot::imports() {
     return ImportsClient(*this);
+}
+inline LogsClient TofuPilot::logs() {
+    return LogsClient(*this);
+}
+inline PhasesClient TofuPilot::phases() {
+    return PhasesClient(*this);
+}
+inline MeasurementsClient TofuPilot::measurements() {
+    return MeasurementsClient(*this);
+}
+inline DeploymentsClient TofuPilot::deployments() {
+    return DeploymentsClient(*this);
 }
 } // namespace tofupilot

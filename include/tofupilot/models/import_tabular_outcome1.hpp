@@ -12,13 +12,13 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/run_get_outcome.hpp"
+#include "tofupilot/models/log_get_outcome.hpp"
 
 namespace tofupilot {
 
 struct ImportTabularOutcome1 {
     std::string column;
-    std::optional<std::map<std::string, RunGetOutcome>> value_map;
+    std::optional<std::map<std::string, LogGetOutcome>> value_map;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularOutcome1& v) {
@@ -36,7 +36,7 @@ inline void from_json(const nlohmann::json& j, ImportTabularOutcome1& v) {
     }
     v.column = j["column"].get<std::string>();
     if (j.contains("valueMap") && !j["valueMap"].is_null()) {
-        v.value_map = j["valueMap"].get<std::map<std::string, RunGetOutcome>>();
+        v.value_map = j["valueMap"].get<std::map<std::string, LogGetOutcome>>();
     }
 }
 
@@ -50,7 +50,7 @@ public:
     }
 
     /// Set the `valueMap` field.
-    ImportTabularOutcome1Builder& value_map(std::map<std::string, RunGetOutcome> value) {
+    ImportTabularOutcome1Builder& value_map(std::map<std::string, LogGetOutcome> value) {
         value_map_ = std::move(value);
         return *this;
     }
@@ -79,7 +79,7 @@ public:
 
 private:
     std::optional<std::string> column_;
-    std::optional<std::map<std::string, RunGetOutcome>> value_map_;
+    std::optional<std::map<std::string, LogGetOutcome>> value_map_;
 };
 
 } // namespace tofupilot

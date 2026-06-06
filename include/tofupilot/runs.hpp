@@ -51,7 +51,7 @@ class RunsClient::CreateBuilder {
 public:
     explicit CreateBuilder(TofuPilot& client) noexcept : client_(client) {}
 
-    CreateBuilder& outcome(RunGetOutcome value) {
+    CreateBuilder& outcome(LogGetOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -209,7 +209,7 @@ public:
 
 private:
     TofuPilot& client_;
-    std::optional<RunGetOutcome> outcome_;
+    std::optional<LogGetOutcome> outcome_;
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
     NullableField<std::string> procedure_version_;
@@ -241,7 +241,7 @@ public:
         ids_ = std::move(value);
         return *this;
     }
-    ListBuilder& outcomes(std::vector<RunGetOutcome> value) {
+    ListBuilder& outcomes(std::vector<LogGetOutcome> value) {
         outcomes_ = std::move(value);
         return *this;
     }
@@ -251,6 +251,14 @@ public:
     }
     ListBuilder& procedure_versions(std::vector<std::string> value) {
         procedure_versions_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& deployment_ids(std::vector<std::string> value) {
+        deployment_ids_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& environments(std::vector<Environment> value) {
+        environments_ = std::move(value);
         return *this;
     }
     ListBuilder& serial_numbers(std::vector<std::string> value) {
@@ -389,6 +397,20 @@ public:
                 for (const auto& item : procedure_versions_.value()) {
                     if (!first) qs << "&";
                     qs << "procedure_versions=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (deployment_ids_.has_value()) {
+                for (const auto& item : deployment_ids_.value()) {
+                    if (!first) qs << "&";
+                    qs << "deployment_ids=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (environments_.has_value()) {
+                for (const auto& item : environments_.value()) {
+                    if (!first) qs << "&";
+                    qs << "environments=" << detail::url_encode(detail::to_query_string(item));
                     first = false;
                 }
             }
@@ -544,9 +566,11 @@ private:
     TofuPilot& client_;
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> ids_;
-    std::optional<std::vector<RunGetOutcome>> outcomes_;
+    std::optional<std::vector<LogGetOutcome>> outcomes_;
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
+    std::optional<std::vector<std::string>> deployment_ids_;
+    std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
     std::optional<std::vector<Sample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;

@@ -13,8 +13,8 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/phase_get_outcome.hpp"
 #include "tofupilot/models/run_get_measurements.hpp"
-#include "tofupilot/models/run_get_phases_outcome.hpp"
 
 namespace tofupilot {
 
@@ -24,7 +24,7 @@ struct RunGetPhases {
     /// Phase name.
     std::string name;
     /// Phase execution result.
-    RunGetPhasesOutcome outcome;
+    PhaseGetOutcome outcome;
     /// ISO 8601 timestamp when the phase started.
     std::string started_at;
     /// ISO 8601 timestamp when the phase ended.
@@ -73,7 +73,7 @@ inline void from_json(const nlohmann::json& j, RunGetPhases& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<RunGetPhasesOutcome>();
+    v.outcome = j["outcome"].get<PhaseGetOutcome>();
     if (!j.contains("started_at")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: started_at", &j);
@@ -125,7 +125,7 @@ public:
 
     /// Set the `outcome` field.
     /// Phase execution result.
-    RunGetPhasesBuilder& outcome(RunGetPhasesOutcome value) {
+    RunGetPhasesBuilder& outcome(PhaseGetOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -257,7 +257,7 @@ public:
 private:
     std::optional<std::string> id_;
     std::optional<std::string> name_;
-    std::optional<RunGetPhasesOutcome> outcome_;
+    std::optional<PhaseGetOutcome> outcome_;
     std::optional<std::string> started_at_;
     std::optional<std::string> ended_at_;
     std::optional<std::string> duration_;

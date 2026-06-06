@@ -7,7 +7,7 @@
 | --- | --- | --- | --- |
 | `id` | `std::string` | :heavy_check_mark: | Phase ID. |
 | `name` | `std::string` | :heavy_check_mark: | Phase name. |
-| `outcome` | `RunGetPhasesOutcome` | :heavy_check_mark: | Phase execution result. |
+| `outcome` | `PhaseGetOutcome` | :heavy_check_mark: | Phase execution result. |
 | `started_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the phase started. |
 | `ended_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the phase ended. |
 | `duration` | `std::string` | :heavy_check_mark: | ISO 8601 duration of the phase (computed from started_at and ended_at). |

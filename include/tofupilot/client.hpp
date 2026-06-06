@@ -29,6 +29,10 @@ class BatchesClient;
 class StationsClient;
 class UsersClient;
 class ImportsClient;
+class LogsClient;
+class PhasesClient;
+class MeasurementsClient;
+class DeploymentsClient;
 
 /// TofuPilot API client. **Not** thread-safe — use one per thread.
 class TofuPilot {
@@ -61,6 +65,10 @@ public:
     inline StationsClient stations();
     inline UsersClient users();
     inline ImportsClient imports();
+    inline LogsClient logs();
+    inline PhasesClient phases();
+    inline MeasurementsClient measurements();
+    inline DeploymentsClient deployments();
 
     httplib::Result execute(
         const std::string& method, const std::string& path,

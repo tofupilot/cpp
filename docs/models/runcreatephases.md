@@ -6,7 +6,7 @@
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | `std::string` | :heavy_check_mark: | Name identifier for the test phase. Each phase should have a descriptive name that identifies the specific stage of testing being performed. Analytics at phase level are computed using this name as unique identifier. |
-| `outcome` | `RunGetPhasesOutcome` | :heavy_check_mark: | Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed. |
+| `outcome` | `PhaseGetOutcome` | :heavy_check_mark: | Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed. |
 | `started_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the phase execution began. |
 | `ended_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the phase execution completed. |
 | `docstring` | `NullableField<std::string>` | :heavy_minus_sign: | Additional notes or documentation about this test phase. |

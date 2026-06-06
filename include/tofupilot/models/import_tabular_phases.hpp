@@ -12,7 +12,7 @@
 
 #include <nlohmann/json.hpp>
 
-#include "tofupilot/models/run_get_phases_outcome.hpp"
+#include "tofupilot/models/phase_get_outcome.hpp"
 
 namespace tofupilot {
 
@@ -21,7 +21,7 @@ struct ImportTabularPhases {
     std::optional<std::string> outcome_column;
     std::optional<std::string> started_column;
     std::optional<std::string> ended_column;
-    std::optional<std::map<std::string, RunGetPhasesOutcome>> value_map;
+    std::optional<std::map<std::string, PhaseGetOutcome>> value_map;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularPhases& v) {
@@ -57,7 +57,7 @@ inline void from_json(const nlohmann::json& j, ImportTabularPhases& v) {
         v.ended_column = j["endedColumn"].get<std::string>();
     }
     if (j.contains("valueMap") && !j["valueMap"].is_null()) {
-        v.value_map = j["valueMap"].get<std::map<std::string, RunGetPhasesOutcome>>();
+        v.value_map = j["valueMap"].get<std::map<std::string, PhaseGetOutcome>>();
     }
 }
 
@@ -89,7 +89,7 @@ public:
     }
 
     /// Set the `valueMap` field.
-    ImportTabularPhasesBuilder& value_map(std::map<std::string, RunGetPhasesOutcome> value) {
+    ImportTabularPhasesBuilder& value_map(std::map<std::string, PhaseGetOutcome> value) {
         value_map_ = std::move(value);
         return *this;
     }
@@ -127,7 +127,7 @@ private:
     std::optional<std::string> outcome_column_;
     std::optional<std::string> started_column_;
     std::optional<std::string> ended_column_;
-    std::optional<std::map<std::string, RunGetPhasesOutcome>> value_map_;
+    std::optional<std::map<std::string, PhaseGetOutcome>> value_map_;
 };
 
 } // namespace tofupilot

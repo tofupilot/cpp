@@ -7,9 +7,11 @@
 | --- | --- | --- | --- |
 | `search_query` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `outcomes` | `std::optional<std::vector<RunGetOutcome>>` | :heavy_minus_sign: | N/A |
+| `outcomes` | `std::optional<std::vector<LogGetOutcome>>` | :heavy_minus_sign: | N/A |
 | `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `deployment_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `environments` | `std::optional<std::vector<Environment>>` | :heavy_minus_sign: | N/A |
 | `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `samples` | `std::optional<std::vector<Sample>>` | :heavy_minus_sign: | N/A |
 | `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |

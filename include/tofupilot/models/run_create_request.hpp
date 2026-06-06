@@ -13,15 +13,15 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/nullable.hpp"
+#include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_create_logs.hpp"
 #include "tofupilot/models/run_create_phases.hpp"
-#include "tofupilot/models/run_get_outcome.hpp"
 
 namespace tofupilot {
 
 struct RunCreateRequest {
     /// Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
-    RunGetOutcome outcome;
+    LogGetOutcome outcome;
     /// Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
     std::string procedure_id;
     /// Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
@@ -114,7 +114,7 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: outcome", &j);
     }
-    v.outcome = j["outcome"].get<RunGetOutcome>();
+    v.outcome = j["outcome"].get<LogGetOutcome>();
     if (!j.contains("procedure_id")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: procedure_id", &j);
@@ -186,7 +186,7 @@ class RunCreateRequestBuilder {
 public:
     /// Set the `outcome` field.
     /// Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
-    RunCreateRequestBuilder& outcome(RunGetOutcome value) {
+    RunCreateRequestBuilder& outcome(LogGetOutcome value) {
         outcome_ = std::move(value);
         return *this;
     }
@@ -392,7 +392,7 @@ public:
     }
 
 private:
-    std::optional<RunGetOutcome> outcome_;
+    std::optional<LogGetOutcome> outcome_;
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
     NullableField<std::string> procedure_version_;
