@@ -29,10 +29,10 @@ struct ClientConfig {
     int max_retries = 3;
 
     /// User agent string.
-    std::string user_agent = "tofupilot-cpp/2.7.0";
+    std::string user_agent = "tofupilot-cpp/2.7.1";
 
     /// SDK version for API activity tracking.
-    std::string client_version = "2.7.0";
+    std::string client_version = "2.7.1";
 
     /// Create a config with the given API key. Supports builder-style chaining.
     static ClientConfig with_api_key(std::string key) {

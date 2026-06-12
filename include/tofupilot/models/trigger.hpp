@@ -12,17 +12,20 @@ namespace tofupilot {
 enum class Trigger {
     Auto,
     Manual,
+    Cli,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Trigger, {
     { Trigger::Auto, "auto" },
     { Trigger::Manual, "manual" },
+    { Trigger::Cli, "cli" },
 })
 
 inline std::string to_string(Trigger e) {
     switch (e) {
         case Trigger::Auto: return "auto";
         case Trigger::Manual: return "manual";
+        case Trigger::Cli: return "cli";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }
