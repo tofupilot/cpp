@@ -28,7 +28,7 @@ struct UnitUpdateRequestBody {
     NullableField<std::string> batch_number;
     /// Array of upload IDs to attach to the unit.
     std::optional<std::vector<std::string>> attachments;
-    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+    /// Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit.
     NullableField<Sample> sample;
     /// Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
@@ -144,7 +144,7 @@ public:
     }
 
     /// Set the `sample` field.
-    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+    /// Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit.
     UnitUpdateRequestBodyBuilder& sample(Sample value) {
         sample_ = NullableField<Sample>::value(std::move(value));
         return *this;

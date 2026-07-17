@@ -12,12 +12,14 @@ enum class PhaseListQueryParamSample {
     Production,
     Golden,
     Failing,
+    Ignored,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(PhaseListQueryParamSample, {
     { PhaseListQueryParamSample::Production, "production" },
     { PhaseListQueryParamSample::Golden, "golden" },
     { PhaseListQueryParamSample::Failing, "failing" },
+    { PhaseListQueryParamSample::Ignored, "ignored" },
 })
 
 inline std::string to_string(PhaseListQueryParamSample e) {
@@ -25,6 +27,7 @@ inline std::string to_string(PhaseListQueryParamSample e) {
         case PhaseListQueryParamSample::Production: return "production";
         case PhaseListQueryParamSample::Golden: return "golden";
         case PhaseListQueryParamSample::Failing: return "failing";
+        case PhaseListQueryParamSample::Ignored: return "ignored";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }

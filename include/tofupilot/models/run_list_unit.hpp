@@ -25,7 +25,7 @@ struct RunListUnit {
     std::string id;
     /// Unit serial number.
     std::string serial_number;
-    /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit.
     std::optional<Sample> sample;
     /// Part information with revision details.
     RunListPart part;
@@ -96,7 +96,7 @@ public:
     }
 
     /// Set the `sample` field.
-    /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    /// Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit.
     RunListUnitBuilder& sample(Sample value) {
         sample_ = std::move(value);
         return *this;

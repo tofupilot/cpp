@@ -24,7 +24,7 @@ struct UnitCreateRequest {
     std::string part_number;
     /// Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
     std::string revision_number;
-    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+    /// Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
     NullableField<Sample> sample;
     /// Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
@@ -100,7 +100,7 @@ public:
     }
 
     /// Set the `sample` field.
-    /// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+    /// Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
     UnitCreateRequestBuilder& sample(Sample value) {
         sample_ = NullableField<Sample>::value(std::move(value));
         return *this;

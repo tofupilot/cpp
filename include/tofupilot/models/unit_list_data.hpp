@@ -31,7 +31,7 @@ struct UnitListData {
     std::string serial_number;
     /// ISO 8601 timestamp when the unit was created.
     std::string created_at;
-    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit.
     std::optional<Sample> sample;
     /// User who created this unit. Null if created by a station or system.
     NullableField<UnitListCreatedByUser> created_by_user;
@@ -193,7 +193,7 @@ public:
     }
 
     /// Set the `sample` field.
-    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit.
     UnitListDataBuilder& sample(Sample value) {
         sample_ = std::move(value);
         return *this;

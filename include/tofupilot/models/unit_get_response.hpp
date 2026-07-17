@@ -33,7 +33,7 @@ struct UnitGetResponse {
     std::string serial_number;
     /// ISO 8601 timestamp when the unit was created.
     std::string created_at;
-    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit.
+    /// Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit.
     std::optional<Sample> sample;
     /// User who created this unit.
     NullableField<UnitGetCreatedByUser> created_by_user;

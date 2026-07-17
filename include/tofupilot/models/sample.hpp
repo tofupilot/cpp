@@ -8,21 +8,24 @@
 
 namespace tofupilot {
 
-/// Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+/// Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
 enum class Sample {
     Golden,
     Failing,
+    Ignored,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Sample, {
     { Sample::Golden, "golden" },
     { Sample::Failing, "failing" },
+    { Sample::Ignored, "ignored" },
 })
 
 inline std::string to_string(Sample e) {
     switch (e) {
         case Sample::Golden: return "golden";
         case Sample::Failing: return "failing";
+        case Sample::Ignored: return "ignored";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }
