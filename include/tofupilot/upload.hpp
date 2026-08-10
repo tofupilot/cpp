@@ -1,9 +1,12 @@
-// Hand-written attachment sub-resources for runs and units.
+// Attachment sub-resources for runs and units.
+// Rendered from generator/templates/cpp/upload.hpp.j2 — edit the template,
+// not the generated output.
 
 #pragma once
 
 #include <chrono>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -93,6 +96,18 @@ public:
         auto bytes = detail::read_file(path);
         auto result = client_.runs().create_attachment().id(run_id).name(name).send();
         detail::put_to_presigned_url(result.upload_url, bytes.data(), bytes.size(), detail::content_type_for(name));
+        // The PUT stores the bytes but records no metadata; finalize stamps
+        // size and content type from the stored object. Best-effort: the
+        // attachment is already stored and linked, so a metadata failure
+        // must not fail the upload — the caller would retry and duplicate
+        // it. The warning is the signal that size will read 0.
+        try {
+            client_.attachments().finalize().id(result.id).send();
+        } catch (const std::exception& e) {
+            std::cerr << "tofupilot: attachment " << result.id
+                      << " uploaded but not finalized (size will read 0): "
+                      << e.what() << std::endl;
+        }
         return result.id;
     }
 
@@ -117,6 +132,18 @@ public:
         auto bytes = detail::read_file(path);
         auto result = client_.units().create_attachment().serial_number(serial_number).name(name).send();
         detail::put_to_presigned_url(result.upload_url, bytes.data(), bytes.size(), detail::content_type_for(name));
+        // The PUT stores the bytes but records no metadata; finalize stamps
+        // size and content type from the stored object. Best-effort: the
+        // attachment is already stored and linked, so a metadata failure
+        // must not fail the upload — the caller would retry and duplicate
+        // it. The warning is the signal that size will read 0.
+        try {
+            client_.attachments().finalize().id(result.id).send();
+        } catch (const std::exception& e) {
+            std::cerr << "tofupilot: attachment " << result.id
+                      << " uploaded but not finalized (size will read 0): "
+                      << e.what() << std::endl;
+        }
         return result.id;
     }
 
