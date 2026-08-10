@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -84,6 +85,15 @@ inline void download_to_file(const std::string& url, const std::string& local_pa
 
 } // namespace detail
 
+/// Handler for SDK warnings (an attachment upload that could not be
+/// finalized and will read size 0). Defaults to std::cerr; replace it to
+/// route warnings into your own logging, or install a no-op to silence.
+inline std::function<void(const std::string&)>& warning_handler() {
+    static std::function<void(const std::string&)> handler =
+        [](const std::string& msg) { std::cerr << "tofupilot: " << msg << std::endl; };
+    return handler;
+}
+
 /// Sub-resource: client.runs().attachments().upload() / .download()
 class RunAttachments {
 public:
@@ -104,9 +114,8 @@ public:
         try {
             client_.attachments().finalize().id(result.id).send();
         } catch (const std::exception& e) {
-            std::cerr << "tofupilot: attachment " << result.id
-                      << " uploaded but not finalized (size will read 0): "
-                      << e.what() << std::endl;
+            warning_handler()("attachment " + result.id +
+                              " uploaded but not finalized (size will read 0): " + e.what());
         }
         return result.id;
     }
@@ -140,9 +149,8 @@ public:
         try {
             client_.attachments().finalize().id(result.id).send();
         } catch (const std::exception& e) {
-            std::cerr << "tofupilot: attachment " << result.id
-                      << " uploaded but not finalized (size will read 0): "
-                      << e.what() << std::endl;
+            warning_handler()("attachment " + result.id +
+                              " uploaded but not finalized (size will read 0): " + e.what());
         }
         return result.id;
     }
