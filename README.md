@@ -11,7 +11,7 @@ Add to your `CMakeLists.txt`:
 
 ```cmake
 include(FetchContent)
-FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.8.0 GIT_SHALLOW TRUE)
+FetchContent_Declare(tofupilot GIT_REPOSITORY https://github.com/tofupilot/cpp.git GIT_TAG v2.9.1 GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(tofupilot)
 target_link_libraries(your_target PRIVATE tofupilot)
 ```

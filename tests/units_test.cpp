@@ -48,11 +48,13 @@ TEST(Units, ListFilterByPartNumber) {
 }
 
 TEST(Units, ListPagination) {
-    for (int i = 0; i < 3; ++i) create_part_and_unit("PAG" + std::to_string(i));
-    auto page1 = client().units().list().limit(1).send();
+    // Paginate only within this test's units, so concurrent suites can't shift pages.
+    std::vector<std::string> serials;
+    for (int i = 0; i < 3; ++i) serials.push_back(create_part_and_unit("PAG" + std::to_string(i)).serial);
+    auto page1 = client().units().list().serial_numbers(serials).limit(1).send();
     EXPECT_EQ(1, page1.data.size());
     ASSERT_TRUE(page1.meta.has_more);
-    auto page2 = client().units().list().limit(1).cursor(page1.meta.next_cursor.value()).send();
+    auto page2 = client().units().list().serial_numbers(serials).limit(1).cursor(page1.meta.next_cursor.value()).send();
     EXPECT_EQ(1, page2.data.size());
     EXPECT_NE(page1.data[0].id, page2.data[0].id);
 }
@@ -148,7 +150,7 @@ TEST(Units, ListFilterByBatchNumbers) {
     client().parts().create().number(pn).name("Part " + uid_val).send();
     client().revisions().create().part_number(pn).number(rn).send();
     // Create a run with batch_number to auto-create the batch and link the unit
-    client().runs().create().serial_number("SN-BN-" + uid_val).procedure_id(procedure_id()).part_number(pn).revision_number(rn).batch_number(batch).started_at(ts).ended_at(ts).outcome(Outcome::Pass).send();
+    client().runs().create().serial_number("SN-BN-" + uid_val).procedure_id(procedure_id()).part_number(pn).revision_number(rn).batch_number(batch).started_at(ts).ended_at(ts).outcome(LogGetOutcome::Pass).send();
     auto result = client().units().list().part_numbers({pn}).batch_numbers({batch}).send();
     ASSERT_FALSE(result.data.empty());
 }

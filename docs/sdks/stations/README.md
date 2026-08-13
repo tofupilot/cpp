@@ -52,7 +52,6 @@ int main() {
 | --- | --- | --- |
 | `UnauthorizedError` | 401 | application/json |
 | `ForbiddenError` | 403 | application/json |
-| `ConflictError` | 409 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
@@ -102,7 +101,7 @@ int main() {
 
 ## get_current
 
-Get the station the request is authenticated as, with its linked procedures and connection status.
+Get the station the request is authenticated as, with its linked procedures.
 
 ### Example Usage
 
@@ -143,7 +142,7 @@ int main() {
 
 ## get
 
-Get a station by ID, with its linked procedures, connection status, and recent activity.
+Get a station by ID, with its linked procedures and recent activity.
 
 ### Example Usage
 
@@ -227,7 +226,6 @@ int main() {
 | --- | --- | --- |
 | `UnauthorizedError` | 401 | application/json |
 | `NotFoundError` | 404 | application/json |
-| `ConflictError` | 409 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 

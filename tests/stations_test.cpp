@@ -43,11 +43,14 @@ TEST(Stations, ListWithSearchQuery) {
 }
 
 TEST(Stations, ListPagination) {
-    for (int i = 0; i < 3; ++i) create_station(uid());
-    auto page1 = client().stations().list().limit(1).send();
+    // Paginate only within this test's stations, so concurrent suites can't shift pages.
+    auto uid_val = uid();
+    for (int i = 0; i < 3; ++i) create_station("PG-" + uid_val + "-" + std::to_string(i));
+    auto search = "Station-PG-" + uid_val;
+    auto page1 = client().stations().list().search_query(search).limit(1).send();
     EXPECT_EQ(1, page1.data.size());
     ASSERT_TRUE(page1.meta.has_more);
-    auto page2 = client().stations().list().limit(1).cursor(page1.meta.next_cursor.value()).send();
+    auto page2 = client().stations().list().search_query(search).limit(1).cursor(page1.meta.next_cursor.value()).send();
     EXPECT_EQ(1, page2.data.size());
     EXPECT_NE(page1.data[0].id, page2.data[0].id);
 }
@@ -81,10 +84,12 @@ TEST(Stations, UpdateNonexistentReturnsNotFound) {
     EXPECT_THROW(client().stations().update().id("550e8400-e29b-41d4-a716-446655440000").name("irrelevant").send(), NotFoundError);
 }
 
-TEST(Stations, CreateDuplicateNameReturnsConflict) {
+TEST(Stations, CreateDuplicateNameCreatesDistinctStation) {
+    // Names are not unique — stations are identified by id.
     auto uid_val = uid();
-    auto [_, name] = create_station(uid_val);
-    EXPECT_THROW(client().stations().create().name(name).procedure_id(procedure_id()).send(), ConflictError);
+    auto [first_id, name] = create_station(uid_val);
+    auto second = client().stations().create().name(name).procedure_id(procedure_id()).send();
+    EXPECT_NE(first_id, second.id);
 }
 
 TEST(Stations, GetCurrentWithUserKeyReturnsForbidden) {

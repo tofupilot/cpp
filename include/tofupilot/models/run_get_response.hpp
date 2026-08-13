@@ -52,7 +52,7 @@ struct RunGetResponse {
     RunGetProcedure procedure;
     /// Unit under test information.
     RunGetUnit unit;
-    /// Array of execution phases in this run. Only returned if `all` or `phases` is included.
+    /// Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included.
     std::optional<std::vector<RunGetPhases>> phases;
     /// Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included.
     std::optional<std::vector<RunGetAttachments>> attachments;

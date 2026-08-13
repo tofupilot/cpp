@@ -30,14 +30,16 @@ TEST(Procedures, ListWithSearchQuery) {
 }
 
 TEST(Procedures, ListPagination) {
-    for (int i = 0; i < 3; ++i) client().procedures().create().name("Proc Pg " + uid()).send();
-    auto page1 = client().procedures().list().limit(1).send();
+    // Paginate only within this test's procedures, so concurrent suites can't shift pages.
+    auto uid_val = uid();
+    for (int i = 0; i < 3; ++i) client().procedures().create().name("Proc Pg " + uid_val + " " + std::to_string(i)).send();
+    auto search = "Proc Pg " + uid_val;
+    auto page1 = client().procedures().list().search_query(search).limit(1).send();
     EXPECT_EQ(1, page1.data.size());
-    if (page1.meta.has_more) {
-        auto page2 = client().procedures().list().limit(1).cursor(page1.meta.next_cursor.value()).send();
-        EXPECT_EQ(1, page2.data.size());
-        EXPECT_NE(page1.data[0].id, page2.data[0].id);
-    }
+    ASSERT_TRUE(page1.meta.has_more);
+    auto page2 = client().procedures().list().search_query(search).limit(1).cursor(page1.meta.next_cursor.value()).send();
+    EXPECT_EQ(1, page2.data.size());
+    EXPECT_NE(page1.data[0].id, page2.data[0].id);
 }
 
 TEST(Procedures, DeleteNonexistentReturnsNotFound) {
@@ -56,7 +58,7 @@ TEST(Procedures, GetIncludesRecentRuns) {
     auto uid_val = uid();
     auto proc = client().procedures().create().name("Proc RR " + uid_val).send();
     auto ts = iso_now();
-    client().runs().create().serial_number("SN-RR-" + uid_val).procedure_id(proc.id).part_number("PART-RR-" + uid_val).started_at(ts).ended_at(ts).outcome(Outcome::Pass).send();
+    client().runs().create().serial_number("SN-RR-" + uid_val).procedure_id(proc.id).part_number("PART-RR-" + uid_val).started_at(ts).ended_at(ts).outcome(LogGetOutcome::Pass).send();
     auto fetched = client().procedures().get().id(proc.id).send();
     ASSERT_FALSE(fetched.recent_runs.empty());
 }

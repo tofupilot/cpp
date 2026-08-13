@@ -36,17 +36,19 @@ TEST(Parts, ListWithSearchQuery) {
 }
 
 TEST(Parts, ListPagination) {
+    // Paginate only within this test's parts, so concurrent suites can't shift pages.
+    auto uid_val = uid();
     for (int i = 0; i < 3; ++i) {
-        auto u = uid();
-        client().parts().create().number("PART-PG-" + u).name("Part Pg " + u).send();
+        auto s = std::to_string(i);
+        client().parts().create().number("PART-PG-" + uid_val + "-" + s).name("Part Pg " + uid_val + " " + s).send();
     }
-    auto page1 = client().parts().list().limit(1).send();
+    auto search = "PART-PG-" + uid_val;
+    auto page1 = client().parts().list().search_query(search).limit(1).send();
     EXPECT_EQ(1, page1.data.size());
-    if (page1.meta.has_more) {
-        auto page2 = client().parts().list().limit(1).cursor(page1.meta.next_cursor.value()).send();
-        EXPECT_EQ(1, page2.data.size());
-        EXPECT_NE(page1.data[0].id, page2.data[0].id);
-    }
+    ASSERT_TRUE(page1.meta.has_more);
+    auto page2 = client().parts().list().search_query(search).limit(1).cursor(page1.meta.next_cursor.value()).send();
+    EXPECT_EQ(1, page2.data.size());
+    EXPECT_NE(page1.data[0].id, page2.data[0].id);
 }
 
 TEST(Parts, DeleteReturnsId) {

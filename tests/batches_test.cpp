@@ -13,7 +13,7 @@ std::string create_batch_via_run(const std::string& uid_val) {
         .batch_number(batch_number)
         .started_at(ts)
         .ended_at(ts)
-        .outcome(Outcome::Pass)
+        .outcome(LogGetOutcome::Pass)
         .send();
     return batch_number;
 }
@@ -55,11 +55,14 @@ TEST(Batches, ListWithNumberFilter) {
 }
 
 TEST(Batches, ListPagination) {
-    for (int i = 0; i < 3; ++i) create_batch_via_run(uid());
-    auto page1 = client().batches().list().limit(1).send();
+    // Paginate only within this test's batches, so concurrent suites can't shift pages.
+    auto uid_val = uid();
+    for (int i = 0; i < 3; ++i) create_batch_via_run("PG-" + uid_val + "-" + std::to_string(i));
+    auto search = "BATCH-PG-" + uid_val;
+    auto page1 = client().batches().list().search_query(search).limit(1).send();
     EXPECT_EQ(1, page1.data.size());
     ASSERT_TRUE(page1.meta.has_more);
-    auto page2 = client().batches().list().limit(1).cursor(page1.meta.next_cursor.value()).send();
+    auto page2 = client().batches().list().search_query(search).limit(1).cursor(page1.meta.next_cursor.value()).send();
     EXPECT_EQ(1, page2.data.size());
     EXPECT_NE(page1.data[0].id, page2.data[0].id);
 }

@@ -12,17 +12,20 @@ namespace tofupilot {
 enum class Provider {
     Github,
     Gitlab,
+    Bitbucket,
 };
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Provider, {
     { Provider::Github, "github" },
     { Provider::Gitlab, "gitlab" },
+    { Provider::Bitbucket, "bitbucket" },
 })
 
 inline std::string to_string(Provider e) {
     switch (e) {
         case Provider::Github: return "github";
         case Provider::Gitlab: return "gitlab";
+        case Provider::Bitbucket: return "bitbucket";
     }
     return "unknown"; // unreachable — silences compiler warning without hiding -Wswitch
 }
