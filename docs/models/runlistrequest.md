@@ -28,6 +28,7 @@
 | `created_by_user_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `created_by_station_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `operated_by_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `operated_by_names` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `limit` | `std::optional<int64_t>` | :heavy_minus_sign: | Maximum number of runs to return per page. |
 | `cursor` | `std::optional<int64_t>` | :heavy_minus_sign: | N/A |
 | `sort_by` | `std::optional<RunListSortBy>` | :heavy_minus_sign: | Field to sort results by. |

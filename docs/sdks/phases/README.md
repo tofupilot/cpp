@@ -49,6 +49,7 @@ int main() {
 | `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `environments` | `std::optional<std::vector<Environment>>` | :heavy_minus_sign: | N/A |
 | `operated_by_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `operated_by_names` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `created_by_station_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `created_by_user_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |

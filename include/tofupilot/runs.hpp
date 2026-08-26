@@ -325,6 +325,10 @@ public:
         operated_by_ids_ = std::move(value);
         return *this;
     }
+    ListBuilder& operated_by_names(std::vector<std::string> value) {
+        operated_by_names_ = std::move(value);
+        return *this;
+    }
     ListBuilder& limit(int64_t value) {
         limit_ = std::move(value);
         return *this;
@@ -510,6 +514,13 @@ public:
                     first = false;
                 }
             }
+            if (operated_by_names_.has_value()) {
+                for (const auto& item : operated_by_names_.value()) {
+                    if (!first) qs << "&";
+                    qs << "operated_by_names=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
             if (limit_.has_value()) {
                 if (!first) qs << "&";
                 qs << "limit=" << detail::url_encode(detail::to_query_string(limit_.value()));
@@ -587,6 +598,7 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<std::vector<std::string>> operated_by_ids_;
+    std::optional<std::vector<std::string>> operated_by_names_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<RunListSortBy> sort_by_;

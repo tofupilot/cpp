@@ -15,19 +15,21 @@
 
 namespace tofupilot {
 
-/// User who operated this run. Only returned if `all` or `operated_by` is included.
+/// Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included.
 struct RunListOperatedBy {
-    /// Operator ID.
-    std::string id;
-    /// Operator display name.
+    /// Operator user ID. Null when the operator is a declared name without a TofuPilot account.
+    std::optional<std::string> id;
+    /// Operator display name: the account name for linked operators, the declared free-text value otherwise.
     std::optional<std::string> name;
-    /// Operator email address.
+    /// Operator email address. Null for declared names (unverified operators have no account email).
     std::optional<std::string> email;
 };
 
 inline void to_json(nlohmann::json& j, const RunListOperatedBy& v) {
     j = nlohmann::json::object();
-    j["id"] = v.id;
+    if (v.id.has_value()) {
+        j["id"] = v.id.value();
+    }
     if (v.name.has_value()) {
         j["name"] = v.name.value();
     }
@@ -37,11 +39,9 @@ inline void to_json(nlohmann::json& j, const RunListOperatedBy& v) {
 }
 
 inline void from_json(const nlohmann::json& j, RunListOperatedBy& v) {
-    if (!j.contains("id")) {
-        throw nlohmann::json::other_error::create(501,
-            "missing required field in response: id", &j);
+    if (j.contains("id") && !j["id"].is_null()) {
+        v.id = j["id"].get<std::string>();
     }
-    v.id = j["id"].get<std::string>();
     if (j.contains("name") && !j["name"].is_null()) {
         v.name = j["name"].get<std::string>();
     }
@@ -54,21 +54,21 @@ inline void from_json(const nlohmann::json& j, RunListOperatedBy& v) {
 class RunListOperatedByBuilder {
 public:
     /// Set the `id` field.
-    /// Operator ID.
+    /// Operator user ID. Null when the operator is a declared name without a TofuPilot account.
     RunListOperatedByBuilder& id(std::string value) {
         id_ = std::move(value);
         return *this;
     }
 
     /// Set the `name` field.
-    /// Operator display name.
+    /// Operator display name: the account name for linked operators, the declared free-text value otherwise.
     RunListOperatedByBuilder& name(std::string value) {
         name_ = std::move(value);
         return *this;
     }
 
     /// Set the `email` field.
-    /// Operator email address.
+    /// Operator email address. Null for declared names (unverified operators have no account email).
     RunListOperatedByBuilder& email(std::string value) {
         email_ = std::move(value);
         return *this;
@@ -77,10 +77,7 @@ public:
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunListOperatedBy build() const& {
         RunListOperatedBy result;
-        if (!id_.has_value()) {
-            throw std::runtime_error("missing required field: id");
-        }
-        result.id = id_.value();
+        result.id = id_;
         result.name = name_;
         result.email = email_;
         return result;
@@ -89,10 +86,7 @@ public:
     /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
     RunListOperatedBy build() && {
         RunListOperatedBy result;
-        if (!id_.has_value()) {
-            throw std::runtime_error("missing required field: id");
-        }
-        result.id = std::move(id_.value());
+        result.id = std::move(id_);
         result.name = std::move(name_);
         result.email = std::move(email_);
         return result;

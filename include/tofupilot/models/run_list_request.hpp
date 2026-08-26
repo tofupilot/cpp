@@ -44,6 +44,7 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> created_by_user_ids;
     std::optional<std::vector<std::string>> created_by_station_ids;
     std::optional<std::vector<std::string>> operated_by_ids;
+    std::optional<std::vector<std::string>> operated_by_names;
     /// Maximum number of runs to return per page.
     std::optional<int64_t> limit;
     std::optional<int64_t> cursor;
@@ -127,6 +128,9 @@ inline void to_json(nlohmann::json& j, const RunListRequest& v) {
     }
     if (v.operated_by_ids.has_value()) {
         j["operated_by_ids"] = v.operated_by_ids.value();
+    }
+    if (v.operated_by_names.has_value()) {
+        j["operated_by_names"] = v.operated_by_names.value();
     }
     if (v.limit.has_value()) {
         j["limit"] = v.limit.value();
@@ -217,6 +221,9 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
     }
     if (j.contains("operated_by_ids") && !j["operated_by_ids"].is_null()) {
         v.operated_by_ids = j["operated_by_ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("operated_by_names") && !j["operated_by_names"].is_null()) {
+        v.operated_by_names = j["operated_by_names"].get<std::vector<std::string>>();
     }
     if (j.contains("limit") && !j["limit"].is_null()) {
         v.limit = j["limit"].get<int64_t>();
@@ -379,6 +386,12 @@ public:
         return *this;
     }
 
+    /// Set the `operated_by_names` field.
+    RunListRequestBuilder& operated_by_names(std::vector<std::string> value) {
+        operated_by_names_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `limit` field.
     /// Maximum number of runs to return per page.
     RunListRequestBuilder& limit(int64_t value) {
@@ -446,6 +459,7 @@ public:
         result.created_by_user_ids = created_by_user_ids_;
         result.created_by_station_ids = created_by_station_ids_;
         result.operated_by_ids = operated_by_ids_;
+        result.operated_by_names = operated_by_names_;
         result.limit = limit_;
         result.cursor = cursor_;
         result.sort_by = sort_by_;
@@ -481,6 +495,7 @@ public:
         result.created_by_user_ids = std::move(created_by_user_ids_);
         result.created_by_station_ids = std::move(created_by_station_ids_);
         result.operated_by_ids = std::move(operated_by_ids_);
+        result.operated_by_names = std::move(operated_by_names_);
         result.limit = std::move(limit_);
         result.cursor = std::move(cursor_);
         result.sort_by = std::move(sort_by_);
@@ -514,6 +529,7 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<std::vector<std::string>> operated_by_ids_;
+    std::optional<std::vector<std::string>> operated_by_names_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<RunListSortBy> sort_by_;

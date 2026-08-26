@@ -46,7 +46,7 @@ struct RunGetResponse {
     NullableField<RunGetCreatedByUser> created_by_user;
     /// Station whose API key was used to create this run. Only returned if `all` or `created_by` is included.
     NullableField<RunGetCreatedByStation> created_by_station;
-    /// User who operated this run. Only returned if `all` or `operated_by` is included.
+    /// Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included.
     NullableField<RunGetOperatedBy> operated_by;
     /// Test procedure associated with this run.
     RunGetProcedure procedure;

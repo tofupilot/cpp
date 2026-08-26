@@ -41,7 +41,7 @@ struct RunListData {
     NullableField<RunListCreatedByUser> created_by_user;
     /// Station whose API key was used to create this run. Only returned if `all` or `created_by` is included.
     NullableField<RunListCreatedByStation> created_by_station;
-    /// User who operated this run. Only returned if `all` or `operated_by` is included.
+    /// Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included.
     NullableField<RunListOperatedBy> operated_by;
     /// Test procedure associated with this run.
     RunListProcedure procedure;
@@ -253,7 +253,7 @@ public:
     }
 
     /// Set the `operated_by` field.
-    /// User who operated this run. Only returned if `all` or `operated_by` is included.
+    /// Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included.
     RunListDataBuilder& operated_by(RunListOperatedBy value) {
         operated_by_ = NullableField<RunListOperatedBy>::value(std::move(value));
         return *this;

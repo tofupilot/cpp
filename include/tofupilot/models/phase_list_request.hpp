@@ -37,6 +37,7 @@ struct PhaseListRequest {
     std::optional<std::vector<std::string>> procedure_versions;
     std::optional<std::vector<Environment>> environments;
     std::optional<std::vector<std::string>> operated_by_ids;
+    std::optional<std::vector<std::string>> operated_by_names;
     std::optional<std::vector<std::string>> created_by_station_ids;
     std::optional<std::vector<std::string>> created_by_user_ids;
     std::optional<std::vector<std::string>> serial_numbers;
@@ -95,6 +96,9 @@ inline void to_json(nlohmann::json& j, const PhaseListRequest& v) {
     }
     if (v.operated_by_ids.has_value()) {
         j["operated_by_ids"] = v.operated_by_ids.value();
+    }
+    if (v.operated_by_names.has_value()) {
+        j["operated_by_names"] = v.operated_by_names.value();
     }
     if (v.created_by_station_ids.has_value()) {
         j["created_by_station_ids"] = v.created_by_station_ids.value();
@@ -175,6 +179,9 @@ inline void from_json(const nlohmann::json& j, PhaseListRequest& v) {
     }
     if (j.contains("operated_by_ids") && !j["operated_by_ids"].is_null()) {
         v.operated_by_ids = j["operated_by_ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("operated_by_names") && !j["operated_by_names"].is_null()) {
+        v.operated_by_names = j["operated_by_names"].get<std::vector<std::string>>();
     }
     if (j.contains("created_by_station_ids") && !j["created_by_station_ids"].is_null()) {
         v.created_by_station_ids = j["created_by_station_ids"].get<std::vector<std::string>>();
@@ -299,6 +306,12 @@ public:
         return *this;
     }
 
+    /// Set the `operated_by_names` field.
+    PhaseListRequestBuilder& operated_by_names(std::vector<std::string> value) {
+        operated_by_names_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `created_by_station_ids` field.
     PhaseListRequestBuilder& created_by_station_ids(std::vector<std::string> value) {
         created_by_station_ids_ = std::move(value);
@@ -389,6 +402,7 @@ public:
         result.procedure_versions = procedure_versions_;
         result.environments = environments_;
         result.operated_by_ids = operated_by_ids_;
+        result.operated_by_names = operated_by_names_;
         result.created_by_station_ids = created_by_station_ids_;
         result.created_by_user_ids = created_by_user_ids_;
         result.serial_numbers = serial_numbers_;
@@ -423,6 +437,7 @@ public:
         result.procedure_versions = std::move(procedure_versions_);
         result.environments = std::move(environments_);
         result.operated_by_ids = std::move(operated_by_ids_);
+        result.operated_by_names = std::move(operated_by_names_);
         result.created_by_station_ids = std::move(created_by_station_ids_);
         result.created_by_user_ids = std::move(created_by_user_ids_);
         result.serial_numbers = std::move(serial_numbers_);
@@ -452,6 +467,7 @@ private:
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> operated_by_ids_;
+    std::optional<std::vector<std::string>> operated_by_names_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> serial_numbers_;

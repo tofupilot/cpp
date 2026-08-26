@@ -101,6 +101,10 @@ public:
         operated_by_ids_ = std::move(value);
         return *this;
     }
+    ListBuilder& operated_by_names(std::vector<std::string> value) {
+        operated_by_names_ = std::move(value);
+        return *this;
+    }
     ListBuilder& created_by_station_ids(std::vector<std::string> value) {
         created_by_station_ids_ = std::move(value);
         return *this;
@@ -281,6 +285,13 @@ public:
                     first = false;
                 }
             }
+            if (operated_by_names_.has_value()) {
+                for (const auto& item : operated_by_names_.value()) {
+                    if (!first) qs << "&";
+                    qs << "operated_by_names=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
             if (created_by_station_ids_.has_value()) {
                 for (const auto& item : created_by_station_ids_.value()) {
                     if (!first) qs << "&";
@@ -404,6 +415,7 @@ private:
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;
     std::optional<std::vector<std::string>> operated_by_ids_;
+    std::optional<std::vector<std::string>> operated_by_names_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::string> started_after_;
