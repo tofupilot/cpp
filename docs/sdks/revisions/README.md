@@ -87,6 +87,7 @@ int main() {
 | `revision_number` | `std::string` | :heavy_check_mark: | Current revision number to update. |
 | `number` | `std::optional<std::string>` | :heavy_minus_sign: | New revision number to set. |
 | `image_id` | `std::optional<std::string>` | :heavy_minus_sign: | Upload ID for the revision image, or empty string to remove image |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the revision. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. |
 
 ### Response
 
@@ -178,6 +179,7 @@ int main() {
 | --- | --- | --- | --- |
 | `part_number` | `std::string` | :heavy_check_mark: | Part number to create a revision for. |
 | `number` | `std::string` | :heavy_check_mark: | Revision number (e.g., version number or code). |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. |
 
 ### Response
 

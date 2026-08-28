@@ -20,6 +20,8 @@ struct PartUpdateRequestBody {
     std::optional<std::string> new_number;
     /// New human-readable name for the part.
     std::optional<std::string> name;
+    /// Custom metadata to upsert on the part. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartUpdateRequestBody& v) {
@@ -30,6 +32,9 @@ inline void to_json(nlohmann::json& j, const PartUpdateRequestBody& v) {
     if (v.name.has_value()) {
         j["name"] = v.name.value();
     }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartUpdateRequestBody& v) {
@@ -38,6 +43,9 @@ inline void from_json(const nlohmann::json& j, PartUpdateRequestBody& v) {
     }
     if (j.contains("name") && !j["name"].is_null()) {
         v.name = j["name"].get<std::string>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -58,11 +66,19 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to upsert on the part. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
+    PartUpdateRequestBodyBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     PartUpdateRequestBody build() const& {
         PartUpdateRequestBody result;
         result.new_number = new_number_;
         result.name = name_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -71,12 +87,14 @@ public:
         PartUpdateRequestBody result;
         result.new_number = std::move(new_number_);
         result.name = std::move(name_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
 private:
     std::optional<std::string> new_number_;
     std::optional<std::string> name_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

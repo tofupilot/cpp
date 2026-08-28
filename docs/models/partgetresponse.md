@@ -13,3 +13,4 @@ Part retrieved successfully
 | `created_by_user` | `NullableField<PartGetCreatedByUser>` | :heavy_minus_sign: | User who created this part. |
 | `created_by_station` | `NullableField<PartGetCreatedByStation>` | :heavy_minus_sign: | Station that created this part. |
 | `revisions` | `std::vector<PartGetRevisions>` | :heavy_check_mark: | List of revisions for this part. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the part. |

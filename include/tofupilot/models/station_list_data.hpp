@@ -28,6 +28,8 @@ struct StationListData {
     double procedures_count;
     /// Team this station belongs to
     std::optional<StationListTeam> team;
+    /// Custom metadata key/value pairs on the station. Only present when the request sets `include_metadata=true`.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const StationListData& v) {
@@ -38,6 +40,9 @@ inline void to_json(nlohmann::json& j, const StationListData& v) {
     j["procedures_count"] = v.procedures_count;
     if (v.team.has_value()) {
         j["team"] = v.team.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -62,6 +67,9 @@ inline void from_json(const nlohmann::json& j, StationListData& v) {
     v.procedures_count = j["procedures_count"].get<double>();
     if (j.contains("team") && !j["team"].is_null()) {
         v.team = j["team"].get<StationListTeam>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -103,6 +111,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata key/value pairs on the station. Only present when the request sets `include_metadata=true`.
+    StationListDataBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     StationListData build() const& {
         StationListData result;
@@ -122,6 +137,7 @@ public:
         }
         result.procedures_count = procedures_count_.value();
         result.team = team_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -144,6 +160,7 @@ public:
         }
         result.procedures_count = std::move(procedures_count_.value());
         result.team = std::move(team_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -153,6 +170,7 @@ private:
     std::optional<std::vector<StationListProcedures>> procedures_;
     std::optional<double> procedures_count_;
     std::optional<StationListTeam> team_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

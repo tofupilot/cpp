@@ -23,6 +23,8 @@ struct StationUpdateRequestBody {
     std::optional<std::string> image_id;
     /// Team ID to assign this station to, or null to unassign
     NullableField<std::string> team_id;
+    /// Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const StationUpdateRequestBody& v) {
@@ -40,6 +42,9 @@ inline void to_json(nlohmann::json& j, const StationUpdateRequestBody& v) {
             j["team_id"] = v.team_id.get();
         }
     }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, StationUpdateRequestBody& v) {
@@ -55,6 +60,9 @@ inline void from_json(const nlohmann::json& j, StationUpdateRequestBody& v) {
         } else {
             v.team_id = NullableField<std::string>::value(j["team_id"].get<std::string>());
         }
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -88,12 +96,20 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
+    StationUpdateRequestBodyBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     StationUpdateRequestBody build() const& {
         StationUpdateRequestBody result;
         result.name = name_;
         result.image_id = image_id_;
         result.team_id = team_id_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -103,6 +119,7 @@ public:
         result.name = std::move(name_);
         result.image_id = std::move(image_id_);
         result.team_id = std::move(team_id_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -110,6 +127,7 @@ private:
     std::optional<std::string> name_;
     std::optional<std::string> image_id_;
     NullableField<std::string> team_id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

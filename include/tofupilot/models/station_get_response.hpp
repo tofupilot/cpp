@@ -31,6 +31,8 @@ struct StationGetResponse {
     std::string organization_slug;
     /// Team this station is assigned to
     std::optional<StationGetTeam> team;
+    /// Custom metadata key/value pairs on the station.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const StationGetResponse& v) {
@@ -44,6 +46,9 @@ inline void to_json(nlohmann::json& j, const StationGetResponse& v) {
     j["organization_slug"] = v.organization_slug;
     if (v.team.has_value()) {
         j["team"] = v.team.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -71,6 +76,9 @@ inline void from_json(const nlohmann::json& j, StationGetResponse& v) {
     v.organization_slug = j["organization_slug"].get<std::string>();
     if (j.contains("team") && !j["team"].is_null()) {
         v.team = j["team"].get<StationGetTeam>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 

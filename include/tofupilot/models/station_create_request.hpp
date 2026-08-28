@@ -20,6 +20,8 @@ struct StationCreateRequest {
     std::string name;
     /// Optional procedure ID to link the station to
     std::optional<std::string> procedure_id;
+    /// Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const StationCreateRequest& v) {
@@ -27,6 +29,9 @@ inline void to_json(nlohmann::json& j, const StationCreateRequest& v) {
     j["name"] = v.name;
     if (v.procedure_id.has_value()) {
         j["procedure_id"] = v.procedure_id.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -38,6 +43,9 @@ inline void from_json(const nlohmann::json& j, StationCreateRequest& v) {
     v.name = j["name"].get<std::string>();
     if (j.contains("procedure_id") && !j["procedure_id"].is_null()) {
         v.procedure_id = j["procedure_id"].get<std::string>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -58,6 +66,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config.
+    StationCreateRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     StationCreateRequest build() const& {
         StationCreateRequest result;
@@ -66,6 +81,7 @@ public:
         }
         result.name = name_.value();
         result.procedure_id = procedure_id_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -77,12 +93,14 @@ public:
         }
         result.name = std::move(name_.value());
         result.procedure_id = std::move(procedure_id_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
 private:
     std::optional<std::string> name_;
     std::optional<std::string> procedure_id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

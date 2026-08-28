@@ -27,6 +27,8 @@ struct PartListData {
     std::string created_at;
     /// List of revisions for this part.
     std::vector<PartListRevisions> revisions;
+    /// Custom metadata key/value pairs on the part. Only present when the request sets `include_metadata=true`.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartListData& v) {
@@ -36,6 +38,9 @@ inline void to_json(nlohmann::json& j, const PartListData& v) {
     j["name"] = v.name;
     j["created_at"] = v.created_at;
     j["revisions"] = v.revisions;
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartListData& v) {
@@ -61,6 +66,9 @@ inline void from_json(const nlohmann::json& j, PartListData& v) {
     v.created_at = j["created_at"].get<std::string>();
     if (j.contains("revisions") && j["revisions"].is_array()) {
         v.revisions = j["revisions"].get<std::vector<PartListRevisions>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -102,6 +110,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata key/value pairs on the part. Only present when the request sets `include_metadata=true`.
+    PartListDataBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     PartListData build() const& {
         PartListData result;
@@ -124,6 +139,7 @@ public:
         if (revisions_.has_value()) {
             result.revisions = revisions_.value();
         }
+        result.metadata = metadata_;
         return result;
     }
 
@@ -149,6 +165,7 @@ public:
         if (revisions_.has_value()) {
             result.revisions = std::move(revisions_.value());
         }
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -158,6 +175,7 @@ private:
     std::optional<std::string> name_;
     std::optional<std::string> created_at_;
     std::optional<std::vector<PartListRevisions>> revisions_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

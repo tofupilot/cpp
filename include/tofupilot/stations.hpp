@@ -53,9 +53,14 @@ public:
         procedure_id_ = std::move(value);
         return *this;
     }
+    CreateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& body(StationCreateRequest b) {
         name_ = std::move(b.name);
         if (b.procedure_id.has_value()) procedure_id_ = std::move(b.procedure_id);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -81,6 +86,7 @@ public:
             if (!name_.has_value()) throw ValidationError("missing required field: name");
             req_body.name = name_.value();
             req_body.procedure_id = procedure_id_;
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -103,6 +109,7 @@ private:
     TofuPilot& client_;
     std::optional<std::string> name_;
     std::optional<std::string> procedure_id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
 
@@ -124,6 +131,14 @@ public:
     }
     ListBuilder& procedure_ids(std::vector<std::string> value) {
         procedure_ids_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
         return *this;
     }
 
@@ -166,6 +181,18 @@ public:
                     first = false;
                 }
             }
+            if (metadata_.has_value()) {
+                // Object/record query param: serialize the whole value to a
+                // single JSON-encoded query string.
+                if (!first) qs << "&";
+                qs << "metadata=" << detail::url_encode(nlohmann::json(metadata_.value()).dump());
+                first = false;
+            }
+            if (include_metadata_.has_value()) {
+                if (!first) qs << "&";
+                qs << "include_metadata=" << detail::url_encode(detail::to_query_string(include_metadata_.value()));
+                first = false;
+            }
             query_string = qs.str();
         }
 
@@ -192,6 +219,8 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> procedure_ids_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<bool> include_metadata_;
     RequestConfig request_config_;
 };
 
@@ -309,10 +338,15 @@ public:
         team_id_ = NullableField<std::string>::make_null();
         return *this;
     }
+    UpdateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     UpdateBuilder& body(StationUpdateRequestBody b) {
         if (b.name.has_value()) name_ = std::move(b.name);
         if (b.image_id.has_value()) image_id_ = std::move(b.image_id);
         team_id_ = std::move(b.team_id);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -339,6 +373,7 @@ public:
             req_body.name = name_;
             req_body.image_id = image_id_;
             if (!team_id_.is_absent()) req_body.team_id = team_id_;
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -363,6 +398,7 @@ private:
     std::optional<std::string> name_;
     std::optional<std::string> image_id_;
     NullableField<std::string> team_id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
 

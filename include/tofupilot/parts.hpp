@@ -55,10 +55,15 @@ public:
         revision_number_ = std::move(value);
         return *this;
     }
+    CreateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& body(PartCreateRequest b) {
         number_ = std::move(b.number);
         if (b.name.has_value()) name_ = std::move(b.name);
         if (b.revision_number.has_value()) revision_number_ = std::move(b.revision_number);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -85,6 +90,7 @@ public:
             req_body.number = number_.value();
             req_body.name = name_;
             req_body.revision_number = revision_number_;
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -108,6 +114,7 @@ private:
     std::optional<std::string> number_;
     std::optional<std::string> name_;
     std::optional<std::string> revision_number_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
 
@@ -137,6 +144,14 @@ public:
     }
     ListBuilder& sort_order(ListSortOrder value) {
         sort_order_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
         return *this;
     }
 
@@ -189,6 +204,18 @@ public:
                 qs << "sort_order=" << detail::url_encode(detail::to_query_string(sort_order_.value()));
                 first = false;
             }
+            if (metadata_.has_value()) {
+                // Object/record query param: serialize the whole value to a
+                // single JSON-encoded query string.
+                if (!first) qs << "&";
+                qs << "metadata=" << detail::url_encode(nlohmann::json(metadata_.value()).dump());
+                first = false;
+            }
+            if (include_metadata_.has_value()) {
+                if (!first) qs << "&";
+                qs << "include_metadata=" << detail::url_encode(detail::to_query_string(include_metadata_.value()));
+                first = false;
+            }
             query_string = qs.str();
         }
 
@@ -217,6 +244,8 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<PartListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<bool> include_metadata_;
     RequestConfig request_config_;
 };
 
@@ -284,9 +313,14 @@ public:
         name_ = std::move(value);
         return *this;
     }
+    UpdateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     UpdateBuilder& body(PartUpdateRequestBody b) {
         if (b.new_number.has_value()) new_number_ = std::move(b.new_number);
         if (b.name.has_value()) name_ = std::move(b.name);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -312,6 +346,7 @@ public:
             PartUpdateRequestBody req_body;
             req_body.new_number = new_number_;
             req_body.name = name_;
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -335,6 +370,7 @@ private:
     std::optional<std::string> number_;
     std::optional<std::string> new_number_;
     std::optional<std::string> name_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
 

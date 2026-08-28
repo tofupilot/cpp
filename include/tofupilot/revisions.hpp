@@ -111,9 +111,14 @@ public:
         image_id_ = std::move(value);
         return *this;
     }
+    UpdateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     UpdateBuilder& body(PartUpdateRevisionRequestBody b) {
         if (b.number.has_value()) number_ = std::move(b.number);
         if (b.image_id.has_value()) image_id_ = std::move(b.image_id);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -140,6 +145,7 @@ public:
             PartUpdateRevisionRequestBody req_body;
             req_body.number = number_;
             req_body.image_id = image_id_;
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -164,6 +170,7 @@ private:
     std::optional<std::string> revision_number_;
     std::optional<std::string> number_;
     std::optional<std::string> image_id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
 
@@ -233,8 +240,13 @@ public:
         number_ = std::move(value);
         return *this;
     }
+    CreateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& body(PartCreateRevisionRequestBody b) {
         number_ = std::move(b.number);
+        if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
 
@@ -260,6 +272,7 @@ public:
             PartCreateRevisionRequestBody req_body;
             if (!number_.has_value()) throw ValidationError("missing required field: number");
             req_body.number = number_.value();
+            req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -282,6 +295,7 @@ private:
     TofuPilot& client_;
     std::optional<std::string> part_number_;
     std::optional<std::string> number_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };
 

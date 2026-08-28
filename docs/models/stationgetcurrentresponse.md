@@ -12,3 +12,4 @@ Current station retrieved successfully
 | `procedures` | `std::vector<StationGetCurrentProcedures>` | :heavy_check_mark: | Procedures linked to this station with recent run counts |
 | `organization_slug` | `std::string` | :heavy_check_mark: | Slug of the organization this station belongs to |
 | `team` | `std::optional<StationGetCurrentTeam>` | :heavy_minus_sign: | Team this station is assigned to |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the station. |

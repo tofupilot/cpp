@@ -27,6 +27,10 @@ struct PartListRequest {
     std::optional<PartListSortBy> sort_by;
     /// Sort order direction.
     std::optional<ListSortOrder> sort_order;
+    /// Filter parts by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
+    /// When true, includes the custom metadata object on each part in the response. Defaults to false to keep payloads small.
+    std::optional<bool> include_metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartListRequest& v) {
@@ -49,6 +53,12 @@ inline void to_json(nlohmann::json& j, const PartListRequest& v) {
     if (v.sort_order.has_value()) {
         j["sort_order"] = v.sort_order.value();
     }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
+    if (v.include_metadata.has_value()) {
+        j["include_metadata"] = v.include_metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartListRequest& v) {
@@ -69,6 +79,12 @@ inline void from_json(const nlohmann::json& j, PartListRequest& v) {
     }
     if (j.contains("sort_order") && !j["sort_order"].is_null()) {
         v.sort_order = j["sort_order"].get<ListSortOrder>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
+    }
+    if (j.contains("include_metadata") && !j["include_metadata"].is_null()) {
+        v.include_metadata = j["include_metadata"].get<bool>();
     }
 }
 
@@ -114,6 +130,20 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Filter parts by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+    PartListRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `include_metadata` field.
+    /// When true, includes the custom metadata object on each part in the response. Defaults to false to keep payloads small.
+    PartListRequestBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     PartListRequest build() const& {
         PartListRequest result;
@@ -123,6 +153,8 @@ public:
         result.procedure_ids = procedure_ids_;
         result.sort_by = sort_by_;
         result.sort_order = sort_order_;
+        result.metadata = metadata_;
+        result.include_metadata = include_metadata_;
         return result;
     }
 
@@ -135,6 +167,8 @@ public:
         result.procedure_ids = std::move(procedure_ids_);
         result.sort_by = std::move(sort_by_);
         result.sort_order = std::move(sort_order_);
+        result.metadata = std::move(metadata_);
+        result.include_metadata = std::move(include_metadata_);
         return result;
     }
 
@@ -145,6 +179,8 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<PartListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<bool> include_metadata_;
 };
 
 } // namespace tofupilot

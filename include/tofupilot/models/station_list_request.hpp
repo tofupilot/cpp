@@ -21,6 +21,10 @@ struct StationListRequest {
     std::optional<int64_t> cursor;
     std::optional<std::string> search_query;
     std::optional<std::vector<std::string>> procedure_ids;
+    /// Filter stations by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
+    /// When true, includes the custom metadata object on each station in the response. Defaults to false to keep payloads small.
+    std::optional<bool> include_metadata;
 };
 
 inline void to_json(nlohmann::json& j, const StationListRequest& v) {
@@ -37,6 +41,12 @@ inline void to_json(nlohmann::json& j, const StationListRequest& v) {
     if (v.procedure_ids.has_value()) {
         j["procedure_ids"] = v.procedure_ids.value();
     }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
+    if (v.include_metadata.has_value()) {
+        j["include_metadata"] = v.include_metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, StationListRequest& v) {
@@ -51,6 +61,12 @@ inline void from_json(const nlohmann::json& j, StationListRequest& v) {
     }
     if (j.contains("procedure_ids") && !j["procedure_ids"].is_null()) {
         v.procedure_ids = j["procedure_ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
+    }
+    if (j.contains("include_metadata") && !j["include_metadata"].is_null()) {
+        v.include_metadata = j["include_metadata"].get<bool>();
     }
 }
 
@@ -82,6 +98,20 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Filter stations by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: "..."}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+    StationListRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `include_metadata` field.
+    /// When true, includes the custom metadata object on each station in the response. Defaults to false to keep payloads small.
+    StationListRequestBuilder& include_metadata(bool value) {
+        include_metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     StationListRequest build() const& {
         StationListRequest result;
@@ -89,6 +119,8 @@ public:
         result.cursor = cursor_;
         result.search_query = search_query_;
         result.procedure_ids = procedure_ids_;
+        result.metadata = metadata_;
+        result.include_metadata = include_metadata_;
         return result;
     }
 
@@ -99,6 +131,8 @@ public:
         result.cursor = std::move(cursor_);
         result.search_query = std::move(search_query_);
         result.procedure_ids = std::move(procedure_ids_);
+        result.metadata = std::move(metadata_);
+        result.include_metadata = std::move(include_metadata_);
         return result;
     }
 
@@ -107,6 +141,8 @@ private:
     std::optional<int64_t> cursor_;
     std::optional<std::string> search_query_;
     std::optional<std::vector<std::string>> procedure_ids_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<bool> include_metadata_;
 };
 
 } // namespace tofupilot

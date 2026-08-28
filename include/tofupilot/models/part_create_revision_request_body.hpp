@@ -18,11 +18,16 @@ namespace tofupilot {
 struct PartCreateRevisionRequestBody {
     /// Revision number (e.g., version number or code).
     std::string number;
+    /// Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartCreateRevisionRequestBody& v) {
     j = nlohmann::json::object();
     j["number"] = v.number;
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartCreateRevisionRequestBody& v) {
@@ -31,6 +36,53 @@ inline void from_json(const nlohmann::json& j, PartCreateRevisionRequestBody& v)
             "missing required field in response: number", &j);
     }
     v.number = j["number"].get<std::string>();
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
+    }
 }
+
+/// Builder for PartCreateRevisionRequestBody.
+class PartCreateRevisionRequestBodyBuilder {
+public:
+    /// Set the `number` field.
+    /// Revision number (e.g., version number or code).
+    PartCreateRevisionRequestBodyBuilder& number(std::string value) {
+        number_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `metadata` field.
+    /// Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    PartCreateRevisionRequestBodyBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
+    /// Build the struct. Throws std::runtime_error if required fields are missing.
+    PartCreateRevisionRequestBody build() const& {
+        PartCreateRevisionRequestBody result;
+        if (!number_.has_value()) {
+            throw std::runtime_error("missing required field: number");
+        }
+        result.number = number_.value();
+        result.metadata = metadata_;
+        return result;
+    }
+
+    /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
+    PartCreateRevisionRequestBody build() && {
+        PartCreateRevisionRequestBody result;
+        if (!number_.has_value()) {
+            throw std::runtime_error("missing required field: number");
+        }
+        result.number = std::move(number_.value());
+        result.metadata = std::move(metadata_);
+        return result;
+    }
+
+private:
+    std::optional<std::string> number_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
+};
 
 } // namespace tofupilot

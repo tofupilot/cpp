@@ -35,6 +35,8 @@ struct PartGetResponse {
     NullableField<PartGetCreatedByStation> created_by_station;
     /// List of revisions for this part.
     std::vector<PartGetRevisions> revisions;
+    /// Custom metadata key/value pairs on the part.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartGetResponse& v) {
@@ -58,6 +60,9 @@ inline void to_json(nlohmann::json& j, const PartGetResponse& v) {
         }
     }
     j["revisions"] = v.revisions;
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartGetResponse& v) {
@@ -97,6 +102,9 @@ inline void from_json(const nlohmann::json& j, PartGetResponse& v) {
     }
     if (j.contains("revisions") && j["revisions"].is_array()) {
         v.revisions = j["revisions"].get<std::vector<PartGetRevisions>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 

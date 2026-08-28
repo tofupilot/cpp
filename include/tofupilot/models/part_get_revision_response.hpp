@@ -35,6 +35,8 @@ struct PartGetRevisionResponse {
     PartGetRevisionPart part;
     /// List of units created with this revision.
     std::vector<PartGetRevisionUnits> units;
+    /// Custom metadata key/value pairs on the revision.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartGetRevisionResponse& v) {
@@ -52,6 +54,9 @@ inline void to_json(nlohmann::json& j, const PartGetRevisionResponse& v) {
     }
     j["part"] = v.part;
     j["units"] = v.units;
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartGetRevisionResponse& v) {
@@ -81,6 +86,9 @@ inline void from_json(const nlohmann::json& j, PartGetRevisionResponse& v) {
     v.part = j["part"].get<PartGetRevisionPart>();
     if (j.contains("units") && j["units"].is_array()) {
         v.units = j["units"].get<std::vector<PartGetRevisionUnits>>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 

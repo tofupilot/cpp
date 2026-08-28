@@ -22,6 +22,8 @@ struct PartCreateRequest {
     std::optional<std::string> name;
     /// Revision identifier for the part version. If not provided, default revision identifier will be used.
     std::optional<std::string> revision_number;
+    /// Custom metadata to attach to the part (max 50 keys per part). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartCreateRequest& v) {
@@ -32,6 +34,9 @@ inline void to_json(nlohmann::json& j, const PartCreateRequest& v) {
     }
     if (v.revision_number.has_value()) {
         j["revision_number"] = v.revision_number.value();
+    }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
     }
 }
 
@@ -46,6 +51,9 @@ inline void from_json(const nlohmann::json& j, PartCreateRequest& v) {
     }
     if (j.contains("revision_number") && !j["revision_number"].is_null()) {
         v.revision_number = j["revision_number"].get<std::string>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -73,6 +81,13 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to attach to the part (max 50 keys per part). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
+    PartCreateRequestBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     PartCreateRequest build() const& {
         PartCreateRequest result;
@@ -82,6 +97,7 @@ public:
         result.number = number_.value();
         result.name = name_;
         result.revision_number = revision_number_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -94,6 +110,7 @@ public:
         result.number = std::move(number_.value());
         result.name = std::move(name_);
         result.revision_number = std::move(revision_number_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
@@ -101,6 +118,7 @@ private:
     std::optional<std::string> number_;
     std::optional<std::string> name_;
     std::optional<std::string> revision_number_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

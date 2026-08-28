@@ -20,6 +20,8 @@ struct PartUpdateRevisionRequestBody {
     std::optional<std::string> number;
     /// Upload ID for the revision image, or empty string to remove image
     std::optional<std::string> image_id;
+    /// Custom metadata to upsert on the revision. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
+    std::optional<std::map<std::string, nlohmann::json>> metadata;
 };
 
 inline void to_json(nlohmann::json& j, const PartUpdateRevisionRequestBody& v) {
@@ -30,6 +32,9 @@ inline void to_json(nlohmann::json& j, const PartUpdateRevisionRequestBody& v) {
     if (v.image_id.has_value()) {
         j["image_id"] = v.image_id.value();
     }
+    if (v.metadata.has_value()) {
+        j["metadata"] = v.metadata.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, PartUpdateRevisionRequestBody& v) {
@@ -38,6 +43,9 @@ inline void from_json(const nlohmann::json& j, PartUpdateRevisionRequestBody& v)
     }
     if (j.contains("image_id") && !j["image_id"].is_null()) {
         v.image_id = j["image_id"].get<std::string>();
+    }
+    if (j.contains("metadata") && !j["metadata"].is_null()) {
+        v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -58,11 +66,19 @@ public:
         return *this;
     }
 
+    /// Set the `metadata` field.
+    /// Custom metadata to upsert on the revision. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
+    PartUpdateRevisionRequestBodyBuilder& metadata(std::map<std::string, nlohmann::json> value) {
+        metadata_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     PartUpdateRevisionRequestBody build() const& {
         PartUpdateRevisionRequestBody result;
         result.number = number_;
         result.image_id = image_id_;
+        result.metadata = metadata_;
         return result;
     }
 
@@ -71,12 +87,14 @@ public:
         PartUpdateRevisionRequestBody result;
         result.number = std::move(number_);
         result.image_id = std::move(image_id_);
+        result.metadata = std::move(metadata_);
         return result;
     }
 
 private:
     std::optional<std::string> number_;
     std::optional<std::string> image_id_;
+    std::optional<std::map<std::string, nlohmann::json>> metadata_;
 };
 
 } // namespace tofupilot

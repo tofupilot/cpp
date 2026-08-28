@@ -13,3 +13,4 @@ Revision retrieved successfully
 | `created_by_station` | `std::optional<PartGetRevisionCreatedByStation>` | :heavy_minus_sign: | Station that created the revision. |
 | `part` | `PartGetRevisionPart` | :heavy_check_mark: | Part associated with this revision. |
 | `units` | `std::vector<PartGetRevisionUnits>` | :heavy_check_mark: | List of units created with this revision. |
+| `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the revision. |
