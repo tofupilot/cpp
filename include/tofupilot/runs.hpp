@@ -67,6 +67,10 @@ public:
         deployment_id_ = NullableField<std::string>::make_null();
         return *this;
     }
+    CreateBuilder& client_run_ref(std::string value) {
+        client_run_ref_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& procedure_version(std::string value) {
         procedure_version_ = NullableField<std::string>::value(std::move(value));
         return *this;
@@ -131,6 +135,7 @@ public:
         outcome_ = std::move(b.outcome);
         procedure_id_ = std::move(b.procedure_id);
         deployment_id_ = std::move(b.deployment_id);
+        if (b.client_run_ref.has_value()) client_run_ref_ = std::move(b.client_run_ref);
         procedure_version_ = std::move(b.procedure_version);
         if (b.operated_by.has_value()) operated_by_ = std::move(b.operated_by);
         started_at_ = std::move(b.started_at);
@@ -172,6 +177,7 @@ public:
             if (!procedure_id_.has_value()) throw ValidationError("missing required field: procedure_id");
             req_body.procedure_id = procedure_id_.value();
             if (!deployment_id_.is_absent()) req_body.deployment_id = deployment_id_;
+            req_body.client_run_ref = client_run_ref_;
             if (!procedure_version_.is_absent()) req_body.procedure_version = procedure_version_;
             req_body.operated_by = operated_by_;
             if (!started_at_.has_value()) throw ValidationError("missing required field: started_at");
@@ -212,6 +218,7 @@ private:
     std::optional<LogGetOutcome> outcome_;
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
+    std::optional<std::string> client_run_ref_;
     NullableField<std::string> procedure_version_;
     std::optional<std::string> operated_by_;
     std::optional<std::string> started_at_;

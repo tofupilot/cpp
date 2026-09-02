@@ -26,6 +26,8 @@ struct RunCreateRequest {
     std::string procedure_id;
     /// Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
     NullableField<std::string> deployment_id;
+    /// Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
+    std::optional<std::string> client_run_ref;
     /// Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
     NullableField<std::string> procedure_version;
     /// Operator who executed the test run: an email address or a free-text name. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. An email matching a member of the calling organization links the run to that user account; any other value (a name, or an unrecognized email) is recorded verbatim as a declared operator name. Declared names are informative only — they are not verified identities.
@@ -66,6 +68,9 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
         } else {
             j["deployment_id"] = v.deployment_id.get();
         }
+    }
+    if (v.client_run_ref.has_value()) {
+        j["client_run_ref"] = v.client_run_ref.value();
     }
     if (!v.procedure_version.is_absent()) {
         if (v.procedure_version.is_null()) {
@@ -126,6 +131,9 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
         } else {
             v.deployment_id = NullableField<std::string>::value(j["deployment_id"].get<std::string>());
         }
+    }
+    if (j.contains("client_run_ref") && !j["client_run_ref"].is_null()) {
+        v.client_run_ref = j["client_run_ref"].get<std::string>();
     }
     if (j.contains("procedure_version")) {
         if (j["procedure_version"].is_null()) {
@@ -208,6 +216,13 @@ public:
     /// Explicitly set `deployment_id` to null.
     RunCreateRequestBuilder& deployment_id_null() {
         deployment_id_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Set the `client_run_ref` field.
+    /// Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
+    RunCreateRequestBuilder& client_run_ref(std::string value) {
+        client_run_ref_ = std::move(value);
         return *this;
     }
 
@@ -327,6 +342,7 @@ public:
         }
         result.procedure_id = procedure_id_.value();
         result.deployment_id = deployment_id_;
+        result.client_run_ref = client_run_ref_;
         result.procedure_version = procedure_version_;
         result.operated_by = operated_by_;
         if (!started_at_.has_value()) {
@@ -365,6 +381,7 @@ public:
         }
         result.procedure_id = std::move(procedure_id_.value());
         result.deployment_id = std::move(deployment_id_);
+        result.client_run_ref = std::move(client_run_ref_);
         result.procedure_version = std::move(procedure_version_);
         result.operated_by = std::move(operated_by_);
         if (!started_at_.has_value()) {
@@ -395,6 +412,7 @@ private:
     std::optional<LogGetOutcome> outcome_;
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
+    std::optional<std::string> client_run_ref_;
     NullableField<std::string> procedure_version_;
     std::optional<std::string> operated_by_;
     std::optional<std::string> started_at_;
