@@ -42,6 +42,12 @@ struct RunGetResponse {
     LogGetOutcome outcome;
     /// Additional notes or documentation about this test run.
     NullableField<std::string> docstring;
+    /// Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs.
+    std::optional<std::string> execution_id;
+    /// Key of the fixture slot that produced this run. Null for single-slot runs.
+    std::optional<std::string> slot_key;
+    /// Display name of the slot as declared at run time. Null when absent.
+    std::optional<std::string> slot_name;
     /// User whose API key was used to create this run. Only returned if `all` or `created_by` is included.
     NullableField<RunGetCreatedByUser> created_by_user;
     /// Station whose API key was used to create this run. Only returned if `all` or `created_by` is included.
@@ -77,6 +83,15 @@ inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
         } else {
             j["docstring"] = v.docstring.get();
         }
+    }
+    if (v.execution_id.has_value()) {
+        j["execution_id"] = v.execution_id.value();
+    }
+    if (v.slot_key.has_value()) {
+        j["slot_key"] = v.slot_key.value();
+    }
+    if (v.slot_name.has_value()) {
+        j["slot_name"] = v.slot_name.value();
     }
     if (!v.created_by_user.is_absent()) {
         if (v.created_by_user.is_null()) {
@@ -155,6 +170,15 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
         } else {
             v.docstring = NullableField<std::string>::value(j["docstring"].get<std::string>());
         }
+    }
+    if (j.contains("execution_id") && !j["execution_id"].is_null()) {
+        v.execution_id = j["execution_id"].get<std::string>();
+    }
+    if (j.contains("slot_key") && !j["slot_key"].is_null()) {
+        v.slot_key = j["slot_key"].get<std::string>();
+    }
+    if (j.contains("slot_name") && !j["slot_name"].is_null()) {
+        v.slot_name = j["slot_name"].get<std::string>();
     }
     if (j.contains("created_by_user")) {
         if (j["created_by_user"].is_null()) {

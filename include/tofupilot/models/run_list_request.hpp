@@ -27,6 +27,8 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> procedure_ids;
     std::optional<std::vector<std::string>> procedure_versions;
     std::optional<std::vector<std::string>> deployment_ids;
+    std::optional<std::vector<std::string>> execution_ids;
+    std::optional<std::vector<std::string>> slot_keys;
     std::optional<std::vector<Environment>> environments;
     std::optional<std::vector<std::string>> serial_numbers;
     std::optional<std::vector<Sample>> samples;
@@ -77,6 +79,12 @@ inline void to_json(nlohmann::json& j, const RunListRequest& v) {
     }
     if (v.deployment_ids.has_value()) {
         j["deployment_ids"] = v.deployment_ids.value();
+    }
+    if (v.execution_ids.has_value()) {
+        j["execution_ids"] = v.execution_ids.value();
+    }
+    if (v.slot_keys.has_value()) {
+        j["slot_keys"] = v.slot_keys.value();
     }
     if (v.environments.has_value()) {
         j["environments"] = v.environments.value();
@@ -170,6 +178,12 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
     }
     if (j.contains("deployment_ids") && !j["deployment_ids"].is_null()) {
         v.deployment_ids = j["deployment_ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("execution_ids") && !j["execution_ids"].is_null()) {
+        v.execution_ids = j["execution_ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("slot_keys") && !j["slot_keys"].is_null()) {
+        v.slot_keys = j["slot_keys"].get<std::vector<std::string>>();
     }
     if (j.contains("environments") && !j["environments"].is_null()) {
         v.environments = j["environments"].get<std::vector<Environment>>();
@@ -281,6 +295,18 @@ public:
     /// Set the `deployment_ids` field.
     RunListRequestBuilder& deployment_ids(std::vector<std::string> value) {
         deployment_ids_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `execution_ids` field.
+    RunListRequestBuilder& execution_ids(std::vector<std::string> value) {
+        execution_ids_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `slot_keys` field.
+    RunListRequestBuilder& slot_keys(std::vector<std::string> value) {
+        slot_keys_ = std::move(value);
         return *this;
     }
 
@@ -442,6 +468,8 @@ public:
         result.procedure_ids = procedure_ids_;
         result.procedure_versions = procedure_versions_;
         result.deployment_ids = deployment_ids_;
+        result.execution_ids = execution_ids_;
+        result.slot_keys = slot_keys_;
         result.environments = environments_;
         result.serial_numbers = serial_numbers_;
         result.samples = samples_;
@@ -478,6 +506,8 @@ public:
         result.procedure_ids = std::move(procedure_ids_);
         result.procedure_versions = std::move(procedure_versions_);
         result.deployment_ids = std::move(deployment_ids_);
+        result.execution_ids = std::move(execution_ids_);
+        result.slot_keys = std::move(slot_keys_);
         result.environments = std::move(environments_);
         result.serial_numbers = std::move(serial_numbers_);
         result.samples = std::move(samples_);
@@ -512,6 +542,8 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> deployment_ids_;
+    std::optional<std::vector<std::string>> execution_ids_;
+    std::optional<std::vector<std::string>> slot_keys_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
     std::optional<std::vector<Sample>> samples_;

@@ -37,6 +37,12 @@ struct RunListData {
     LogGetOutcome outcome;
     /// Additional notes or documentation about this test run.
     NullableField<std::string> docstring;
+    /// Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs.
+    std::optional<std::string> execution_id;
+    /// Key of the fixture slot that produced this run. Null for single-slot runs.
+    std::optional<std::string> slot_key;
+    /// Display name of the slot as declared at run time. Null when absent.
+    std::optional<std::string> slot_name;
     /// User whose API key was used to create this run. Only returned if `all` or `created_by` is included.
     NullableField<RunListCreatedByUser> created_by_user;
     /// Station whose API key was used to create this run. Only returned if `all` or `created_by` is included.
@@ -65,6 +71,15 @@ inline void to_json(nlohmann::json& j, const RunListData& v) {
         } else {
             j["docstring"] = v.docstring.get();
         }
+    }
+    if (v.execution_id.has_value()) {
+        j["execution_id"] = v.execution_id.value();
+    }
+    if (v.slot_key.has_value()) {
+        j["slot_key"] = v.slot_key.value();
+    }
+    if (v.slot_name.has_value()) {
+        j["slot_name"] = v.slot_name.value();
     }
     if (!v.created_by_user.is_absent()) {
         if (v.created_by_user.is_null()) {
@@ -131,6 +146,15 @@ inline void from_json(const nlohmann::json& j, RunListData& v) {
         } else {
             v.docstring = NullableField<std::string>::value(j["docstring"].get<std::string>());
         }
+    }
+    if (j.contains("execution_id") && !j["execution_id"].is_null()) {
+        v.execution_id = j["execution_id"].get<std::string>();
+    }
+    if (j.contains("slot_key") && !j["slot_key"].is_null()) {
+        v.slot_key = j["slot_key"].get<std::string>();
+    }
+    if (j.contains("slot_name") && !j["slot_name"].is_null()) {
+        v.slot_name = j["slot_name"].get<std::string>();
     }
     if (j.contains("created_by_user")) {
         if (j["created_by_user"].is_null()) {
@@ -226,6 +250,27 @@ public:
         return *this;
     }
 
+    /// Set the `execution_id` field.
+    /// Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs.
+    RunListDataBuilder& execution_id(std::string value) {
+        execution_id_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `slot_key` field.
+    /// Key of the fixture slot that produced this run. Null for single-slot runs.
+    RunListDataBuilder& slot_key(std::string value) {
+        slot_key_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `slot_name` field.
+    /// Display name of the slot as declared at run time. Null when absent.
+    RunListDataBuilder& slot_name(std::string value) {
+        slot_name_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `created_by_user` field.
     /// User whose API key was used to create this run. Only returned if `all` or `created_by` is included.
     RunListDataBuilder& created_by_user(RunListCreatedByUser value) {
@@ -314,6 +359,9 @@ public:
         }
         result.outcome = outcome_.value();
         result.docstring = docstring_;
+        result.execution_id = execution_id_;
+        result.slot_key = slot_key_;
+        result.slot_name = slot_name_;
         result.created_by_user = created_by_user_;
         result.created_by_station = created_by_station_;
         result.operated_by = operated_by_;
@@ -357,6 +405,9 @@ public:
         }
         result.outcome = std::move(outcome_.value());
         result.docstring = std::move(docstring_);
+        result.execution_id = std::move(execution_id_);
+        result.slot_key = std::move(slot_key_);
+        result.slot_name = std::move(slot_name_);
         result.created_by_user = std::move(created_by_user_);
         result.created_by_station = std::move(created_by_station_);
         result.operated_by = std::move(operated_by_);
@@ -380,6 +431,9 @@ private:
     std::optional<std::string> duration_;
     std::optional<LogGetOutcome> outcome_;
     NullableField<std::string> docstring_;
+    std::optional<std::string> execution_id_;
+    std::optional<std::string> slot_key_;
+    std::optional<std::string> slot_name_;
     NullableField<RunListCreatedByUser> created_by_user_;
     NullableField<RunListCreatedByStation> created_by_station_;
     NullableField<RunListOperatedBy> operated_by_;

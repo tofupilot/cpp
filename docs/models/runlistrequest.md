@@ -11,6 +11,8 @@
 | `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `procedure_versions` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `deployment_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `execution_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
+| `slot_keys` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `environments` | `std::optional<std::vector<Environment>>` | :heavy_minus_sign: | N/A |
 | `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `samples` | `std::optional<std::vector<Sample>>` | :heavy_minus_sign: | N/A |

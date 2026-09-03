@@ -71,6 +71,30 @@ public:
         client_run_ref_ = std::move(value);
         return *this;
     }
+    CreateBuilder& execution_id(std::string value) {
+        execution_id_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& execution_id_null() {
+        execution_id_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+    CreateBuilder& slot_key(std::string value) {
+        slot_key_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& slot_key_null() {
+        slot_key_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+    CreateBuilder& slot_name(std::string value) {
+        slot_name_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& slot_name_null() {
+        slot_name_ = NullableField<std::string>::make_null();
+        return *this;
+    }
     CreateBuilder& procedure_version(std::string value) {
         procedure_version_ = NullableField<std::string>::value(std::move(value));
         return *this;
@@ -136,6 +160,9 @@ public:
         procedure_id_ = std::move(b.procedure_id);
         deployment_id_ = std::move(b.deployment_id);
         if (b.client_run_ref.has_value()) client_run_ref_ = std::move(b.client_run_ref);
+        execution_id_ = std::move(b.execution_id);
+        slot_key_ = std::move(b.slot_key);
+        slot_name_ = std::move(b.slot_name);
         procedure_version_ = std::move(b.procedure_version);
         if (b.operated_by.has_value()) operated_by_ = std::move(b.operated_by);
         started_at_ = std::move(b.started_at);
@@ -178,6 +205,9 @@ public:
             req_body.procedure_id = procedure_id_.value();
             if (!deployment_id_.is_absent()) req_body.deployment_id = deployment_id_;
             req_body.client_run_ref = client_run_ref_;
+            if (!execution_id_.is_absent()) req_body.execution_id = execution_id_;
+            if (!slot_key_.is_absent()) req_body.slot_key = slot_key_;
+            if (!slot_name_.is_absent()) req_body.slot_name = slot_name_;
             if (!procedure_version_.is_absent()) req_body.procedure_version = procedure_version_;
             req_body.operated_by = operated_by_;
             if (!started_at_.has_value()) throw ValidationError("missing required field: started_at");
@@ -219,6 +249,9 @@ private:
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
     std::optional<std::string> client_run_ref_;
+    NullableField<std::string> execution_id_;
+    NullableField<std::string> slot_key_;
+    NullableField<std::string> slot_name_;
     NullableField<std::string> procedure_version_;
     std::optional<std::string> operated_by_;
     std::optional<std::string> started_at_;
@@ -262,6 +295,14 @@ public:
     }
     ListBuilder& deployment_ids(std::vector<std::string> value) {
         deployment_ids_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& execution_ids(std::vector<std::string> value) {
+        execution_ids_ = std::move(value);
+        return *this;
+    }
+    ListBuilder& slot_keys(std::vector<std::string> value) {
+        slot_keys_ = std::move(value);
         return *this;
     }
     ListBuilder& environments(std::vector<Environment> value) {
@@ -415,6 +456,20 @@ public:
                 for (const auto& item : deployment_ids_.value()) {
                     if (!first) qs << "&";
                     qs << "deployment_ids=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (execution_ids_.has_value()) {
+                for (const auto& item : execution_ids_.value()) {
+                    if (!first) qs << "&";
+                    qs << "execution_ids=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (slot_keys_.has_value()) {
+                for (const auto& item : slot_keys_.value()) {
+                    if (!first) qs << "&";
+                    qs << "slot_keys=" << detail::url_encode(detail::to_query_string(item));
                     first = false;
                 }
             }
@@ -588,6 +643,8 @@ private:
     std::optional<std::vector<std::string>> procedure_ids_;
     std::optional<std::vector<std::string>> procedure_versions_;
     std::optional<std::vector<std::string>> deployment_ids_;
+    std::optional<std::vector<std::string>> execution_ids_;
+    std::optional<std::vector<std::string>> slot_keys_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
     std::optional<std::vector<Sample>> samples_;

@@ -28,6 +28,12 @@ struct RunCreateRequest {
     NullableField<std::string> deployment_id;
     /// Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
     std::optional<std::string> client_run_ref;
+    /// Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs.
+    NullableField<std::string> execution_id;
+    /// Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution.
+    NullableField<std::string> slot_key;
+    /// Display name of the slot as declared at run time. Requires slot_key. Stored as-is so later fixture renames do not rewrite old runs.
+    NullableField<std::string> slot_name;
     /// Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
     NullableField<std::string> procedure_version;
     /// Operator who executed the test run: an email address or a free-text name. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. An email matching a member of the calling organization links the run to that user account; any other value (a name, or an unrecognized email) is recorded verbatim as a declared operator name. Declared names are informative only — they are not verified identities.
@@ -71,6 +77,27 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
     }
     if (v.client_run_ref.has_value()) {
         j["client_run_ref"] = v.client_run_ref.value();
+    }
+    if (!v.execution_id.is_absent()) {
+        if (v.execution_id.is_null()) {
+            j["execution_id"] = nullptr;
+        } else {
+            j["execution_id"] = v.execution_id.get();
+        }
+    }
+    if (!v.slot_key.is_absent()) {
+        if (v.slot_key.is_null()) {
+            j["slot_key"] = nullptr;
+        } else {
+            j["slot_key"] = v.slot_key.get();
+        }
+    }
+    if (!v.slot_name.is_absent()) {
+        if (v.slot_name.is_null()) {
+            j["slot_name"] = nullptr;
+        } else {
+            j["slot_name"] = v.slot_name.get();
+        }
     }
     if (!v.procedure_version.is_absent()) {
         if (v.procedure_version.is_null()) {
@@ -134,6 +161,27 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
     }
     if (j.contains("client_run_ref") && !j["client_run_ref"].is_null()) {
         v.client_run_ref = j["client_run_ref"].get<std::string>();
+    }
+    if (j.contains("execution_id")) {
+        if (j["execution_id"].is_null()) {
+            v.execution_id = NullableField<std::string>::make_null();
+        } else {
+            v.execution_id = NullableField<std::string>::value(j["execution_id"].get<std::string>());
+        }
+    }
+    if (j.contains("slot_key")) {
+        if (j["slot_key"].is_null()) {
+            v.slot_key = NullableField<std::string>::make_null();
+        } else {
+            v.slot_key = NullableField<std::string>::value(j["slot_key"].get<std::string>());
+        }
+    }
+    if (j.contains("slot_name")) {
+        if (j["slot_name"].is_null()) {
+            v.slot_name = NullableField<std::string>::make_null();
+        } else {
+            v.slot_name = NullableField<std::string>::value(j["slot_name"].get<std::string>());
+        }
     }
     if (j.contains("procedure_version")) {
         if (j["procedure_version"].is_null()) {
@@ -223,6 +271,45 @@ public:
     /// Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
     RunCreateRequestBuilder& client_run_ref(std::string value) {
         client_run_ref_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `execution_id` field.
+    /// Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs.
+    RunCreateRequestBuilder& execution_id(std::string value) {
+        execution_id_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `execution_id` to null.
+    RunCreateRequestBuilder& execution_id_null() {
+        execution_id_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Set the `slot_key` field.
+    /// Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution.
+    RunCreateRequestBuilder& slot_key(std::string value) {
+        slot_key_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `slot_key` to null.
+    RunCreateRequestBuilder& slot_key_null() {
+        slot_key_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Set the `slot_name` field.
+    /// Display name of the slot as declared at run time. Requires slot_key. Stored as-is so later fixture renames do not rewrite old runs.
+    RunCreateRequestBuilder& slot_name(std::string value) {
+        slot_name_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `slot_name` to null.
+    RunCreateRequestBuilder& slot_name_null() {
+        slot_name_ = NullableField<std::string>::make_null();
         return *this;
     }
 
@@ -343,6 +430,9 @@ public:
         result.procedure_id = procedure_id_.value();
         result.deployment_id = deployment_id_;
         result.client_run_ref = client_run_ref_;
+        result.execution_id = execution_id_;
+        result.slot_key = slot_key_;
+        result.slot_name = slot_name_;
         result.procedure_version = procedure_version_;
         result.operated_by = operated_by_;
         if (!started_at_.has_value()) {
@@ -382,6 +472,9 @@ public:
         result.procedure_id = std::move(procedure_id_.value());
         result.deployment_id = std::move(deployment_id_);
         result.client_run_ref = std::move(client_run_ref_);
+        result.execution_id = std::move(execution_id_);
+        result.slot_key = std::move(slot_key_);
+        result.slot_name = std::move(slot_name_);
         result.procedure_version = std::move(procedure_version_);
         result.operated_by = std::move(operated_by_);
         if (!started_at_.has_value()) {
@@ -413,6 +506,9 @@ private:
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
     std::optional<std::string> client_run_ref_;
+    NullableField<std::string> execution_id_;
+    NullableField<std::string> slot_key_;
+    NullableField<std::string> slot_name_;
     NullableField<std::string> procedure_version_;
     std::optional<std::string> operated_by_;
     std::optional<std::string> started_at_;
