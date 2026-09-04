@@ -29,6 +29,7 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> deployment_ids;
     std::optional<std::vector<std::string>> execution_ids;
     std::optional<std::vector<std::string>> slot_keys;
+    std::optional<std::vector<std::string>> slot_names;
     std::optional<std::vector<Environment>> environments;
     std::optional<std::vector<std::string>> serial_numbers;
     std::optional<std::vector<Sample>> samples;
@@ -85,6 +86,9 @@ inline void to_json(nlohmann::json& j, const RunListRequest& v) {
     }
     if (v.slot_keys.has_value()) {
         j["slot_keys"] = v.slot_keys.value();
+    }
+    if (v.slot_names.has_value()) {
+        j["slot_names"] = v.slot_names.value();
     }
     if (v.environments.has_value()) {
         j["environments"] = v.environments.value();
@@ -184,6 +188,9 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
     }
     if (j.contains("slot_keys") && !j["slot_keys"].is_null()) {
         v.slot_keys = j["slot_keys"].get<std::vector<std::string>>();
+    }
+    if (j.contains("slot_names") && !j["slot_names"].is_null()) {
+        v.slot_names = j["slot_names"].get<std::vector<std::string>>();
     }
     if (j.contains("environments") && !j["environments"].is_null()) {
         v.environments = j["environments"].get<std::vector<Environment>>();
@@ -307,6 +314,12 @@ public:
     /// Set the `slot_keys` field.
     RunListRequestBuilder& slot_keys(std::vector<std::string> value) {
         slot_keys_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `slot_names` field.
+    RunListRequestBuilder& slot_names(std::vector<std::string> value) {
+        slot_names_ = std::move(value);
         return *this;
     }
 
@@ -470,6 +483,7 @@ public:
         result.deployment_ids = deployment_ids_;
         result.execution_ids = execution_ids_;
         result.slot_keys = slot_keys_;
+        result.slot_names = slot_names_;
         result.environments = environments_;
         result.serial_numbers = serial_numbers_;
         result.samples = samples_;
@@ -508,6 +522,7 @@ public:
         result.deployment_ids = std::move(deployment_ids_);
         result.execution_ids = std::move(execution_ids_);
         result.slot_keys = std::move(slot_keys_);
+        result.slot_names = std::move(slot_names_);
         result.environments = std::move(environments_);
         result.serial_numbers = std::move(serial_numbers_);
         result.samples = std::move(samples_);
@@ -544,6 +559,7 @@ private:
     std::optional<std::vector<std::string>> deployment_ids_;
     std::optional<std::vector<std::string>> execution_ids_;
     std::optional<std::vector<std::string>> slot_keys_;
+    std::optional<std::vector<std::string>> slot_names_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
     std::optional<std::vector<Sample>> samples_;

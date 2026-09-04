@@ -305,6 +305,10 @@ public:
         slot_keys_ = std::move(value);
         return *this;
     }
+    ListBuilder& slot_names(std::vector<std::string> value) {
+        slot_names_ = std::move(value);
+        return *this;
+    }
     ListBuilder& environments(std::vector<Environment> value) {
         environments_ = std::move(value);
         return *this;
@@ -470,6 +474,13 @@ public:
                 for (const auto& item : slot_keys_.value()) {
                     if (!first) qs << "&";
                     qs << "slot_keys=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (slot_names_.has_value()) {
+                for (const auto& item : slot_names_.value()) {
+                    if (!first) qs << "&";
+                    qs << "slot_names=" << detail::url_encode(detail::to_query_string(item));
                     first = false;
                 }
             }
@@ -645,6 +656,7 @@ private:
     std::optional<std::vector<std::string>> deployment_ids_;
     std::optional<std::vector<std::string>> execution_ids_;
     std::optional<std::vector<std::string>> slot_keys_;
+    std::optional<std::vector<std::string>> slot_names_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
     std::optional<std::vector<Sample>> samples_;
