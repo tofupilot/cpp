@@ -50,6 +50,7 @@ int main() {
 | --- | --- | --- |
 | `UnauthorizedError` | 401 | application/json |
 | `NotFoundError` | 404 | application/json |
+| `ApiException(408)` | 408 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
