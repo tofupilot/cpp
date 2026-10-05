@@ -25,9 +25,9 @@ struct LogListRequest {
     std::optional<std::vector<std::string>> procedure_ids;
     std::optional<std::string> search_query;
     std::optional<std::vector<Level>> levels;
-    /// Filter logs with timestamp after this date (inclusive).
+    /// Filter logs recorded at or after this timestamp.
     std::optional<std::string> timestamp_after;
-    /// Filter logs with timestamp before this date (inclusive).
+    /// Filter logs recorded at or before this timestamp.
     std::optional<std::string> timestamp_before;
     std::optional<std::vector<std::string>> source_files;
     std::optional<std::vector<std::string>> run_ids;
@@ -212,14 +212,14 @@ public:
     }
 
     /// Set the `timestamp_after` field.
-    /// Filter logs with timestamp after this date (inclusive).
+    /// Filter logs recorded at or after this timestamp.
     LogListRequestBuilder& timestamp_after(std::string value) {
         timestamp_after_ = std::move(value);
         return *this;
     }
 
     /// Set the `timestamp_before` field.
-    /// Filter logs with timestamp before this date (inclusive).
+    /// Filter logs recorded at or before this timestamp.
     LogListRequestBuilder& timestamp_before(std::string value) {
         timestamp_before_ = std::move(value);
         return *this;

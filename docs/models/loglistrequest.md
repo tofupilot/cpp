@@ -8,8 +8,8 @@
 | `procedure_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `search_query` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `levels` | `std::optional<std::vector<Level>>` | :heavy_minus_sign: | N/A |
-| `timestamp_after` | `std::optional<std::string>` | :heavy_minus_sign: | Filter logs with timestamp after this date (inclusive). |
-| `timestamp_before` | `std::optional<std::string>` | :heavy_minus_sign: | Filter logs with timestamp before this date (inclusive). |
+| `timestamp_after` | `std::optional<std::string>` | :heavy_minus_sign: | Filter logs recorded at or after this timestamp. |
+| `timestamp_before` | `std::optional<std::string>` | :heavy_minus_sign: | Filter logs recorded at or before this timestamp. |
 | `source_files` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `run_ids` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `run_outcomes` | `std::optional<std::vector<LogGetOutcome>>` | :heavy_minus_sign: | N/A |
