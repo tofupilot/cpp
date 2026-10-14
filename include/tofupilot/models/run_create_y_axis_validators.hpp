@@ -23,7 +23,7 @@ struct RunCreateYAxisValidators {
     NullableField<Outcome> outcome;
     /// Comparison operator: ">", ">=", "<", "<=", "==", "!=", "matches", "in", "range"
     NullableField<std::string> operator_;
-    /// Expected value for comparison. Type depends on operator.
+    /// Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome.
     NullableField<nlohmann::json> expected_value;
     /// Original expression string for display/audit purposes.
     NullableField<std::string> expression;
@@ -138,7 +138,7 @@ public:
     }
 
     /// Set the `expected_value` field.
-    /// Expected value for comparison. Type depends on operator.
+    /// Expected value for comparison. A number, string, boolean, or a list of numbers or strings is stored structurally; an object or a mixed list is stored as the validator expression with the given outcome.
     RunCreateYAxisValidatorsBuilder& expected_value(nlohmann::json value) {
         expected_value_ = NullableField<nlohmann::json>::value(std::move(value));
         return *this;
