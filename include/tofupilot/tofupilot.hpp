@@ -22,6 +22,7 @@
 #include "phases.hpp"
 #include "measurements.hpp"
 #include "deployments.hpp"
+#include "identity.hpp"
 #include "upload.hpp"
 
 namespace tofupilot {
@@ -69,5 +70,8 @@ inline MeasurementsClient TofuPilot::measurements() {
 }
 inline DeploymentsClient TofuPilot::deployments() {
     return DeploymentsClient(*this);
+}
+inline IdentityClient TofuPilot::identity() {
+    return IdentityClient(*this);
 }
 } // namespace tofupilot

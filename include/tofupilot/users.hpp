@@ -26,6 +26,8 @@ public:
 
     class ListBuilder;
     ListBuilder list();
+    class GetCurrentBuilder;
+    GetCurrentBuilder get_current();
 
 private:
     TofuPilot& client_;
@@ -35,10 +37,6 @@ class UsersClient::ListBuilder {
 public:
     explicit ListBuilder(TofuPilot& client) noexcept : client_(client) {}
 
-    ListBuilder& current(bool value) {
-        current_ = std::move(value);
-        return *this;
-    }
 
     ListBuilder& server_url(std::string url) {
         request_config_.server_url = std::move(url);
@@ -54,16 +52,6 @@ public:
         std::string path = "/v2/users";
 
         std::string query_string;
-        {
-            std::ostringstream qs;
-            bool first = true;
-            if (current_.has_value()) {
-                if (!first) qs << "&";
-                qs << "current=" << detail::url_encode(detail::to_query_string(current_.value()));
-                first = false;
-            }
-            query_string = qs.str();
-        }
 
         std::string body_str;
         std::string content_type;
@@ -84,12 +72,56 @@ public:
 
 private:
     TofuPilot& client_;
-    std::optional<bool> current_;
+    RequestConfig request_config_;
+};
+
+class UsersClient::GetCurrentBuilder {
+public:
+    explicit GetCurrentBuilder(TofuPilot& client) noexcept : client_(client) {}
+
+
+    GetCurrentBuilder& server_url(std::string url) {
+        request_config_.server_url = std::move(url);
+        return *this;
+    }
+    GetCurrentBuilder& timeout(std::chrono::seconds t) {
+        request_config_.timeout = t;
+        return *this;
+    }
+
+    UserGetCurrentResponse send() {
+
+        std::string path = "/v2/users/current";
+
+        std::string query_string;
+
+        std::string body_str;
+        std::string content_type;
+
+        auto result = client_.execute("GET", path, body_str, content_type, query_string,
+            request_config_.is_default() ? nullptr : &request_config_);
+
+        const auto& resp_body = result->body;
+        if (resp_body.empty()) {
+            return UserGetCurrentResponse{};
+        }
+        try {
+            return nlohmann::json::parse(resp_body).get<UserGetCurrentResponse>();
+        } catch (const nlohmann::json::parse_error& e) {
+            throw HttpError(std::string("Invalid JSON in response: ") + e.what());
+        }
+    }
+
+private:
+    TofuPilot& client_;
     RequestConfig request_config_;
 };
 
 inline UsersClient::ListBuilder UsersClient::list() {
     return ListBuilder(client_);
+}
+inline UsersClient::GetCurrentBuilder UsersClient::get_current() {
+    return GetCurrentBuilder(client_);
 }
 
 } // namespace tofupilot
