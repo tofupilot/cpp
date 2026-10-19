@@ -41,8 +41,13 @@ public:
         items_ = std::move(value);
         return *this;
     }
+    StructuredBuilder& allow_duplicate(bool value) {
+        allow_duplicate_ = std::move(value);
+        return *this;
+    }
     StructuredBuilder& body(ImportStructuredRequest b) {
         items_ = std::move(b.items);
+        if (b.allow_duplicate.has_value()) allow_duplicate_ = std::move(b.allow_duplicate);
         return *this;
     }
 
@@ -66,6 +71,7 @@ public:
         {
             ImportStructuredRequest req_body;
             if (items_.has_value()) req_body.items = items_.value();
+            req_body.allow_duplicate = allow_duplicate_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -87,6 +93,7 @@ public:
 private:
     TofuPilot& client_;
     std::optional<std::vector<ImportStructuredItems>> items_;
+    std::optional<bool> allow_duplicate_;
     RequestConfig request_config_;
 };
 

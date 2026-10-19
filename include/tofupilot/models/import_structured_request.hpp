@@ -19,16 +19,24 @@ namespace tofupilot {
 struct ImportStructuredRequest {
     /// Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
     std::vector<ImportStructuredItems> items;
+    /// Import every file even if the same content was already imported. By default, a file whose exact content already has a run in your organization is not imported again: its result returns the existing run with `already_imported: true`. Set to true to import such files again as new runs, next to the existing ones.
+    std::optional<bool> allow_duplicate;
 };
 
 inline void to_json(nlohmann::json& j, const ImportStructuredRequest& v) {
     j = nlohmann::json::object();
     j["items"] = v.items;
+    if (v.allow_duplicate.has_value()) {
+        j["allow_duplicate"] = v.allow_duplicate.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, ImportStructuredRequest& v) {
     if (j.contains("items") && j["items"].is_array()) {
         v.items = j["items"].get<std::vector<ImportStructuredItems>>();
+    }
+    if (j.contains("allow_duplicate") && !j["allow_duplicate"].is_null()) {
+        v.allow_duplicate = j["allow_duplicate"].get<bool>();
     }
 }
 
@@ -42,12 +50,20 @@ public:
         return *this;
     }
 
+    /// Set the `allow_duplicate` field.
+    /// Import every file even if the same content was already imported. By default, a file whose exact content already has a run in your organization is not imported again: its result returns the existing run with `already_imported: true`. Set to true to import such files again as new runs, next to the existing ones.
+    ImportStructuredRequestBuilder& allow_duplicate(bool value) {
+        allow_duplicate_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     ImportStructuredRequest build() const& {
         ImportStructuredRequest result;
         if (items_.has_value()) {
             result.items = items_.value();
         }
+        result.allow_duplicate = allow_duplicate_;
         return result;
     }
 
@@ -57,11 +73,13 @@ public:
         if (items_.has_value()) {
             result.items = std::move(items_.value());
         }
+        result.allow_duplicate = std::move(allow_duplicate_);
         return result;
     }
 
 private:
     std::optional<std::vector<ImportStructuredItems>> items_;
+    std::optional<bool> allow_duplicate_;
 };
 
 } // namespace tofupilot

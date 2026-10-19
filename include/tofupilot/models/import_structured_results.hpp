@@ -20,10 +20,14 @@ struct ImportStructuredResults {
     std::string upload_id;
     /// Whether the file was imported successfully.
     bool success;
-    /// ID of the created run (present when success is true). For a multi-run file this is the first run; see `ids`.
+    /// ID of the run (present when success is true): the run created, or the existing run when the file was already imported. For a multi-run file this is one of its runs, see `ids`.
     std::optional<std::string> id;
-    /// All run ids created from the file. Present when the file produced more than one run.
+    /// All run ids of the file: the runs created, or the existing runs when the file was already imported. Present when there is more than one.
     std::optional<std::vector<std::string>> ids;
+    /// Present when success is true. True when the same file content was already imported in your organization and at least one of its runs still exists: `id` and `ids` are those runs and nothing was created. A file whose earlier import created only some of its runs is not completed: delete its runs, then import it again. For a file with several runs, `ids` comes in no guaranteed order, so `id` may name another run of that file than the first import returned.
+    std::optional<bool> already_imported;
+    /// Non-fatal notes about this file, present when there are any: runs that failed while the others were imported, and how to create them later. They come only with the import that created the runs: a retry of the same file answers without them, so a client that lost that response should compare `ids` with the units it expects.
+    std::optional<std::vector<std::string>> warnings;
     /// Error message (present when success is false).
     std::optional<std::string> error;
 };
@@ -37,6 +41,12 @@ inline void to_json(nlohmann::json& j, const ImportStructuredResults& v) {
     }
     if (v.ids.has_value()) {
         j["ids"] = v.ids.value();
+    }
+    if (v.already_imported.has_value()) {
+        j["already_imported"] = v.already_imported.value();
+    }
+    if (v.warnings.has_value()) {
+        j["warnings"] = v.warnings.value();
     }
     if (v.error.has_value()) {
         j["error"] = v.error.value();
@@ -59,6 +69,12 @@ inline void from_json(const nlohmann::json& j, ImportStructuredResults& v) {
     }
     if (j.contains("ids") && !j["ids"].is_null()) {
         v.ids = j["ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("already_imported") && !j["already_imported"].is_null()) {
+        v.already_imported = j["already_imported"].get<bool>();
+    }
+    if (j.contains("warnings") && !j["warnings"].is_null()) {
+        v.warnings = j["warnings"].get<std::vector<std::string>>();
     }
     if (j.contains("error") && !j["error"].is_null()) {
         v.error = j["error"].get<std::string>();
@@ -83,16 +99,30 @@ public:
     }
 
     /// Set the `id` field.
-    /// ID of the created run (present when success is true). For a multi-run file this is the first run; see `ids`.
+    /// ID of the run (present when success is true): the run created, or the existing run when the file was already imported. For a multi-run file this is one of its runs, see `ids`.
     ImportStructuredResultsBuilder& id(std::string value) {
         id_ = std::move(value);
         return *this;
     }
 
     /// Set the `ids` field.
-    /// All run ids created from the file. Present when the file produced more than one run.
+    /// All run ids of the file: the runs created, or the existing runs when the file was already imported. Present when there is more than one.
     ImportStructuredResultsBuilder& ids(std::vector<std::string> value) {
         ids_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `already_imported` field.
+    /// Present when success is true. True when the same file content was already imported in your organization and at least one of its runs still exists: `id` and `ids` are those runs and nothing was created. A file whose earlier import created only some of its runs is not completed: delete its runs, then import it again. For a file with several runs, `ids` comes in no guaranteed order, so `id` may name another run of that file than the first import returned.
+    ImportStructuredResultsBuilder& already_imported(bool value) {
+        already_imported_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `warnings` field.
+    /// Non-fatal notes about this file, present when there are any: runs that failed while the others were imported, and how to create them later. They come only with the import that created the runs: a retry of the same file answers without them, so a client that lost that response should compare `ids` with the units it expects.
+    ImportStructuredResultsBuilder& warnings(std::vector<std::string> value) {
+        warnings_ = std::move(value);
         return *this;
     }
 
@@ -116,6 +146,8 @@ public:
         result.success = success_.value();
         result.id = id_;
         result.ids = ids_;
+        result.already_imported = already_imported_;
+        result.warnings = warnings_;
         result.error = error_;
         return result;
     }
@@ -133,6 +165,8 @@ public:
         result.success = std::move(success_.value());
         result.id = std::move(id_);
         result.ids = std::move(ids_);
+        result.already_imported = std::move(already_imported_);
+        result.warnings = std::move(warnings_);
         result.error = std::move(error_);
         return result;
     }
@@ -142,6 +176,8 @@ private:
     std::optional<bool> success_;
     std::optional<std::string> id_;
     std::optional<std::vector<std::string>> ids_;
+    std::optional<bool> already_imported_;
+    std::optional<std::vector<std::string>> warnings_;
     std::optional<std::string> error_;
 };
 
