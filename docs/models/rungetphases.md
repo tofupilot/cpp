@@ -12,5 +12,6 @@
 | `ended_at` | `std::string` | :heavy_check_mark: | ISO 8601 timestamp when the phase ended. |
 | `duration` | `std::string` | :heavy_check_mark: | ISO 8601 duration of the phase (computed from started_at and ended_at). |
 | `retry_count` | `int64_t` | :heavy_check_mark: | Zero-based retry attempt index. 0 = first attempt, 1 = first retry, etc. |
+| `sequence_path` | `std::optional<std::string>` | :heavy_minus_sign: | Path of the sequence call this phase ran in, matching one `sequences[].path`. Null for a phase written in the procedure itself. |
 | `docstring` | `NullableField<std::string>` | :heavy_minus_sign: | Phase documentation string. |
 | `measurements` | `std::vector<RunGetMeasurements>` | :heavy_check_mark: | Array of measurements taken during this phase. |

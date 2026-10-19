@@ -33,6 +33,8 @@ struct RunGetPhases {
     std::string duration;
     /// Zero-based retry attempt index. 0 = first attempt, 1 = first retry, etc.
     int64_t retry_count;
+    /// Path of the sequence call this phase ran in, matching one `sequences[].path`. Null for a phase written in the procedure itself.
+    std::optional<std::string> sequence_path;
     /// Phase documentation string.
     NullableField<std::string> docstring;
     /// Array of measurements taken during this phase.
@@ -48,6 +50,9 @@ inline void to_json(nlohmann::json& j, const RunGetPhases& v) {
     j["ended_at"] = v.ended_at;
     j["duration"] = v.duration;
     j["retry_count"] = v.retry_count;
+    if (v.sequence_path.has_value()) {
+        j["sequence_path"] = v.sequence_path.value();
+    }
     if (!v.docstring.is_absent()) {
         if (v.docstring.is_null()) {
             j["docstring"] = nullptr;
@@ -94,6 +99,9 @@ inline void from_json(const nlohmann::json& j, RunGetPhases& v) {
             "missing required field in response: retry_count", &j);
     }
     v.retry_count = j["retry_count"].get<int64_t>();
+    if (j.contains("sequence_path") && !j["sequence_path"].is_null()) {
+        v.sequence_path = j["sequence_path"].get<std::string>();
+    }
     if (j.contains("docstring")) {
         if (j["docstring"].is_null()) {
             v.docstring = NullableField<std::string>::make_null();
@@ -158,6 +166,13 @@ public:
         return *this;
     }
 
+    /// Set the `sequence_path` field.
+    /// Path of the sequence call this phase ran in, matching one `sequences[].path`. Null for a phase written in the procedure itself.
+    RunGetPhasesBuilder& sequence_path(std::string value) {
+        sequence_path_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `docstring` field.
     /// Phase documentation string.
     RunGetPhasesBuilder& docstring(std::string value) {
@@ -209,6 +224,7 @@ public:
             throw std::runtime_error("missing required field: retry_count");
         }
         result.retry_count = retry_count_.value();
+        result.sequence_path = sequence_path_;
         result.docstring = docstring_;
         if (measurements_.has_value()) {
             result.measurements = measurements_.value();
@@ -247,6 +263,7 @@ public:
             throw std::runtime_error("missing required field: retry_count");
         }
         result.retry_count = std::move(retry_count_.value());
+        result.sequence_path = std::move(sequence_path_);
         result.docstring = std::move(docstring_);
         if (measurements_.has_value()) {
             result.measurements = std::move(measurements_.value());
@@ -262,6 +279,7 @@ private:
     std::optional<std::string> ended_at_;
     std::optional<std::string> duration_;
     std::optional<int64_t> retry_count_;
+    std::optional<std::string> sequence_path_;
     NullableField<std::string> docstring_;
     std::optional<std::vector<RunGetMeasurements>> measurements_;
 };

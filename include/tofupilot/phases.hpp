@@ -49,6 +49,10 @@ public:
         outcomes_ = std::move(value);
         return *this;
     }
+    ListBuilder& sequence_paths(std::vector<std::string> value) {
+        sequence_paths_ = std::move(value);
+        return *this;
+    }
     ListBuilder& started_after(std::string value) {
         started_after_ = std::move(value);
         return *this;
@@ -175,6 +179,13 @@ public:
                 for (const auto& item : outcomes_.value()) {
                     if (!first) qs << "&";
                     qs << "outcomes=" << detail::url_encode(detail::to_query_string(item));
+                    first = false;
+                }
+            }
+            if (sequence_paths_.has_value()) {
+                for (const auto& item : sequence_paths_.value()) {
+                    if (!first) qs << "&";
+                    qs << "sequence_paths=" << detail::url_encode(detail::to_query_string(item));
                     first = false;
                 }
             }
@@ -346,6 +357,7 @@ private:
     std::optional<std::string> procedure_id_;
     std::optional<std::vector<std::string>> names_;
     std::optional<std::vector<PhaseGetOutcome>> outcomes_;
+    std::optional<std::vector<std::string>> sequence_paths_;
     std::optional<std::string> started_after_;
     std::optional<std::string> started_before_;
     std::optional<bool> exclude_retries_;

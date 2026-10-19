@@ -18,6 +18,7 @@
 #include "tofupilot/models/run_list_created_by_user.hpp"
 #include "tofupilot/models/run_list_operated_by.hpp"
 #include "tofupilot/models/run_list_procedure.hpp"
+#include "tofupilot/models/run_list_sequences.hpp"
 #include "tofupilot/models/run_list_unit.hpp"
 
 namespace tofupilot {
@@ -55,6 +56,8 @@ struct RunListData {
     RunListUnit unit;
     /// Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
+    /// Top-level sequence calls of the run, ordered by start time. Only present when the request sets `include_sequences=true`.
+    std::optional<std::vector<RunListSequences>> sequences;
 };
 
 inline void to_json(nlohmann::json& j, const RunListData& v) {
@@ -106,6 +109,9 @@ inline void to_json(nlohmann::json& j, const RunListData& v) {
     j["unit"] = v.unit;
     if (v.metadata.has_value()) {
         j["metadata"] = v.metadata.value();
+    }
+    if (v.sequences.has_value()) {
+        j["sequences"] = v.sequences.value();
     }
 }
 
@@ -189,6 +195,9 @@ inline void from_json(const nlohmann::json& j, RunListData& v) {
     v.unit = j["unit"].get<RunListUnit>();
     if (j.contains("metadata") && !j["metadata"].is_null()) {
         v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
+    }
+    if (j.contains("sequences") && !j["sequences"].is_null()) {
+        v.sequences = j["sequences"].get<std::vector<RunListSequences>>();
     }
 }
 
@@ -331,6 +340,13 @@ public:
         return *this;
     }
 
+    /// Set the `sequences` field.
+    /// Top-level sequence calls of the run, ordered by start time. Only present when the request sets `include_sequences=true`.
+    RunListDataBuilder& sequences(std::vector<RunListSequences> value) {
+        sequences_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunListData build() const& {
         RunListData result;
@@ -374,6 +390,7 @@ public:
         }
         result.unit = unit_.value();
         result.metadata = metadata_;
+        result.sequences = sequences_;
         return result;
     }
 
@@ -420,6 +437,7 @@ public:
         }
         result.unit = std::move(unit_.value());
         result.metadata = std::move(metadata_);
+        result.sequences = std::move(sequences_);
         return result;
     }
 
@@ -440,6 +458,7 @@ private:
     std::optional<RunListProcedure> procedure_;
     std::optional<RunListUnit> unit_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
+    std::optional<std::vector<RunListSequences>> sequences_;
 };
 
 } // namespace tofupilot

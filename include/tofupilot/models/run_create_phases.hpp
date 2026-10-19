@@ -33,6 +33,8 @@ struct RunCreatePhases {
     NullableField<std::vector<RunCreateMeasurements>> measurements;
     /// Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count.
     std::optional<int64_t> retry_count;
+    /// Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases.
+    NullableField<std::string> sequence_path;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreatePhases& v) {
@@ -57,6 +59,13 @@ inline void to_json(nlohmann::json& j, const RunCreatePhases& v) {
     }
     if (v.retry_count.has_value()) {
         j["retry_count"] = v.retry_count.value();
+    }
+    if (!v.sequence_path.is_absent()) {
+        if (v.sequence_path.is_null()) {
+            j["sequence_path"] = nullptr;
+        } else {
+            j["sequence_path"] = v.sequence_path.get();
+        }
     }
 }
 
@@ -97,6 +106,13 @@ inline void from_json(const nlohmann::json& j, RunCreatePhases& v) {
     }
     if (j.contains("retry_count") && !j["retry_count"].is_null()) {
         v.retry_count = j["retry_count"].get<int64_t>();
+    }
+    if (j.contains("sequence_path")) {
+        if (j["sequence_path"].is_null()) {
+            v.sequence_path = NullableField<std::string>::make_null();
+        } else {
+            v.sequence_path = NullableField<std::string>::value(j["sequence_path"].get<std::string>());
+        }
     }
 }
 
@@ -164,6 +180,19 @@ public:
         return *this;
     }
 
+    /// Set the `sequence_path` field.
+    /// Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases.
+    RunCreatePhasesBuilder& sequence_path(std::string value) {
+        sequence_path_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `sequence_path` to null.
+    RunCreatePhasesBuilder& sequence_path_null() {
+        sequence_path_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunCreatePhases build() const& {
         RunCreatePhases result;
@@ -186,6 +215,7 @@ public:
         result.docstring = docstring_;
         result.measurements = measurements_;
         result.retry_count = retry_count_;
+        result.sequence_path = sequence_path_;
         return result;
     }
 
@@ -211,6 +241,7 @@ public:
         result.docstring = std::move(docstring_);
         result.measurements = std::move(measurements_);
         result.retry_count = std::move(retry_count_);
+        result.sequence_path = std::move(sequence_path_);
         return result;
     }
 
@@ -222,6 +253,7 @@ private:
     NullableField<std::string> docstring_;
     NullableField<std::vector<RunCreateMeasurements>> measurements_;
     std::optional<int64_t> retry_count_;
+    NullableField<std::string> sequence_path_;
 };
 
 } // namespace tofupilot

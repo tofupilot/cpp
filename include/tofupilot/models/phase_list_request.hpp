@@ -26,6 +26,7 @@ struct PhaseListRequest {
     std::string procedure_id;
     std::optional<std::vector<std::string>> names;
     std::optional<std::vector<PhaseGetOutcome>> outcomes;
+    std::optional<std::vector<std::string>> sequence_paths;
     std::optional<std::string> started_after;
     std::optional<std::string> started_before;
     std::optional<bool> exclude_retries;
@@ -63,6 +64,9 @@ inline void to_json(nlohmann::json& j, const PhaseListRequest& v) {
     }
     if (v.outcomes.has_value()) {
         j["outcomes"] = v.outcomes.value();
+    }
+    if (v.sequence_paths.has_value()) {
+        j["sequence_paths"] = v.sequence_paths.value();
     }
     if (v.started_after.has_value()) {
         j["started_after"] = v.started_after.value();
@@ -146,6 +150,9 @@ inline void from_json(const nlohmann::json& j, PhaseListRequest& v) {
     }
     if (j.contains("outcomes") && !j["outcomes"].is_null()) {
         v.outcomes = j["outcomes"].get<std::vector<PhaseGetOutcome>>();
+    }
+    if (j.contains("sequence_paths") && !j["sequence_paths"].is_null()) {
+        v.sequence_paths = j["sequence_paths"].get<std::vector<std::string>>();
     }
     if (j.contains("started_after") && !j["started_after"].is_null()) {
         v.started_after = j["started_after"].get<std::string>();
@@ -237,6 +244,12 @@ public:
     /// Set the `outcomes` field.
     PhaseListRequestBuilder& outcomes(std::vector<PhaseGetOutcome> value) {
         outcomes_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `sequence_paths` field.
+    PhaseListRequestBuilder& sequence_paths(std::vector<std::string> value) {
+        sequence_paths_ = std::move(value);
         return *this;
     }
 
@@ -391,6 +404,7 @@ public:
         result.procedure_id = procedure_id_.value();
         result.names = names_;
         result.outcomes = outcomes_;
+        result.sequence_paths = sequence_paths_;
         result.started_after = started_after_;
         result.started_before = started_before_;
         result.exclude_retries = exclude_retries_;
@@ -426,6 +440,7 @@ public:
         result.procedure_id = std::move(procedure_id_.value());
         result.names = std::move(names_);
         result.outcomes = std::move(outcomes_);
+        result.sequence_paths = std::move(sequence_paths_);
         result.started_after = std::move(started_after_);
         result.started_before = std::move(started_before_);
         result.exclude_retries = std::move(exclude_retries_);
@@ -456,6 +471,7 @@ private:
     std::optional<std::string> procedure_id_;
     std::optional<std::vector<std::string>> names_;
     std::optional<std::vector<PhaseGetOutcome>> outcomes_;
+    std::optional<std::vector<std::string>> sequence_paths_;
     std::optional<std::string> started_after_;
     std::optional<std::string> started_before_;
     std::optional<bool> exclude_retries_;

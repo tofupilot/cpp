@@ -33,6 +33,8 @@ struct PhaseListData {
     std::optional<int64_t> duration_ms;
     /// Retry attempt number of the phase (0 for the first attempt).
     int64_t retry_count;
+    /// Path of the sequence call the phase ran in. Null for a phase written in the procedure itself.
+    std::optional<std::string> sequence_path;
     /// True when this is the final attempt of the phase.
     bool is_final_attempt;
     /// ID of the run this phase belongs to.
@@ -60,6 +62,9 @@ inline void to_json(nlohmann::json& j, const PhaseListData& v) {
         j["duration_ms"] = v.duration_ms.value();
     }
     j["retry_count"] = v.retry_count;
+    if (v.sequence_path.has_value()) {
+        j["sequence_path"] = v.sequence_path.value();
+    }
     j["is_final_attempt"] = v.is_final_attempt;
     j["run_id"] = v.run_id;
     j["run_outcome"] = v.run_outcome;
@@ -101,6 +106,9 @@ inline void from_json(const nlohmann::json& j, PhaseListData& v) {
             "missing required field in response: retry_count", &j);
     }
     v.retry_count = j["retry_count"].get<int64_t>();
+    if (j.contains("sequence_path") && !j["sequence_path"].is_null()) {
+        v.sequence_path = j["sequence_path"].get<std::string>();
+    }
     if (!j.contains("is_final_attempt")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: is_final_attempt", &j);
@@ -176,6 +184,13 @@ public:
         return *this;
     }
 
+    /// Set the `sequence_path` field.
+    /// Path of the sequence call the phase ran in. Null for a phase written in the procedure itself.
+    PhaseListDataBuilder& sequence_path(std::string value) {
+        sequence_path_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `is_final_attempt` field.
     /// True when this is the final attempt of the phase.
     PhaseListDataBuilder& is_final_attempt(bool value) {
@@ -233,6 +248,7 @@ public:
             throw std::runtime_error("missing required field: retry_count");
         }
         result.retry_count = retry_count_.value();
+        result.sequence_path = sequence_path_;
         if (!is_final_attempt_.has_value()) {
             throw std::runtime_error("missing required field: is_final_attempt");
         }
@@ -272,6 +288,7 @@ public:
             throw std::runtime_error("missing required field: retry_count");
         }
         result.retry_count = std::move(retry_count_.value());
+        result.sequence_path = std::move(sequence_path_);
         if (!is_final_attempt_.has_value()) {
             throw std::runtime_error("missing required field: is_final_attempt");
         }
@@ -297,6 +314,7 @@ private:
     std::optional<std::string> ended_at_;
     std::optional<int64_t> duration_ms_;
     std::optional<int64_t> retry_count_;
+    std::optional<std::string> sequence_path_;
     std::optional<bool> is_final_attempt_;
     std::optional<std::string> run_id_;
     std::optional<LogGetOutcome> run_outcome_;

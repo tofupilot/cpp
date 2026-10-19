@@ -59,6 +59,8 @@ struct RunListRequest {
     std::optional<std::map<std::string, nlohmann::json>> metadata;
     /// When true, includes the run metadata array in the response. Defaults to false to keep payloads small.
     std::optional<bool> include_metadata;
+    /// When true, includes the top-level sequence calls of each run (the calls made in the procedure itself, not the calls nested in them). Defaults to false to keep payloads small.
+    std::optional<bool> include_sequences;
 };
 
 inline void to_json(nlohmann::json& j, const RunListRequest& v) {
@@ -162,6 +164,9 @@ inline void to_json(nlohmann::json& j, const RunListRequest& v) {
     if (v.include_metadata.has_value()) {
         j["include_metadata"] = v.include_metadata.value();
     }
+    if (v.include_sequences.has_value()) {
+        j["include_sequences"] = v.include_sequences.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, RunListRequest& v) {
@@ -263,6 +268,9 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
     }
     if (j.contains("include_metadata") && !j["include_metadata"].is_null()) {
         v.include_metadata = j["include_metadata"].get<bool>();
+    }
+    if (j.contains("include_sequences") && !j["include_sequences"].is_null()) {
+        v.include_sequences = j["include_sequences"].get<bool>();
     }
 }
 
@@ -472,6 +480,13 @@ public:
         return *this;
     }
 
+    /// Set the `include_sequences` field.
+    /// When true, includes the top-level sequence calls of each run (the calls made in the procedure itself, not the calls nested in them). Defaults to false to keep payloads small.
+    RunListRequestBuilder& include_sequences(bool value) {
+        include_sequences_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunListRequest build() const& {
         RunListRequest result;
@@ -508,6 +523,7 @@ public:
         result.sort_order = sort_order_;
         result.metadata = metadata_;
         result.include_metadata = include_metadata_;
+        result.include_sequences = include_sequences_;
         return result;
     }
 
@@ -547,6 +563,7 @@ public:
         result.sort_order = std::move(sort_order_);
         result.metadata = std::move(metadata_);
         result.include_metadata = std::move(include_metadata_);
+        result.include_sequences = std::move(include_sequences_);
         return result;
     }
 
@@ -584,6 +601,7 @@ private:
     std::optional<ListSortOrder> sort_order_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<bool> include_metadata_;
+    std::optional<bool> include_sequences_;
 };
 
 } // namespace tofupilot

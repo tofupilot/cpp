@@ -21,3 +21,4 @@
 | `procedure` | `RunListProcedure` | :heavy_check_mark: | Test procedure associated with this run. |
 | `unit` | `RunListUnit` | :heavy_check_mark: | Unit under test information. |
 | `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`. |
+| `sequences` | `std::optional<std::vector<RunListSequences>>` | :heavy_minus_sign: | Top-level sequence calls of the run, ordered by start time. Only present when the request sets `include_sequences=true`. |

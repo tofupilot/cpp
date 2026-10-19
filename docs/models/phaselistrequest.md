@@ -8,6 +8,7 @@
 | `procedure_id` | `std::string` | :heavy_check_mark: | Procedure to list phases for. Required: phases are scoped to a single procedure. |
 | `names` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `outcomes` | `std::optional<std::vector<PhaseGetOutcome>>` | :heavy_minus_sign: | N/A |
+| `sequence_paths` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `started_after` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `started_before` | `std::optional<std::string>` | :heavy_minus_sign: | N/A |
 | `exclude_retries` | `std::optional<bool>` | :heavy_minus_sign: | N/A |

@@ -16,6 +16,7 @@
 #include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_create_logs.hpp"
 #include "tofupilot/models/run_create_phases.hpp"
+#include "tofupilot/models/run_create_sequences.hpp"
 
 namespace tofupilot {
 
@@ -56,6 +57,8 @@ struct RunCreateRequest {
     std::optional<std::string> docstring;
     /// Array of test phases with measurements and results. Each phase represents a distinct stage of the test execution with timing information, outcome status, and optional measurements. If no phases are specified, the run will be created without phase-level organization of test data.
     std::optional<std::vector<RunCreatePhases>> phases;
+    /// Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
+    NullableField<std::vector<RunCreateSequences>> sequences;
     /// Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
     std::optional<std::vector<RunCreateLogs>> logs;
     /// Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
@@ -129,6 +132,13 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
     }
     if (v.phases.has_value()) {
         j["phases"] = v.phases.value();
+    }
+    if (!v.sequences.is_absent()) {
+        if (v.sequences.is_null()) {
+            j["sequences"] = nullptr;
+        } else {
+            j["sequences"] = v.sequences.get();
+        }
     }
     if (v.logs.has_value()) {
         j["logs"] = v.logs.value();
@@ -225,6 +235,13 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
     }
     if (j.contains("phases") && !j["phases"].is_null()) {
         v.phases = j["phases"].get<std::vector<RunCreatePhases>>();
+    }
+    if (j.contains("sequences")) {
+        if (j["sequences"].is_null()) {
+            v.sequences = NullableField<std::vector<RunCreateSequences>>::make_null();
+        } else {
+            v.sequences = NullableField<std::vector<RunCreateSequences>>::value(j["sequences"].get<std::vector<RunCreateSequences>>());
+        }
     }
     if (j.contains("logs") && !j["logs"].is_null()) {
         v.logs = j["logs"].get<std::vector<RunCreateLogs>>();
@@ -396,6 +413,19 @@ public:
         return *this;
     }
 
+    /// Set the `sequences` field.
+    /// Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
+    RunCreateRequestBuilder& sequences(std::vector<RunCreateSequences> value) {
+        sequences_ = NullableField<std::vector<RunCreateSequences>>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `sequences` to null.
+    RunCreateRequestBuilder& sequences_null() {
+        sequences_ = NullableField<std::vector<RunCreateSequences>>::make_null();
+        return *this;
+    }
+
     /// Set the `logs` field.
     /// Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
     RunCreateRequestBuilder& logs(std::vector<RunCreateLogs> value) {
@@ -453,6 +483,7 @@ public:
         result.sub_units = sub_units_;
         result.docstring = docstring_;
         result.phases = phases_;
+        result.sequences = sequences_;
         result.logs = logs_;
         result.metadata = metadata_;
         result.unit_metadata = unit_metadata_;
@@ -495,6 +526,7 @@ public:
         result.sub_units = std::move(sub_units_);
         result.docstring = std::move(docstring_);
         result.phases = std::move(phases_);
+        result.sequences = std::move(sequences_);
         result.logs = std::move(logs_);
         result.metadata = std::move(metadata_);
         result.unit_metadata = std::move(unit_metadata_);
@@ -520,6 +552,7 @@ private:
     std::optional<std::vector<std::string>> sub_units_;
     std::optional<std::string> docstring_;
     std::optional<std::vector<RunCreatePhases>> phases_;
+    NullableField<std::vector<RunCreateSequences>> sequences_;
     std::optional<std::vector<RunCreateLogs>> logs_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<std::map<std::string, nlohmann::json>> unit_metadata_;

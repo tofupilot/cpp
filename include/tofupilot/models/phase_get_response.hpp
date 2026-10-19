@@ -29,6 +29,8 @@ struct PhaseGetResponse {
     std::string ended_at;
     std::string duration;
     int64_t retry_count;
+    /// Path of the sequence call the phase ran in. Null for a phase written in the procedure itself.
+    std::optional<std::string> sequence_path;
     NullableField<std::string> docstring;
     std::vector<PhaseGetMeasurements> measurements;
     PhaseGetRun run;
@@ -44,6 +46,9 @@ inline void to_json(nlohmann::json& j, const PhaseGetResponse& v) {
     j["ended_at"] = v.ended_at;
     j["duration"] = v.duration;
     j["retry_count"] = v.retry_count;
+    if (v.sequence_path.has_value()) {
+        j["sequence_path"] = v.sequence_path.value();
+    }
     if (!v.docstring.is_absent()) {
         if (v.docstring.is_null()) {
             j["docstring"] = nullptr;
@@ -92,6 +97,9 @@ inline void from_json(const nlohmann::json& j, PhaseGetResponse& v) {
             "missing required field in response: retry_count", &j);
     }
     v.retry_count = j["retry_count"].get<int64_t>();
+    if (j.contains("sequence_path") && !j["sequence_path"].is_null()) {
+        v.sequence_path = j["sequence_path"].get<std::string>();
+    }
     if (j.contains("docstring")) {
         if (j["docstring"].is_null()) {
             v.docstring = NullableField<std::string>::make_null();

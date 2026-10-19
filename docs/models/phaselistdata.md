@@ -12,6 +12,7 @@
 | `ended_at` | `std::optional<std::string>` | :heavy_minus_sign: | ISO 8601 timestamp when the phase ended. |
 | `duration_ms` | `std::optional<int64_t>` | :heavy_minus_sign: | Phase duration in milliseconds. Null when start or end is missing. |
 | `retry_count` | `int64_t` | :heavy_check_mark: | Retry attempt number of the phase (0 for the first attempt). |
+| `sequence_path` | `std::optional<std::string>` | :heavy_minus_sign: | Path of the sequence call the phase ran in. Null for a phase written in the procedure itself. |
 | `is_final_attempt` | `bool` | :heavy_check_mark: | True when this is the final attempt of the phase. |
 | `run_id` | `std::string` | :heavy_check_mark: | ID of the run this phase belongs to. |
 | `run_outcome` | `LogGetOutcome` | :heavy_check_mark: | Outcome of the run this phase belongs to. |

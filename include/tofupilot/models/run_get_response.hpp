@@ -21,6 +21,7 @@
 #include "tofupilot/models/run_get_operated_by.hpp"
 #include "tofupilot/models/run_get_phases.hpp"
 #include "tofupilot/models/run_get_procedure.hpp"
+#include "tofupilot/models/run_get_sequences.hpp"
 #include "tofupilot/models/run_get_sub_units.hpp"
 #include "tofupilot/models/run_get_unit.hpp"
 
@@ -60,6 +61,8 @@ struct RunGetResponse {
     RunGetUnit unit;
     /// Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included.
     std::optional<std::vector<RunGetPhases>> phases;
+    /// Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences.
+    std::optional<std::vector<RunGetSequences>> sequences;
     /// Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included.
     std::optional<std::vector<RunGetAttachments>> attachments;
     std::optional<std::vector<RunGetLogs>> logs;
@@ -118,6 +121,9 @@ inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
     j["unit"] = v.unit;
     if (v.phases.has_value()) {
         j["phases"] = v.phases.value();
+    }
+    if (v.sequences.has_value()) {
+        j["sequences"] = v.sequences.value();
     }
     if (v.attachments.has_value()) {
         j["attachments"] = v.attachments.value();
@@ -213,6 +219,9 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
     v.unit = j["unit"].get<RunGetUnit>();
     if (j.contains("phases") && !j["phases"].is_null()) {
         v.phases = j["phases"].get<std::vector<RunGetPhases>>();
+    }
+    if (j.contains("sequences") && !j["sequences"].is_null()) {
+        v.sequences = j["sequences"].get<std::vector<RunGetSequences>>();
     }
     if (j.contains("attachments") && !j["attachments"].is_null()) {
         v.attachments = j["attachments"].get<std::vector<RunGetAttachments>>();
