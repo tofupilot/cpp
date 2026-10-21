@@ -15,6 +15,7 @@
 #include "tofupilot/models/nullable.hpp"
 #include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_get_attachments.hpp"
+#include "tofupilot/models/run_get_config.hpp"
 #include "tofupilot/models/run_get_created_by_station.hpp"
 #include "tofupilot/models/run_get_created_by_user.hpp"
 #include "tofupilot/models/run_get_logs.hpp"
@@ -25,7 +26,6 @@
 #include "tofupilot/models/run_get_sequences.hpp"
 #include "tofupilot/models/run_get_sub_units.hpp"
 #include "tofupilot/models/run_get_unit.hpp"
-#include "tofupilot/models/run_get_vars.hpp"
 
 namespace tofupilot {
 
@@ -72,8 +72,8 @@ struct RunGetResponse {
     std::optional<std::vector<RunGetSubUnits>> sub_units;
     /// Custom metadata key/value pairs on the run.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
-    /// Vars the run used, with their values. Empty when the run recorded none.
-    std::vector<RunGetVars> vars;
+    /// Config values the run used (declared under `config:` in procedure.yaml), with their values. Empty when the run recorded none.
+    std::vector<RunGetConfig> config;
     /// Secrets the run used, by stored value and version. Never carries a value. Empty when the run recorded none.
     std::vector<RunGetSecrets> secrets;
 };
@@ -143,7 +143,7 @@ inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
     if (v.metadata.has_value()) {
         j["metadata"] = v.metadata.value();
     }
-    j["vars"] = v.vars;
+    j["config"] = v.config;
     j["secrets"] = v.secrets;
 }
 
@@ -243,8 +243,8 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
     if (j.contains("metadata") && !j["metadata"].is_null()) {
         v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
     }
-    if (j.contains("vars") && j["vars"].is_array()) {
-        v.vars = j["vars"].get<std::vector<RunGetVars>>();
+    if (j.contains("config") && j["config"].is_array()) {
+        v.config = j["config"].get<std::vector<RunGetConfig>>();
     }
     if (j.contains("secrets") && j["secrets"].is_array()) {
         v.secrets = j["secrets"].get<std::vector<RunGetSecrets>>();

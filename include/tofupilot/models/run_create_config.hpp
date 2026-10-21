@@ -17,8 +17,8 @@
 
 namespace tofupilot {
 
-struct RunCreateVars {
-    /// Key as declared under `vars:` or `secrets:` in procedure.yaml.
+struct RunCreateConfig {
+    /// Key as declared under `config:` or `secrets:` in procedure.yaml.
     std::string key;
     /// Value the run used, in its declared type.
     nlohmann::json value;
@@ -30,7 +30,7 @@ struct RunCreateVars {
     NullableField<Source> source;
 };
 
-inline void to_json(nlohmann::json& j, const RunCreateVars& v) {
+inline void to_json(nlohmann::json& j, const RunCreateConfig& v) {
     j = nlohmann::json::object();
     j["key"] = v.key;
     j["value"] = v.value;
@@ -57,7 +57,7 @@ inline void to_json(nlohmann::json& j, const RunCreateVars& v) {
     }
 }
 
-inline void from_json(const nlohmann::json& j, RunCreateVars& v) {
+inline void from_json(const nlohmann::json& j, RunCreateConfig& v) {
     if (!j.contains("key")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: key", &j);
@@ -91,65 +91,65 @@ inline void from_json(const nlohmann::json& j, RunCreateVars& v) {
     }
 }
 
-/// Builder for RunCreateVars.
-class RunCreateVarsBuilder {
+/// Builder for RunCreateConfig.
+class RunCreateConfigBuilder {
 public:
     /// Set the `key` field.
-    /// Key as declared under `vars:` or `secrets:` in procedure.yaml.
-    RunCreateVarsBuilder& key(std::string value) {
+    /// Key as declared under `config:` or `secrets:` in procedure.yaml.
+    RunCreateConfigBuilder& key(std::string value) {
         key_ = std::move(value);
         return *this;
     }
 
     /// Set the `value` field.
     /// Value the run used, in its declared type.
-    RunCreateVarsBuilder& value(nlohmann::json value) {
+    RunCreateConfigBuilder& value(nlohmann::json value) {
         value_ = std::move(value);
         return *this;
     }
 
     /// Set the `variable_id` field.
     /// ID of the stored value the station received, when it came from TofuPilot.
-    RunCreateVarsBuilder& variable_id(std::string value) {
+    RunCreateConfigBuilder& variable_id(std::string value) {
         variable_id_ = NullableField<std::string>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `variable_id` to null.
-    RunCreateVarsBuilder& variable_id_null() {
+    RunCreateConfigBuilder& variable_id_null() {
         variable_id_ = NullableField<std::string>::make_null();
         return *this;
     }
 
     /// Set the `version` field.
     /// Version of the stored value the station received.
-    RunCreateVarsBuilder& version(int64_t value) {
+    RunCreateConfigBuilder& version(int64_t value) {
         version_ = NullableField<int64_t>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `version` to null.
-    RunCreateVarsBuilder& version_null() {
+    RunCreateConfigBuilder& version_null() {
         version_ = NullableField<int64_t>::make_null();
         return *this;
     }
 
     /// Set the `source` field.
     /// Where the value came from: the YAML `default:`, the shell environment, a `.env` file, the station process environment, or a value stored on the station, the procedure or the organization.
-    RunCreateVarsBuilder& source(Source value) {
+    RunCreateConfigBuilder& source(Source value) {
         source_ = NullableField<Source>::value(std::move(value));
         return *this;
     }
 
     /// Explicitly set `source` to null.
-    RunCreateVarsBuilder& source_null() {
+    RunCreateConfigBuilder& source_null() {
         source_ = NullableField<Source>::make_null();
         return *this;
     }
 
     /// Build the struct. Throws std::runtime_error if required fields are missing.
-    RunCreateVars build() const& {
-        RunCreateVars result;
+    RunCreateConfig build() const& {
+        RunCreateConfig result;
         if (!key_.has_value()) {
             throw std::runtime_error("missing required field: key");
         }
@@ -165,8 +165,8 @@ public:
     }
 
     /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
-    RunCreateVars build() && {
-        RunCreateVars result;
+    RunCreateConfig build() && {
+        RunCreateConfig result;
         if (!key_.has_value()) {
             throw std::runtime_error("missing required field: key");
         }

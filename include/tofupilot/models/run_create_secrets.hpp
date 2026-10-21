@@ -18,7 +18,7 @@
 namespace tofupilot {
 
 struct RunCreateSecrets {
-    /// Key as declared under `vars:` or `secrets:` in procedure.yaml.
+    /// Key as declared under `config:` or `secrets:` in procedure.yaml.
     std::string key;
     /// ID of the stored value the station received, when it came from TofuPilot.
     NullableField<std::string> variable_id;
@@ -87,7 +87,7 @@ inline void from_json(const nlohmann::json& j, RunCreateSecrets& v) {
 class RunCreateSecretsBuilder {
 public:
     /// Set the `key` field.
-    /// Key as declared under `vars:` or `secrets:` in procedure.yaml.
+    /// Key as declared under `config:` or `secrets:` in procedure.yaml.
     RunCreateSecretsBuilder& key(std::string value) {
         key_ = std::move(value);
         return *this;

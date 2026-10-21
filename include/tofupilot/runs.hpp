@@ -163,8 +163,8 @@ public:
         unit_metadata_ = std::move(value);
         return *this;
     }
-    CreateBuilder& vars(std::vector<RunCreateVars> value) {
-        vars_ = std::move(value);
+    CreateBuilder& config(std::vector<RunCreateConfig> value) {
+        config_ = std::move(value);
         return *this;
     }
     CreateBuilder& secrets(std::vector<RunCreateSecrets> value) {
@@ -194,7 +194,7 @@ public:
         if (b.logs.has_value()) logs_ = std::move(b.logs);
         if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         if (b.unit_metadata.has_value()) unit_metadata_ = std::move(b.unit_metadata);
-        if (b.vars.has_value()) vars_ = std::move(b.vars);
+        if (b.config.has_value()) config_ = std::move(b.config);
         if (b.secrets.has_value()) secrets_ = std::move(b.secrets);
         return *this;
     }
@@ -245,7 +245,7 @@ public:
             req_body.logs = logs_;
             req_body.metadata = metadata_;
             req_body.unit_metadata = unit_metadata_;
-            req_body.vars = vars_;
+            req_body.config = config_;
             req_body.secrets = secrets_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
@@ -289,7 +289,7 @@ private:
     std::optional<std::vector<RunCreateLogs>> logs_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<std::map<std::string, nlohmann::json>> unit_metadata_;
-    std::optional<std::vector<RunCreateVars>> vars_;
+    std::optional<std::vector<RunCreateConfig>> config_;
     std::optional<std::vector<RunCreateSecrets>> secrets_;
     RequestConfig request_config_;
 };

@@ -16,7 +16,7 @@
 
 namespace tofupilot {
 
-struct RunGetVars {
+struct RunGetConfig {
     std::string key;
     nlohmann::json value;
     std::optional<std::string> variable_id;
@@ -24,7 +24,7 @@ struct RunGetVars {
     std::optional<Source> source;
 };
 
-inline void to_json(nlohmann::json& j, const RunGetVars& v) {
+inline void to_json(nlohmann::json& j, const RunGetConfig& v) {
     j = nlohmann::json::object();
     j["key"] = v.key;
     j["value"] = v.value;
@@ -39,7 +39,7 @@ inline void to_json(nlohmann::json& j, const RunGetVars& v) {
     }
 }
 
-inline void from_json(const nlohmann::json& j, RunGetVars& v) {
+inline void from_json(const nlohmann::json& j, RunGetConfig& v) {
     if (!j.contains("key")) {
         throw nlohmann::json::other_error::create(501,
             "missing required field in response: key", &j);
@@ -61,42 +61,42 @@ inline void from_json(const nlohmann::json& j, RunGetVars& v) {
     }
 }
 
-/// Builder for RunGetVars.
-class RunGetVarsBuilder {
+/// Builder for RunGetConfig.
+class RunGetConfigBuilder {
 public:
     /// Set the `key` field.
-    RunGetVarsBuilder& key(std::string value) {
+    RunGetConfigBuilder& key(std::string value) {
         key_ = std::move(value);
         return *this;
     }
 
     /// Set the `value` field.
-    RunGetVarsBuilder& value(nlohmann::json value) {
+    RunGetConfigBuilder& value(nlohmann::json value) {
         value_ = std::move(value);
         return *this;
     }
 
     /// Set the `variable_id` field.
-    RunGetVarsBuilder& variable_id(std::string value) {
+    RunGetConfigBuilder& variable_id(std::string value) {
         variable_id_ = std::move(value);
         return *this;
     }
 
     /// Set the `version` field.
-    RunGetVarsBuilder& version(int64_t value) {
+    RunGetConfigBuilder& version(int64_t value) {
         version_ = std::move(value);
         return *this;
     }
 
     /// Set the `source` field.
-    RunGetVarsBuilder& source(Source value) {
+    RunGetConfigBuilder& source(Source value) {
         source_ = std::move(value);
         return *this;
     }
 
     /// Build the struct. Throws std::runtime_error if required fields are missing.
-    RunGetVars build() const& {
-        RunGetVars result;
+    RunGetConfig build() const& {
+        RunGetConfig result;
         if (!key_.has_value()) {
             throw std::runtime_error("missing required field: key");
         }
@@ -112,8 +112,8 @@ public:
     }
 
     /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
-    RunGetVars build() && {
-        RunGetVars result;
+    RunGetConfig build() && {
+        RunGetConfig result;
         if (!key_.has_value()) {
             throw std::runtime_error("missing required field: key");
         }
