@@ -21,9 +21,11 @@
 #include "tofupilot/models/run_get_operated_by.hpp"
 #include "tofupilot/models/run_get_phases.hpp"
 #include "tofupilot/models/run_get_procedure.hpp"
+#include "tofupilot/models/run_get_secrets.hpp"
 #include "tofupilot/models/run_get_sequences.hpp"
 #include "tofupilot/models/run_get_sub_units.hpp"
 #include "tofupilot/models/run_get_unit.hpp"
+#include "tofupilot/models/run_get_vars.hpp"
 
 namespace tofupilot {
 
@@ -70,6 +72,10 @@ struct RunGetResponse {
     std::optional<std::vector<RunGetSubUnits>> sub_units;
     /// Custom metadata key/value pairs on the run.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
+    /// Vars the run used, with their values. Empty when the run recorded none.
+    std::vector<RunGetVars> vars;
+    /// Secrets the run used, by stored value and version. Never carries a value. Empty when the run recorded none.
+    std::vector<RunGetSecrets> secrets;
 };
 
 inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
@@ -137,6 +143,8 @@ inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
     if (v.metadata.has_value()) {
         j["metadata"] = v.metadata.value();
     }
+    j["vars"] = v.vars;
+    j["secrets"] = v.secrets;
 }
 
 inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
@@ -234,6 +242,12 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
     }
     if (j.contains("metadata") && !j["metadata"].is_null()) {
         v.metadata = j["metadata"].get<std::map<std::string, nlohmann::json>>();
+    }
+    if (j.contains("vars") && j["vars"].is_array()) {
+        v.vars = j["vars"].get<std::vector<RunGetVars>>();
+    }
+    if (j.contains("secrets") && j["secrets"].is_array()) {
+        v.secrets = j["secrets"].get<std::vector<RunGetSecrets>>();
     }
 }
 

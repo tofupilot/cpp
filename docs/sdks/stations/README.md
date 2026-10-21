@@ -41,6 +41,7 @@ int main() {
 | --- | --- | --- | --- |
 | `name` | `std::string` | :heavy_check_mark: | Name of the station |
 | `procedure_id` | `std::optional<std::string>` | :heavy_minus_sign: | Optional procedure ID to link the station to |
+| `team_id` | `std::optional<std::string>` | :heavy_minus_sign: | Optional team to assign the station to. A user restricted to access groups must name one of their teams; with a single team it defaults to that team. |
 | `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config. |
 
 ### Response
@@ -51,8 +52,10 @@ int main() {
 
 | Error Type | Status Code | Content Type |
 | --- | --- | --- |
+| `BadRequestError` | 400 | application/json |
 | `UnauthorizedError` | 401 | application/json |
 | `ForbiddenError` | 403 | application/json |
+| `NotFoundError` | 404 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |
 
@@ -220,7 +223,7 @@ int main() {
 | `id` | `std::string` | :heavy_check_mark: | Unique identifier of the station to update |
 | `name` | `std::optional<std::string>` | :heavy_minus_sign: | New name for the station |
 | `image_id` | `std::optional<std::string>` | :heavy_minus_sign: | Upload ID for the station image, or empty string to remove image |
-| `team_id` | `NullableField<std::string>` | :heavy_minus_sign: | Team ID to assign this station to, or null to unassign |
+| `team_id` | `NullableField<std::string>` | :heavy_minus_sign: | Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station. |
 | `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key. |
 
 ### Response
@@ -232,6 +235,7 @@ int main() {
 | Error Type | Status Code | Content Type |
 | --- | --- | --- |
 | `UnauthorizedError` | 401 | application/json |
+| `ForbiddenError` | 403 | application/json |
 | `NotFoundError` | 404 | application/json |
 | `InternalServerError` | 500 | application/json |
 | `ApiException` | 4XX, 5XX | \*/\* |

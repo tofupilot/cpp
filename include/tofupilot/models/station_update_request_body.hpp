@@ -21,7 +21,7 @@ struct StationUpdateRequestBody {
     std::optional<std::string> name;
     /// Upload ID for the station image, or empty string to remove image
     std::optional<std::string> image_id;
-    /// Team ID to assign this station to, or null to unassign
+    /// Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station.
     NullableField<std::string> team_id;
     /// Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
     std::optional<std::map<std::string, nlohmann::json>> metadata;
@@ -84,7 +84,7 @@ public:
     }
 
     /// Set the `team_id` field.
-    /// Team ID to assign this station to, or null to unassign
+    /// Team ID to assign this station to, or null to unassign. Unassigning a station or moving it to another team requires the Admin or Owner role: the team decides who may deploy to the station.
     StationUpdateRequestBodyBuilder& team_id(std::string value) {
         team_id_ = NullableField<std::string>::value(std::move(value));
         return *this;

@@ -53,6 +53,10 @@ public:
         procedure_id_ = std::move(value);
         return *this;
     }
+    CreateBuilder& team_id(std::string value) {
+        team_id_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& metadata(std::map<std::string, nlohmann::json> value) {
         metadata_ = std::move(value);
         return *this;
@@ -60,6 +64,7 @@ public:
     CreateBuilder& body(StationCreateRequest b) {
         name_ = std::move(b.name);
         if (b.procedure_id.has_value()) procedure_id_ = std::move(b.procedure_id);
+        if (b.team_id.has_value()) team_id_ = std::move(b.team_id);
         if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         return *this;
     }
@@ -86,6 +91,7 @@ public:
             if (!name_.has_value()) throw ValidationError("missing required field: name");
             req_body.name = name_.value();
             req_body.procedure_id = procedure_id_;
+            req_body.team_id = team_id_;
             req_body.metadata = metadata_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
@@ -109,6 +115,7 @@ private:
     TofuPilot& client_;
     std::optional<std::string> name_;
     std::optional<std::string> procedure_id_;
+    std::optional<std::string> team_id_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     RequestConfig request_config_;
 };

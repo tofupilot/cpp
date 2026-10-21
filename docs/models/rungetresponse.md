@@ -27,3 +27,5 @@ Single test run details.
 | `logs` | `std::optional<std::vector<RunGetLogs>>` | :heavy_minus_sign: | N/A |
 | `sub_units` | `std::optional<std::vector<RunGetSubUnits>>` | :heavy_minus_sign: | Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included. |
 | `metadata` | `std::optional<std::map<std::string, nlohmann::json>>` | :heavy_minus_sign: | Custom metadata key/value pairs on the run. |
+| `vars` | `std::vector<RunGetVars>` | :heavy_check_mark: | Vars the run used, with their values. Empty when the run recorded none. |
+| `secrets` | `std::vector<RunGetSecrets>` | :heavy_check_mark: | Secrets the run used, by stored value and version. Never carries a value. Empty when the run recorded none. |

@@ -16,7 +16,9 @@
 #include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_create_logs.hpp"
 #include "tofupilot/models/run_create_phases.hpp"
+#include "tofupilot/models/run_create_secrets.hpp"
 #include "tofupilot/models/run_create_sequences.hpp"
+#include "tofupilot/models/run_create_vars.hpp"
 
 namespace tofupilot {
 
@@ -65,6 +67,10 @@ struct RunCreateRequest {
     std::optional<std::map<std::string, nlohmann::json>> metadata;
     /// Custom metadata to upsert on the unit under test (max 50 keys per unit). PATCH semantics: keys not present here are preserved on the unit.
     std::optional<std::map<std::string, nlohmann::json>> unit_metadata;
+    /// Vars the run used, with their values. Recorded with the run; identical sets are stored once. Any client can send them, e.g. a calibration offset.
+    std::optional<std::vector<RunCreateVars>> vars;
+    /// Secrets the run used, identified by the stored value and version they came from. Never send a secret value: a `value` field is rejected.
+    std::optional<std::vector<RunCreateSecrets>> secrets;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
@@ -148,6 +154,12 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
     }
     if (v.unit_metadata.has_value()) {
         j["unit_metadata"] = v.unit_metadata.value();
+    }
+    if (v.vars.has_value()) {
+        j["vars"] = v.vars.value();
+    }
+    if (v.secrets.has_value()) {
+        j["secrets"] = v.secrets.value();
     }
 }
 
@@ -251,6 +263,12 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
     }
     if (j.contains("unit_metadata") && !j["unit_metadata"].is_null()) {
         v.unit_metadata = j["unit_metadata"].get<std::map<std::string, nlohmann::json>>();
+    }
+    if (j.contains("vars") && !j["vars"].is_null()) {
+        v.vars = j["vars"].get<std::vector<RunCreateVars>>();
+    }
+    if (j.contains("secrets") && !j["secrets"].is_null()) {
+        v.secrets = j["secrets"].get<std::vector<RunCreateSecrets>>();
     }
 }
 
@@ -447,6 +465,20 @@ public:
         return *this;
     }
 
+    /// Set the `vars` field.
+    /// Vars the run used, with their values. Recorded with the run; identical sets are stored once. Any client can send them, e.g. a calibration offset.
+    RunCreateRequestBuilder& vars(std::vector<RunCreateVars> value) {
+        vars_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `secrets` field.
+    /// Secrets the run used, identified by the stored value and version they came from. Never send a secret value: a `value` field is rejected.
+    RunCreateRequestBuilder& secrets(std::vector<RunCreateSecrets> value) {
+        secrets_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     RunCreateRequest build() const& {
         RunCreateRequest result;
@@ -487,6 +519,8 @@ public:
         result.logs = logs_;
         result.metadata = metadata_;
         result.unit_metadata = unit_metadata_;
+        result.vars = vars_;
+        result.secrets = secrets_;
         return result;
     }
 
@@ -530,6 +564,8 @@ public:
         result.logs = std::move(logs_);
         result.metadata = std::move(metadata_);
         result.unit_metadata = std::move(unit_metadata_);
+        result.vars = std::move(vars_);
+        result.secrets = std::move(secrets_);
         return result;
     }
 
@@ -556,6 +592,8 @@ private:
     std::optional<std::vector<RunCreateLogs>> logs_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<std::map<std::string, nlohmann::json>> unit_metadata_;
+    std::optional<std::vector<RunCreateVars>> vars_;
+    std::optional<std::vector<RunCreateSecrets>> secrets_;
 };
 
 } // namespace tofupilot
