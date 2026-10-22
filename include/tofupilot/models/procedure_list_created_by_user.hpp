@@ -21,8 +21,8 @@ struct ProcedureListCreatedByUser {
     std::string id;
     /// Name of the user who created the procedure.
     std::optional<std::string> name;
-    /// Email of the user who created the procedure.
-    std::string email;
+    /// Email of the user who created the procedure. Null when the caller is a viewer restricted to access groups.
+    std::optional<std::string> email;
 };
 
 inline void to_json(nlohmann::json& j, const ProcedureListCreatedByUser& v) {
@@ -31,7 +31,9 @@ inline void to_json(nlohmann::json& j, const ProcedureListCreatedByUser& v) {
     if (v.name.has_value()) {
         j["name"] = v.name.value();
     }
-    j["email"] = v.email;
+    if (v.email.has_value()) {
+        j["email"] = v.email.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, ProcedureListCreatedByUser& v) {
@@ -43,11 +45,9 @@ inline void from_json(const nlohmann::json& j, ProcedureListCreatedByUser& v) {
     if (j.contains("name") && !j["name"].is_null()) {
         v.name = j["name"].get<std::string>();
     }
-    if (!j.contains("email")) {
-        throw nlohmann::json::other_error::create(501,
-            "missing required field in response: email", &j);
+    if (j.contains("email") && !j["email"].is_null()) {
+        v.email = j["email"].get<std::string>();
     }
-    v.email = j["email"].get<std::string>();
 }
 
 /// Builder for ProcedureListCreatedByUser.
@@ -68,7 +68,7 @@ public:
     }
 
     /// Set the `email` field.
-    /// Email of the user who created the procedure.
+    /// Email of the user who created the procedure. Null when the caller is a viewer restricted to access groups.
     ProcedureListCreatedByUserBuilder& email(std::string value) {
         email_ = std::move(value);
         return *this;
@@ -82,10 +82,7 @@ public:
         }
         result.id = id_.value();
         result.name = name_;
-        if (!email_.has_value()) {
-            throw std::runtime_error("missing required field: email");
-        }
-        result.email = email_.value();
+        result.email = email_;
         return result;
     }
 
@@ -97,10 +94,7 @@ public:
         }
         result.id = std::move(id_.value());
         result.name = std::move(name_);
-        if (!email_.has_value()) {
-            throw std::runtime_error("missing required field: email");
-        }
-        result.email = std::move(email_.value());
+        result.email = std::move(email_);
         return result;
     }
 

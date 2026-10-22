@@ -18,8 +18,8 @@ namespace tofupilot {
 struct UserListResponse {
     /// Unique identifier for the user.
     std::string id;
-    /// Email address of the user.
-    std::string email;
+    /// Email address of the user. Null for another member when the key belongs to a viewer restricted to access groups.
+    std::optional<std::string> email;
     /// Display name of the user.
     std::optional<std::string> name;
     /// Profile image URL for the user.
@@ -31,7 +31,9 @@ struct UserListResponse {
 inline void to_json(nlohmann::json& j, const UserListResponse& v) {
     j = nlohmann::json::object();
     j["id"] = v.id;
-    j["email"] = v.email;
+    if (v.email.has_value()) {
+        j["email"] = v.email.value();
+    }
     if (v.name.has_value()) {
         j["name"] = v.name.value();
     }
@@ -47,11 +49,9 @@ inline void from_json(const nlohmann::json& j, UserListResponse& v) {
             "missing required field in response: id", &j);
     }
     v.id = j["id"].get<std::string>();
-    if (!j.contains("email")) {
-        throw nlohmann::json::other_error::create(501,
-            "missing required field in response: email", &j);
+    if (j.contains("email") && !j["email"].is_null()) {
+        v.email = j["email"].get<std::string>();
     }
-    v.email = j["email"].get<std::string>();
     if (j.contains("name") && !j["name"].is_null()) {
         v.name = j["name"].get<std::string>();
     }

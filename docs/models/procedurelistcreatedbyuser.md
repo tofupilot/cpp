@@ -8,4 +8,4 @@ User who created the procedure.
 | --- | --- | --- | --- |
 | `id` | `std::string` | :heavy_check_mark: | Unique identifier for the user who created the procedure. |
 | `name` | `std::optional<std::string>` | :heavy_minus_sign: | Name of the user who created the procedure. |
-| `email` | `std::string` | :heavy_check_mark: | Email of the user who created the procedure. |
+| `email` | `std::optional<std::string>` | :heavy_minus_sign: | Email of the user who created the procedure. Null when the caller is a viewer restricted to access groups. |
