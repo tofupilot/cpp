@@ -342,7 +342,7 @@ public:
         serial_numbers_ = std::move(value);
         return *this;
     }
-    ListBuilder& samples(std::vector<Sample> value) {
+    ListBuilder& samples(std::vector<ListQueryParamSample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -693,7 +693,7 @@ private:
     std::optional<std::vector<std::string>> slot_names_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
-    std::optional<std::vector<Sample>> samples_;
+    std::optional<std::vector<ListQueryParamSample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;

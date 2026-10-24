@@ -16,7 +16,7 @@
 | `slot_names` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `environments` | `std::optional<std::vector<Environment>>` | :heavy_minus_sign: | N/A |
 | `serial_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `samples` | `std::optional<std::vector<Sample>>` | :heavy_minus_sign: | N/A |
+| `samples` | `std::optional<std::vector<ListQueryParamSample>>` | :heavy_minus_sign: | N/A |
 | `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |

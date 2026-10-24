@@ -219,7 +219,7 @@ public:
         exclude_units_with_parent_ = std::move(value);
         return *this;
     }
-    ListBuilder& samples(std::vector<Sample> value) {
+    ListBuilder& samples(std::vector<ListQueryParamSample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -452,7 +452,7 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<bool> exclude_units_with_parent_;
-    std::optional<std::vector<Sample>> samples_;
+    std::optional<std::vector<ListQueryParamSample>> samples_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;

@@ -13,10 +13,10 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/environment.hpp"
+#include "tofupilot/models/list_query_param_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/phase_get_outcome.hpp"
-#include "tofupilot/models/phase_list_query_param_sample.hpp"
 #include "tofupilot/models/phase_list_sort_by.hpp"
 
 namespace tofupilot {
@@ -45,7 +45,7 @@ struct PhaseListRequest {
     std::optional<std::vector<std::string>> part_numbers;
     std::optional<std::vector<std::string>> revision_numbers;
     std::optional<std::vector<std::string>> batch_numbers;
-    std::optional<std::vector<PhaseListQueryParamSample>> samples;
+    std::optional<std::vector<ListQueryParamSample>> samples;
     /// Field to sort results by.
     std::optional<PhaseListSortBy> sort_by;
     /// Sort order direction.
@@ -209,7 +209,7 @@ inline void from_json(const nlohmann::json& j, PhaseListRequest& v) {
         v.batch_numbers = j["batch_numbers"].get<std::vector<std::string>>();
     }
     if (j.contains("samples") && !j["samples"].is_null()) {
-        v.samples = j["samples"].get<std::vector<PhaseListQueryParamSample>>();
+        v.samples = j["samples"].get<std::vector<ListQueryParamSample>>();
     }
     if (j.contains("sort_by") && !j["sort_by"].is_null()) {
         v.sort_by = j["sort_by"].get<PhaseListSortBy>();
@@ -362,7 +362,7 @@ public:
     }
 
     /// Set the `samples` field.
-    PhaseListRequestBuilder& samples(std::vector<PhaseListQueryParamSample> value) {
+    PhaseListRequestBuilder& samples(std::vector<ListQueryParamSample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -490,7 +490,7 @@ private:
     std::optional<std::vector<std::string>> part_numbers_;
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;
-    std::optional<std::vector<PhaseListQueryParamSample>> samples_;
+    std::optional<std::vector<ListQueryParamSample>> samples_;
     std::optional<PhaseListSortBy> sort_by_;
     std::optional<ListSortOrder> sort_order_;
     std::optional<int64_t> limit_;

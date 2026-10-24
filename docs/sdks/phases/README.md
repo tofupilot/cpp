@@ -57,7 +57,7 @@ int main() {
 | `part_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `revision_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
 | `batch_numbers` | `std::optional<std::vector<std::string>>` | :heavy_minus_sign: | N/A |
-| `samples` | `std::optional<std::vector<PhaseListQueryParamSample>>` | :heavy_minus_sign: | N/A |
+| `samples` | `std::optional<std::vector<ListQueryParamSample>>` | :heavy_minus_sign: | N/A |
 | `sort_by` | `std::optional<PhaseListSortBy>` | :heavy_minus_sign: | Field to sort results by. |
 | `sort_order` | `std::optional<ListSortOrder>` | :heavy_minus_sign: | Sort order direction. |
 | `limit` | `std::optional<int64_t>` | :heavy_minus_sign: | Maximum number of phases to return. |

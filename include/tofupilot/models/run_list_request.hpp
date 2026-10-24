@@ -13,10 +13,10 @@
 #include <nlohmann/json.hpp>
 
 #include "tofupilot/models/environment.hpp"
+#include "tofupilot/models/list_query_param_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/log_get_outcome.hpp"
 #include "tofupilot/models/run_list_sort_by.hpp"
-#include "tofupilot/models/sample.hpp"
 
 namespace tofupilot {
 
@@ -32,7 +32,7 @@ struct RunListRequest {
     std::optional<std::vector<std::string>> slot_names;
     std::optional<std::vector<Environment>> environments;
     std::optional<std::vector<std::string>> serial_numbers;
-    std::optional<std::vector<Sample>> samples;
+    std::optional<std::vector<ListQueryParamSample>> samples;
     std::optional<std::vector<std::string>> part_numbers;
     std::optional<std::vector<std::string>> revision_numbers;
     std::optional<std::vector<std::string>> batch_numbers;
@@ -204,7 +204,7 @@ inline void from_json(const nlohmann::json& j, RunListRequest& v) {
         v.serial_numbers = j["serial_numbers"].get<std::vector<std::string>>();
     }
     if (j.contains("samples") && !j["samples"].is_null()) {
-        v.samples = j["samples"].get<std::vector<Sample>>();
+        v.samples = j["samples"].get<std::vector<ListQueryParamSample>>();
     }
     if (j.contains("part_numbers") && !j["part_numbers"].is_null()) {
         v.part_numbers = j["part_numbers"].get<std::vector<std::string>>();
@@ -344,7 +344,7 @@ public:
     }
 
     /// Set the `samples` field.
-    RunListRequestBuilder& samples(std::vector<Sample> value) {
+    RunListRequestBuilder& samples(std::vector<ListQueryParamSample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -579,7 +579,7 @@ private:
     std::optional<std::vector<std::string>> slot_names_;
     std::optional<std::vector<Environment>> environments_;
     std::optional<std::vector<std::string>> serial_numbers_;
-    std::optional<std::vector<Sample>> samples_;
+    std::optional<std::vector<ListQueryParamSample>> samples_;
     std::optional<std::vector<std::string>> part_numbers_;
     std::optional<std::vector<std::string>> revision_numbers_;
     std::optional<std::vector<std::string>> batch_numbers_;

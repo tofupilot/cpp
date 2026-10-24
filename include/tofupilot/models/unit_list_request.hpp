@@ -12,9 +12,9 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/list_query_param_sample.hpp"
 #include "tofupilot/models/list_sort_order.hpp"
 #include "tofupilot/models/log_get_outcome.hpp"
-#include "tofupilot/models/sample.hpp"
 #include "tofupilot/models/unit_list_sort_by.hpp"
 
 namespace tofupilot {
@@ -38,7 +38,7 @@ struct UnitListRequest {
     std::optional<std::vector<std::string>> created_by_user_ids;
     std::optional<std::vector<std::string>> created_by_station_ids;
     std::optional<bool> exclude_units_with_parent;
-    std::optional<std::vector<Sample>> samples;
+    std::optional<std::vector<ListQueryParamSample>> samples;
     /// Maximum number of units to return.
     std::optional<int64_t> limit;
     std::optional<int64_t> cursor;
@@ -187,7 +187,7 @@ inline void from_json(const nlohmann::json& j, UnitListRequest& v) {
         v.exclude_units_with_parent = j["exclude_units_with_parent"].get<bool>();
     }
     if (j.contains("samples") && !j["samples"].is_null()) {
-        v.samples = j["samples"].get<std::vector<Sample>>();
+        v.samples = j["samples"].get<std::vector<ListQueryParamSample>>();
     }
     if (j.contains("limit") && !j["limit"].is_null()) {
         v.limit = j["limit"].get<int64_t>();
@@ -321,7 +321,7 @@ public:
     }
 
     /// Set the `samples` field.
-    UnitListRequestBuilder& samples(std::vector<Sample> value) {
+    UnitListRequestBuilder& samples(std::vector<ListQueryParamSample> value) {
         samples_ = std::move(value);
         return *this;
     }
@@ -448,7 +448,7 @@ private:
     std::optional<std::vector<std::string>> created_by_user_ids_;
     std::optional<std::vector<std::string>> created_by_station_ids_;
     std::optional<bool> exclude_units_with_parent_;
-    std::optional<std::vector<Sample>> samples_;
+    std::optional<std::vector<ListQueryParamSample>> samples_;
     std::optional<int64_t> limit_;
     std::optional<int64_t> cursor_;
     std::optional<UnitListSortBy> sort_by_;
