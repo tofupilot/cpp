@@ -67,6 +67,10 @@ public:
         deployment_id_ = NullableField<std::string>::make_null();
         return *this;
     }
+    CreateBuilder& deployment_digest(std::string value) {
+        deployment_digest_ = std::move(value);
+        return *this;
+    }
     CreateBuilder& client_run_ref(std::string value) {
         client_run_ref_ = std::move(value);
         return *this;
@@ -175,6 +179,7 @@ public:
         outcome_ = std::move(b.outcome);
         procedure_id_ = std::move(b.procedure_id);
         deployment_id_ = std::move(b.deployment_id);
+        if (b.deployment_digest.has_value()) deployment_digest_ = std::move(b.deployment_digest);
         if (b.client_run_ref.has_value()) client_run_ref_ = std::move(b.client_run_ref);
         execution_id_ = std::move(b.execution_id);
         slot_key_ = std::move(b.slot_key);
@@ -223,6 +228,7 @@ public:
             if (!procedure_id_.has_value()) throw ValidationError("missing required field: procedure_id");
             req_body.procedure_id = procedure_id_.value();
             if (!deployment_id_.is_absent()) req_body.deployment_id = deployment_id_;
+            req_body.deployment_digest = deployment_digest_;
             req_body.client_run_ref = client_run_ref_;
             if (!execution_id_.is_absent()) req_body.execution_id = execution_id_;
             if (!slot_key_.is_absent()) req_body.slot_key = slot_key_;
@@ -270,6 +276,7 @@ private:
     std::optional<LogGetOutcome> outcome_;
     std::optional<std::string> procedure_id_;
     NullableField<std::string> deployment_id_;
+    std::optional<std::string> deployment_digest_;
     std::optional<std::string> client_run_ref_;
     NullableField<std::string> execution_id_;
     NullableField<std::string> slot_key_;
