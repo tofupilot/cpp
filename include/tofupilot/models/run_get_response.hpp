@@ -21,6 +21,7 @@
 #include "tofupilot/models/run_get_logs.hpp"
 #include "tofupilot/models/run_get_operated_by.hpp"
 #include "tofupilot/models/run_get_phases.hpp"
+#include "tofupilot/models/run_get_plugs.hpp"
 #include "tofupilot/models/run_get_procedure.hpp"
 #include "tofupilot/models/run_get_secrets.hpp"
 #include "tofupilot/models/run_get_sequences.hpp"
@@ -65,6 +66,8 @@ struct RunGetResponse {
     std::optional<std::vector<RunGetPhases>> phases;
     /// Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences.
     std::optional<std::vector<RunGetSequences>> sequences;
+    /// Plugs the run used, ordered by key: each instrument abstraction of the procedure with the instrument it opened, as the plug reported it. Empty for a run without plugs.
+    std::optional<std::vector<RunGetPlugs>> plugs;
     /// Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included.
     std::optional<std::vector<RunGetAttachments>> attachments;
     std::optional<std::vector<RunGetLogs>> logs;
@@ -130,6 +133,9 @@ inline void to_json(nlohmann::json& j, const RunGetResponse& v) {
     }
     if (v.sequences.has_value()) {
         j["sequences"] = v.sequences.value();
+    }
+    if (v.plugs.has_value()) {
+        j["plugs"] = v.plugs.value();
     }
     if (v.attachments.has_value()) {
         j["attachments"] = v.attachments.value();
@@ -230,6 +236,9 @@ inline void from_json(const nlohmann::json& j, RunGetResponse& v) {
     }
     if (j.contains("sequences") && !j["sequences"].is_null()) {
         v.sequences = j["sequences"].get<std::vector<RunGetSequences>>();
+    }
+    if (j.contains("plugs") && !j["plugs"].is_null()) {
+        v.plugs = j["plugs"].get<std::vector<RunGetPlugs>>();
     }
     if (j.contains("attachments") && !j["attachments"].is_null()) {
         v.attachments = j["attachments"].get<std::vector<RunGetAttachments>>();

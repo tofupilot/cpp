@@ -12,6 +12,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/nullable.hpp"
 #include "tofupilot/models/level.hpp"
 
 namespace tofupilot {
@@ -27,6 +28,8 @@ struct RunCreateLogs {
     std::string source_file;
     /// Line number in the source file where the log message was generated. Used for debugging and tracing log origins.
     int64_t line_number;
+    /// Key of the plug that wrote this line, one of the run `plugs`. Omit for a line of a phase or of the procedure.
+    NullableField<std::string> plug_key;
 };
 
 inline void to_json(nlohmann::json& j, const RunCreateLogs& v) {
@@ -36,6 +39,13 @@ inline void to_json(nlohmann::json& j, const RunCreateLogs& v) {
     j["message"] = v.message;
     j["source_file"] = v.source_file;
     j["line_number"] = v.line_number;
+    if (!v.plug_key.is_absent()) {
+        if (v.plug_key.is_null()) {
+            j["plug_key"] = nullptr;
+        } else {
+            j["plug_key"] = v.plug_key.get();
+        }
+    }
 }
 
 inline void from_json(const nlohmann::json& j, RunCreateLogs& v) {
@@ -64,6 +74,127 @@ inline void from_json(const nlohmann::json& j, RunCreateLogs& v) {
             "missing required field in response: line_number", &j);
     }
     v.line_number = j["line_number"].get<int64_t>();
+    if (j.contains("plug_key")) {
+        if (j["plug_key"].is_null()) {
+            v.plug_key = NullableField<std::string>::make_null();
+        } else {
+            v.plug_key = NullableField<std::string>::value(j["plug_key"].get<std::string>());
+        }
+    }
 }
+
+/// Builder for RunCreateLogs.
+class RunCreateLogsBuilder {
+public:
+    /// Set the `level` field.
+    /// Severity level of the log message following standard system logging levels. Use DEBUG for detailed diagnostic information, INFO for general execution information, WARNING for unexpected events or potential issues, ERROR for serious problems that prevented function execution, CRITICAL for severe errors that may cause program termination.
+    RunCreateLogsBuilder& level(Level value) {
+        level_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `timestamp` field.
+    /// ISO 8601 timestamp when the log message was generated.
+    RunCreateLogsBuilder& timestamp(std::string value) {
+        timestamp_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `message` field.
+    /// Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated; empty messages become "(empty)".
+    RunCreateLogsBuilder& message(std::string value) {
+        message_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `source_file` field.
+    /// Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry. Paths longer than 200 characters keep the trailing 200 (leading characters are dropped); empty values become "unknown".
+    RunCreateLogsBuilder& source_file(std::string value) {
+        source_file_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `line_number` field.
+    /// Line number in the source file where the log message was generated. Used for debugging and tracing log origins.
+    RunCreateLogsBuilder& line_number(int64_t value) {
+        line_number_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `plug_key` field.
+    /// Key of the plug that wrote this line, one of the run `plugs`. Omit for a line of a phase or of the procedure.
+    RunCreateLogsBuilder& plug_key(std::string value) {
+        plug_key_ = NullableField<std::string>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `plug_key` to null.
+    RunCreateLogsBuilder& plug_key_null() {
+        plug_key_ = NullableField<std::string>::make_null();
+        return *this;
+    }
+
+    /// Build the struct. Throws std::runtime_error if required fields are missing.
+    RunCreateLogs build() const& {
+        RunCreateLogs result;
+        if (!level_.has_value()) {
+            throw std::runtime_error("missing required field: level");
+        }
+        result.level = level_.value();
+        if (!timestamp_.has_value()) {
+            throw std::runtime_error("missing required field: timestamp");
+        }
+        result.timestamp = timestamp_.value();
+        if (!message_.has_value()) {
+            throw std::runtime_error("missing required field: message");
+        }
+        result.message = message_.value();
+        if (!source_file_.has_value()) {
+            throw std::runtime_error("missing required field: source_file");
+        }
+        result.source_file = source_file_.value();
+        if (!line_number_.has_value()) {
+            throw std::runtime_error("missing required field: line_number");
+        }
+        result.line_number = line_number_.value();
+        result.plug_key = plug_key_;
+        return result;
+    }
+
+    /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
+    RunCreateLogs build() && {
+        RunCreateLogs result;
+        if (!level_.has_value()) {
+            throw std::runtime_error("missing required field: level");
+        }
+        result.level = std::move(level_.value());
+        if (!timestamp_.has_value()) {
+            throw std::runtime_error("missing required field: timestamp");
+        }
+        result.timestamp = std::move(timestamp_.value());
+        if (!message_.has_value()) {
+            throw std::runtime_error("missing required field: message");
+        }
+        result.message = std::move(message_.value());
+        if (!source_file_.has_value()) {
+            throw std::runtime_error("missing required field: source_file");
+        }
+        result.source_file = std::move(source_file_.value());
+        if (!line_number_.has_value()) {
+            throw std::runtime_error("missing required field: line_number");
+        }
+        result.line_number = std::move(line_number_.value());
+        result.plug_key = std::move(plug_key_);
+        return result;
+    }
+
+private:
+    std::optional<Level> level_;
+    std::optional<std::string> timestamp_;
+    std::optional<std::string> message_;
+    std::optional<std::string> source_file_;
+    std::optional<int64_t> line_number_;
+    NullableField<std::string> plug_key_;
+};
 
 } // namespace tofupilot

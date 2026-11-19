@@ -155,6 +155,14 @@ public:
         sequences_ = NullableField<std::vector<RunCreateSequences>>::make_null();
         return *this;
     }
+    CreateBuilder& plugs(std::vector<RunCreatePlugs> value) {
+        plugs_ = NullableField<std::vector<RunCreatePlugs>>::value(std::move(value));
+        return *this;
+    }
+    CreateBuilder& plugs_null() {
+        plugs_ = NullableField<std::vector<RunCreatePlugs>>::make_null();
+        return *this;
+    }
     CreateBuilder& logs(std::vector<RunCreateLogs> value) {
         logs_ = std::move(value);
         return *this;
@@ -196,6 +204,7 @@ public:
         if (b.docstring.has_value()) docstring_ = std::move(b.docstring);
         if (b.phases.has_value()) phases_ = std::move(b.phases);
         sequences_ = std::move(b.sequences);
+        plugs_ = std::move(b.plugs);
         if (b.logs.has_value()) logs_ = std::move(b.logs);
         if (b.metadata.has_value()) metadata_ = std::move(b.metadata);
         if (b.unit_metadata.has_value()) unit_metadata_ = std::move(b.unit_metadata);
@@ -248,6 +257,7 @@ public:
             req_body.docstring = docstring_;
             req_body.phases = phases_;
             if (!sequences_.is_absent()) req_body.sequences = sequences_;
+            if (!plugs_.is_absent()) req_body.plugs = plugs_;
             req_body.logs = logs_;
             req_body.metadata = metadata_;
             req_body.unit_metadata = unit_metadata_;
@@ -293,6 +303,7 @@ private:
     std::optional<std::string> docstring_;
     std::optional<std::vector<RunCreatePhases>> phases_;
     NullableField<std::vector<RunCreateSequences>> sequences_;
+    NullableField<std::vector<RunCreatePlugs>> plugs_;
     std::optional<std::vector<RunCreateLogs>> logs_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<std::map<std::string, nlohmann::json>> unit_metadata_;

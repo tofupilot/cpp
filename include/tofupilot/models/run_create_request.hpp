@@ -17,6 +17,7 @@
 #include "tofupilot/models/run_create_config.hpp"
 #include "tofupilot/models/run_create_logs.hpp"
 #include "tofupilot/models/run_create_phases.hpp"
+#include "tofupilot/models/run_create_plugs.hpp"
 #include "tofupilot/models/run_create_secrets.hpp"
 #include "tofupilot/models/run_create_sequences.hpp"
 
@@ -63,6 +64,8 @@ struct RunCreateRequest {
     std::optional<std::vector<RunCreatePhases>> phases;
     /// Sequence calls of the run: the groups of phases the procedure composed with `uses:`, each with its own outcome. A phase joins its call through its `sequence_path` field, which must name one `path` of this array. A nested call (`calibration/dmm`) needs its parent path (`calibration`) in the same array, in any order. Omit for a procedure without sequences.
     NullableField<std::vector<RunCreateSequences>> sequences;
+    /// Plugs the run used: each instrument abstraction of the procedure, with the instrument it opened as the plug reported it (manufacturer, model, serial number, firmware). The TofuPilot CLI fills it from the plugs it opened. Omit for a run without plugs.
+    NullableField<std::vector<RunCreatePlugs>> plugs;
     /// Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
     std::optional<std::vector<RunCreateLogs>> logs;
     /// Custom metadata to attach to the run (max 50 keys). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
@@ -149,6 +152,13 @@ inline void to_json(nlohmann::json& j, const RunCreateRequest& v) {
             j["sequences"] = nullptr;
         } else {
             j["sequences"] = v.sequences.get();
+        }
+    }
+    if (!v.plugs.is_absent()) {
+        if (v.plugs.is_null()) {
+            j["plugs"] = nullptr;
+        } else {
+            j["plugs"] = v.plugs.get();
         }
     }
     if (v.logs.has_value()) {
@@ -261,6 +271,13 @@ inline void from_json(const nlohmann::json& j, RunCreateRequest& v) {
             v.sequences = NullableField<std::vector<RunCreateSequences>>::make_null();
         } else {
             v.sequences = NullableField<std::vector<RunCreateSequences>>::value(j["sequences"].get<std::vector<RunCreateSequences>>());
+        }
+    }
+    if (j.contains("plugs")) {
+        if (j["plugs"].is_null()) {
+            v.plugs = NullableField<std::vector<RunCreatePlugs>>::make_null();
+        } else {
+            v.plugs = NullableField<std::vector<RunCreatePlugs>>::value(j["plugs"].get<std::vector<RunCreatePlugs>>());
         }
     }
     if (j.contains("logs") && !j["logs"].is_null()) {
@@ -459,6 +476,19 @@ public:
         return *this;
     }
 
+    /// Set the `plugs` field.
+    /// Plugs the run used: each instrument abstraction of the procedure, with the instrument it opened as the plug reported it (manufacturer, model, serial number, firmware). The TofuPilot CLI fills it from the plugs it opened. Omit for a run without plugs.
+    RunCreateRequestBuilder& plugs(std::vector<RunCreatePlugs> value) {
+        plugs_ = NullableField<std::vector<RunCreatePlugs>>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `plugs` to null.
+    RunCreateRequestBuilder& plugs_null() {
+        plugs_ = NullableField<std::vector<RunCreatePlugs>>::make_null();
+        return *this;
+    }
+
     /// Set the `logs` field.
     /// Array of log messages generated during the test execution. Each log entry captures events, errors, and diagnostic information with severity levels and source code references. If no logs are specified, the run will be created without log entries.
     RunCreateRequestBuilder& logs(std::vector<RunCreateLogs> value) {
@@ -532,6 +562,7 @@ public:
         result.docstring = docstring_;
         result.phases = phases_;
         result.sequences = sequences_;
+        result.plugs = plugs_;
         result.logs = logs_;
         result.metadata = metadata_;
         result.unit_metadata = unit_metadata_;
@@ -578,6 +609,7 @@ public:
         result.docstring = std::move(docstring_);
         result.phases = std::move(phases_);
         result.sequences = std::move(sequences_);
+        result.plugs = std::move(plugs_);
         result.logs = std::move(logs_);
         result.metadata = std::move(metadata_);
         result.unit_metadata = std::move(unit_metadata_);
@@ -607,6 +639,7 @@ private:
     std::optional<std::string> docstring_;
     std::optional<std::vector<RunCreatePhases>> phases_;
     NullableField<std::vector<RunCreateSequences>> sequences_;
+    NullableField<std::vector<RunCreatePlugs>> plugs_;
     std::optional<std::vector<RunCreateLogs>> logs_;
     std::optional<std::map<std::string, nlohmann::json>> metadata_;
     std::optional<std::map<std::string, nlohmann::json>> unit_metadata_;

@@ -23,6 +23,7 @@ Single test run details.
 | `unit` | `RunGetUnit` | :heavy_check_mark: | Unit under test information. |
 | `phases` | `std::optional<std::vector<RunGetPhases>>` | :heavy_minus_sign: | Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included. |
 | `sequences` | `std::optional<std::vector<RunGetSequences>>` | :heavy_minus_sign: | Sequence calls of this run, parents before their nested calls. Each phase names its call through `sequence_path`. Returned together with `phases`, empty for a run without sequences. |
+| `plugs` | `std::optional<std::vector<RunGetPlugs>>` | :heavy_minus_sign: | Plugs the run used, ordered by key: each instrument abstraction of the procedure with the instrument it opened, as the plug reported it. Empty for a run without plugs. |
 | `attachments` | `std::optional<std::vector<RunGetAttachments>>` | :heavy_minus_sign: | Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included. |
 | `logs` | `std::optional<std::vector<RunGetLogs>>` | :heavy_minus_sign: | N/A |
 | `sub_units` | `std::optional<std::vector<RunGetSubUnits>>` | :heavy_minus_sign: | Array of sub-units that had parent changes during this run. Only returned if `all` or `sub_units` is included. |

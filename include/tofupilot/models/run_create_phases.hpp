@@ -33,6 +33,8 @@ struct RunCreatePhases {
     NullableField<std::vector<RunCreateMeasurements>> measurements;
     /// Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count.
     std::optional<int64_t> retry_count;
+    /// Keys of the run `plugs` this phase received. Ties each of its measurements to the instruments that took them. Omit when unknown.
+    NullableField<std::vector<std::string>> plug_keys;
     /// Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases.
     NullableField<std::string> sequence_path;
 };
@@ -59,6 +61,13 @@ inline void to_json(nlohmann::json& j, const RunCreatePhases& v) {
     }
     if (v.retry_count.has_value()) {
         j["retry_count"] = v.retry_count.value();
+    }
+    if (!v.plug_keys.is_absent()) {
+        if (v.plug_keys.is_null()) {
+            j["plug_keys"] = nullptr;
+        } else {
+            j["plug_keys"] = v.plug_keys.get();
+        }
     }
     if (!v.sequence_path.is_absent()) {
         if (v.sequence_path.is_null()) {
@@ -106,6 +115,13 @@ inline void from_json(const nlohmann::json& j, RunCreatePhases& v) {
     }
     if (j.contains("retry_count") && !j["retry_count"].is_null()) {
         v.retry_count = j["retry_count"].get<int64_t>();
+    }
+    if (j.contains("plug_keys")) {
+        if (j["plug_keys"].is_null()) {
+            v.plug_keys = NullableField<std::vector<std::string>>::make_null();
+        } else {
+            v.plug_keys = NullableField<std::vector<std::string>>::value(j["plug_keys"].get<std::vector<std::string>>());
+        }
     }
     if (j.contains("sequence_path")) {
         if (j["sequence_path"].is_null()) {
@@ -180,6 +196,19 @@ public:
         return *this;
     }
 
+    /// Set the `plug_keys` field.
+    /// Keys of the run `plugs` this phase received. Ties each of its measurements to the instruments that took them. Omit when unknown.
+    RunCreatePhasesBuilder& plug_keys(std::vector<std::string> value) {
+        plug_keys_ = NullableField<std::vector<std::string>>::value(std::move(value));
+        return *this;
+    }
+
+    /// Explicitly set `plug_keys` to null.
+    RunCreatePhasesBuilder& plug_keys_null() {
+        plug_keys_ = NullableField<std::vector<std::string>>::make_null();
+        return *this;
+    }
+
     /// Set the `sequence_path` field.
     /// Path of the sequence call this phase ran in, matching the `path` of one entry of the run `sequences` array. Omit for a phase written in the procedure itself. Phase analytics identify a phase by its sequence path and its name together, so the same phase name inside two sequence calls counts as two phases.
     RunCreatePhasesBuilder& sequence_path(std::string value) {
@@ -215,6 +244,7 @@ public:
         result.docstring = docstring_;
         result.measurements = measurements_;
         result.retry_count = retry_count_;
+        result.plug_keys = plug_keys_;
         result.sequence_path = sequence_path_;
         return result;
     }
@@ -241,6 +271,7 @@ public:
         result.docstring = std::move(docstring_);
         result.measurements = std::move(measurements_);
         result.retry_count = std::move(retry_count_);
+        result.plug_keys = std::move(plug_keys_);
         result.sequence_path = std::move(sequence_path_);
         return result;
     }
@@ -253,6 +284,7 @@ private:
     NullableField<std::string> docstring_;
     NullableField<std::vector<RunCreateMeasurements>> measurements_;
     std::optional<int64_t> retry_count_;
+    NullableField<std::vector<std::string>> plug_keys_;
     NullableField<std::string> sequence_path_;
 };
 
