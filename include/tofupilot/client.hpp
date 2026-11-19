@@ -34,6 +34,7 @@ class PhasesClient;
 class MeasurementsClient;
 class DeploymentsClient;
 class IdentityClient;
+class AuditLogClient;
 
 /// TofuPilot API client. **Not** thread-safe — use one per thread.
 class TofuPilot {
@@ -71,6 +72,7 @@ public:
     inline MeasurementsClient measurements();
     inline DeploymentsClient deployments();
     inline IdentityClient identity();
+    inline AuditLogClient audit_log();
 
     httplib::Result execute(
         const std::string& method, const std::string& path,

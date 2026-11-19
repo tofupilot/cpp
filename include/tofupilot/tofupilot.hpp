@@ -23,6 +23,7 @@
 #include "measurements.hpp"
 #include "deployments.hpp"
 #include "identity.hpp"
+#include "audit_log.hpp"
 #include "upload.hpp"
 
 namespace tofupilot {
@@ -73,5 +74,8 @@ inline DeploymentsClient TofuPilot::deployments() {
 }
 inline IdentityClient TofuPilot::identity() {
     return IdentityClient(*this);
+}
+inline AuditLogClient TofuPilot::audit_log() {
+    return AuditLogClient(*this);
 }
 } // namespace tofupilot
