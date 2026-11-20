@@ -12,21 +12,57 @@
 
 #include <nlohmann/json.hpp>
 
+#include "tofupilot/models/import_tabular_row_errors.hpp"
 
 namespace tofupilot {
 
 /// Run imported successfully
 struct ImportTabularResponse {
-    /// ID of the created run.
+    /// ID of the created run. With a mapping that makes several runs, the first one, see `ids`.
     std::string id;
-    /// ID of the file import record that links this run to the uploaded file.
+    /// ID of the file import record that links the runs to the uploaded file.
     std::string file_import_id;
+    /// Present with a mapping that makes several runs (`runsPer` `row` or `serial`): every run id created by this request, in file order, rows that failed skipped. When `already_imported` is true, the existing runs in no guaranteed order.
+    std::optional<std::vector<std::string>> ids;
+    /// Present with a mapping that makes several runs. True when the same file content was already imported in your organization and some of its runs still exist: `id` and `ids` are those runs and nothing was created.
+    std::optional<bool> already_imported;
+    /// Present with a mapping that makes several runs: the rows of this request that created no run and why, at most 1000 (see `failed_row_count`). The other rows are imported.
+    std::optional<std::vector<ImportTabularRowErrors>> row_errors;
+    /// Present with a mapping that makes several runs: how many runs of this request failed, including any not listed in `row_errors`.
+    std::optional<int64_t> failed_row_count;
+    /// Present with a mapping that makes several runs: how many runs the whole file makes (rows for `runsPer: row`, distinct serials for `runsPer: serial`), failed ones included.
+    std::optional<int64_t> total_runs;
+    /// Present when runs of the file remain after this request: send the same request with `run_offset` set to this value to import the next ones.
+    std::optional<int64_t> next_run_offset;
+    /// Non-fatal notes about the import, present when there are any.
+    std::optional<std::vector<std::string>> warnings;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularResponse& v) {
     j = nlohmann::json::object();
     j["id"] = v.id;
     j["file_import_id"] = v.file_import_id;
+    if (v.ids.has_value()) {
+        j["ids"] = v.ids.value();
+    }
+    if (v.already_imported.has_value()) {
+        j["already_imported"] = v.already_imported.value();
+    }
+    if (v.row_errors.has_value()) {
+        j["row_errors"] = v.row_errors.value();
+    }
+    if (v.failed_row_count.has_value()) {
+        j["failed_row_count"] = v.failed_row_count.value();
+    }
+    if (v.total_runs.has_value()) {
+        j["total_runs"] = v.total_runs.value();
+    }
+    if (v.next_run_offset.has_value()) {
+        j["next_run_offset"] = v.next_run_offset.value();
+    }
+    if (v.warnings.has_value()) {
+        j["warnings"] = v.warnings.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, ImportTabularResponse& v) {
@@ -40,6 +76,27 @@ inline void from_json(const nlohmann::json& j, ImportTabularResponse& v) {
             "missing required field in response: file_import_id", &j);
     }
     v.file_import_id = j["file_import_id"].get<std::string>();
+    if (j.contains("ids") && !j["ids"].is_null()) {
+        v.ids = j["ids"].get<std::vector<std::string>>();
+    }
+    if (j.contains("already_imported") && !j["already_imported"].is_null()) {
+        v.already_imported = j["already_imported"].get<bool>();
+    }
+    if (j.contains("row_errors") && !j["row_errors"].is_null()) {
+        v.row_errors = j["row_errors"].get<std::vector<ImportTabularRowErrors>>();
+    }
+    if (j.contains("failed_row_count") && !j["failed_row_count"].is_null()) {
+        v.failed_row_count = j["failed_row_count"].get<int64_t>();
+    }
+    if (j.contains("total_runs") && !j["total_runs"].is_null()) {
+        v.total_runs = j["total_runs"].get<int64_t>();
+    }
+    if (j.contains("next_run_offset") && !j["next_run_offset"].is_null()) {
+        v.next_run_offset = j["next_run_offset"].get<int64_t>();
+    }
+    if (j.contains("warnings") && !j["warnings"].is_null()) {
+        v.warnings = j["warnings"].get<std::vector<std::string>>();
+    }
 }
 
 } // namespace tofupilot

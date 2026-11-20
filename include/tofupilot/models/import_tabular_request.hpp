@@ -25,6 +25,10 @@ struct ImportTabularRequest {
     std::optional<ImportTabularMapping> mapping;
     /// ID of a saved mapping template to apply. Provide this OR mapping, not both.
     std::optional<std::string> template_id;
+    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 1000 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0.
+    std::optional<int64_t> run_offset;
+    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated.
+    std::optional<bool> allow_duplicate;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularRequest& v) {
@@ -36,6 +40,12 @@ inline void to_json(nlohmann::json& j, const ImportTabularRequest& v) {
     }
     if (v.template_id.has_value()) {
         j["template_id"] = v.template_id.value();
+    }
+    if (v.run_offset.has_value()) {
+        j["run_offset"] = v.run_offset.value();
+    }
+    if (v.allow_duplicate.has_value()) {
+        j["allow_duplicate"] = v.allow_duplicate.value();
     }
 }
 
@@ -55,6 +65,12 @@ inline void from_json(const nlohmann::json& j, ImportTabularRequest& v) {
     }
     if (j.contains("template_id") && !j["template_id"].is_null()) {
         v.template_id = j["template_id"].get<std::string>();
+    }
+    if (j.contains("run_offset") && !j["run_offset"].is_null()) {
+        v.run_offset = j["run_offset"].get<int64_t>();
+    }
+    if (j.contains("allow_duplicate") && !j["allow_duplicate"].is_null()) {
+        v.allow_duplicate = j["allow_duplicate"].get<bool>();
     }
 }
 
@@ -89,6 +105,20 @@ public:
         return *this;
     }
 
+    /// Set the `run_offset` field.
+    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 1000 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0.
+    ImportTabularRequestBuilder& run_offset(int64_t value) {
+        run_offset_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `allow_duplicate` field.
+    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated.
+    ImportTabularRequestBuilder& allow_duplicate(bool value) {
+        allow_duplicate_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     ImportTabularRequest build() const& {
         ImportTabularRequest result;
@@ -102,6 +132,8 @@ public:
         result.procedure_id = procedure_id_.value();
         result.mapping = mapping_;
         result.template_id = template_id_;
+        result.run_offset = run_offset_;
+        result.allow_duplicate = allow_duplicate_;
         return result;
     }
 
@@ -118,6 +150,8 @@ public:
         result.procedure_id = std::move(procedure_id_.value());
         result.mapping = std::move(mapping_);
         result.template_id = std::move(template_id_);
+        result.run_offset = std::move(run_offset_);
+        result.allow_duplicate = std::move(allow_duplicate_);
         return result;
     }
 
@@ -126,6 +160,8 @@ private:
     std::optional<std::string> procedure_id_;
     std::optional<ImportTabularMapping> mapping_;
     std::optional<std::string> template_id_;
+    std::optional<int64_t> run_offset_;
+    std::optional<bool> allow_duplicate_;
 };
 
 } // namespace tofupilot

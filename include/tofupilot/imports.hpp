@@ -117,11 +117,21 @@ public:
         template_id_ = std::move(value);
         return *this;
     }
+    TabularBuilder& run_offset(int64_t value) {
+        run_offset_ = std::move(value);
+        return *this;
+    }
+    TabularBuilder& allow_duplicate(bool value) {
+        allow_duplicate_ = std::move(value);
+        return *this;
+    }
     TabularBuilder& body(ImportTabularRequest b) {
         upload_id_ = std::move(b.upload_id);
         procedure_id_ = std::move(b.procedure_id);
         if (b.mapping.has_value()) mapping_ = std::move(b.mapping);
         if (b.template_id.has_value()) template_id_ = std::move(b.template_id);
+        if (b.run_offset.has_value()) run_offset_ = std::move(b.run_offset);
+        if (b.allow_duplicate.has_value()) allow_duplicate_ = std::move(b.allow_duplicate);
         return *this;
     }
 
@@ -150,6 +160,8 @@ public:
             req_body.procedure_id = procedure_id_.value();
             req_body.mapping = mapping_;
             req_body.template_id = template_id_;
+            req_body.run_offset = run_offset_;
+            req_body.allow_duplicate = allow_duplicate_;
             body_str = nlohmann::json(req_body).dump();
             content_type = "application/json";
         }
@@ -174,6 +186,8 @@ private:
     std::optional<std::string> procedure_id_;
     std::optional<ImportTabularMapping> mapping_;
     std::optional<std::string> template_id_;
+    std::optional<int64_t> run_offset_;
+    std::optional<bool> allow_duplicate_;
     RequestConfig request_config_;
 };
 
