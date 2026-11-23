@@ -33,6 +33,8 @@ struct ImportTabularMapping {
     std::optional<std::vector<std::string>> sub_unit_columns;
     /// IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written.
     std::optional<std::string> time_zone;
+    /// Skip mapped columns the file does not have instead of failing the file, so one mapping covers files whose optional columns vary. The serial number, outcome and time columns, and the name and value columns of the long layout, stay required.
+    std::optional<bool> ignore_missing_columns;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularMapping& v) {
@@ -56,6 +58,9 @@ inline void to_json(nlohmann::json& j, const ImportTabularMapping& v) {
     }
     if (v.time_zone.has_value()) {
         j["timeZone"] = v.time_zone.value();
+    }
+    if (v.ignore_missing_columns.has_value()) {
+        j["ignoreMissingColumns"] = v.ignore_missing_columns.value();
     }
 }
 
@@ -87,6 +92,9 @@ inline void from_json(const nlohmann::json& j, ImportTabularMapping& v) {
     }
     if (j.contains("timeZone") && !j["timeZone"].is_null()) {
         v.time_zone = j["timeZone"].get<std::string>();
+    }
+    if (j.contains("ignoreMissingColumns") && !j["ignoreMissingColumns"].is_null()) {
+        v.ignore_missing_columns = j["ignoreMissingColumns"].get<bool>();
     }
 }
 
@@ -144,6 +152,13 @@ public:
         return *this;
     }
 
+    /// Set the `ignoreMissingColumns` field.
+    /// Skip mapped columns the file does not have instead of failing the file, so one mapping covers files whose optional columns vary. The serial number, outcome and time columns, and the name and value columns of the long layout, stay required.
+    ImportTabularMappingBuilder& ignore_missing_columns(bool value) {
+        ignore_missing_columns_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     ImportTabularMapping build() const& {
         ImportTabularMapping result;
@@ -161,6 +176,7 @@ public:
         result.runs_per = runs_per_;
         result.sub_unit_columns = sub_unit_columns_;
         result.time_zone = time_zone_;
+        result.ignore_missing_columns = ignore_missing_columns_;
         return result;
     }
 
@@ -181,6 +197,7 @@ public:
         result.runs_per = std::move(runs_per_);
         result.sub_unit_columns = std::move(sub_unit_columns_);
         result.time_zone = std::move(time_zone_);
+        result.ignore_missing_columns = std::move(ignore_missing_columns_);
         return result;
     }
 
@@ -193,6 +210,7 @@ private:
     std::optional<ImportTabularRunsPer> runs_per_;
     std::optional<std::vector<std::string>> sub_unit_columns_;
     std::optional<std::string> time_zone_;
+    std::optional<bool> ignore_missing_columns_;
 };
 
 } // namespace tofupilot
