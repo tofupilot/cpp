@@ -31,6 +31,8 @@ struct ImportTabularMapping {
     std::optional<ImportTabularRunsPer> runs_per;
     /// Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`.
     std::optional<std::vector<std::string>> sub_unit_columns;
+    /// Create the run when a sub-unit serial matches no unit, without that link, instead of failing the row with `Sub-unit not found`. The left-out serials are reported in `warnings`.
+    std::optional<bool> skip_missing_sub_units;
     /// Columns that identify a run when the same file is imported again, for a log that grows by appending rows. A run whose key was already imported into the procedure is skipped, and reported as `changed` when its cells differ. Defaults to every cell of the row (`runsPer: row`) or the serial number (`runsPer: serial`). Applies to `row` and `serial` only.
     std::optional<std::vector<std::string>> run_key_columns;
     /// IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written.
@@ -57,6 +59,9 @@ inline void to_json(nlohmann::json& j, const ImportTabularMapping& v) {
     }
     if (v.sub_unit_columns.has_value()) {
         j["subUnitColumns"] = v.sub_unit_columns.value();
+    }
+    if (v.skip_missing_sub_units.has_value()) {
+        j["skipMissingSubUnits"] = v.skip_missing_sub_units.value();
     }
     if (v.run_key_columns.has_value()) {
         j["runKeyColumns"] = v.run_key_columns.value();
@@ -94,6 +99,9 @@ inline void from_json(const nlohmann::json& j, ImportTabularMapping& v) {
     }
     if (j.contains("subUnitColumns") && !j["subUnitColumns"].is_null()) {
         v.sub_unit_columns = j["subUnitColumns"].get<std::vector<std::string>>();
+    }
+    if (j.contains("skipMissingSubUnits") && !j["skipMissingSubUnits"].is_null()) {
+        v.skip_missing_sub_units = j["skipMissingSubUnits"].get<bool>();
     }
     if (j.contains("runKeyColumns") && !j["runKeyColumns"].is_null()) {
         v.run_key_columns = j["runKeyColumns"].get<std::vector<std::string>>();
@@ -153,6 +161,13 @@ public:
         return *this;
     }
 
+    /// Set the `skipMissingSubUnits` field.
+    /// Create the run when a sub-unit serial matches no unit, without that link, instead of failing the row with `Sub-unit not found`. The left-out serials are reported in `warnings`.
+    ImportTabularMappingBuilder& skip_missing_sub_units(bool value) {
+        skip_missing_sub_units_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `runKeyColumns` field.
     /// Columns that identify a run when the same file is imported again, for a log that grows by appending rows. A run whose key was already imported into the procedure is skipped, and reported as `changed` when its cells differ. Defaults to every cell of the row (`runsPer: row`) or the serial number (`runsPer: serial`). Applies to `row` and `serial` only.
     ImportTabularMappingBuilder& run_key_columns(std::vector<std::string> value) {
@@ -190,6 +205,7 @@ public:
         result.unit_metadata = unit_metadata_;
         result.runs_per = runs_per_;
         result.sub_unit_columns = sub_unit_columns_;
+        result.skip_missing_sub_units = skip_missing_sub_units_;
         result.run_key_columns = run_key_columns_;
         result.time_zone = time_zone_;
         result.ignore_missing_columns = ignore_missing_columns_;
@@ -212,6 +228,7 @@ public:
         result.unit_metadata = std::move(unit_metadata_);
         result.runs_per = std::move(runs_per_);
         result.sub_unit_columns = std::move(sub_unit_columns_);
+        result.skip_missing_sub_units = std::move(skip_missing_sub_units_);
         result.run_key_columns = std::move(run_key_columns_);
         result.time_zone = std::move(time_zone_);
         result.ignore_missing_columns = std::move(ignore_missing_columns_);
@@ -226,6 +243,7 @@ private:
     std::optional<std::vector<ImportTabularUnitMetadata>> unit_metadata_;
     std::optional<ImportTabularRunsPer> runs_per_;
     std::optional<std::vector<std::string>> sub_unit_columns_;
+    std::optional<bool> skip_missing_sub_units_;
     std::optional<std::vector<std::string>> run_key_columns_;
     std::optional<std::string> time_zone_;
     std::optional<bool> ignore_missing_columns_;

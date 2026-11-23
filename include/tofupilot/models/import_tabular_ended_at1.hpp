@@ -17,11 +17,16 @@ namespace tofupilot {
 
 struct ImportTabularEndedAt1 {
     std::string column;
+    /// Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`.
+    std::optional<std::string> extract;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularEndedAt1& v) {
     j = nlohmann::json::object();
     j["column"] = v.column;
+    if (v.extract.has_value()) {
+        j["extract"] = v.extract.value();
+    }
 }
 
 inline void from_json(const nlohmann::json& j, ImportTabularEndedAt1& v) {
@@ -30,6 +35,52 @@ inline void from_json(const nlohmann::json& j, ImportTabularEndedAt1& v) {
             "missing required field in response: column", &j);
     }
     v.column = j["column"].get<std::string>();
+    if (j.contains("extract") && !j["extract"].is_null()) {
+        v.extract = j["extract"].get<std::string>();
+    }
 }
+
+/// Builder for ImportTabularEndedAt1.
+class ImportTabularEndedAt1Builder {
+public:
+    /// Set the `column` field.
+    ImportTabularEndedAt1Builder& column(std::string value) {
+        column_ = std::move(value);
+        return *this;
+    }
+
+    /// Set the `extract` field.
+    /// Regular expression applied to the cell before it is used: the first capture group is kept, or the whole match when the pattern has no group. A cell the pattern does not match is used as written. For example `(\\S+)$` keeps the last word of `LINE 2 TRAY 16S2P 2026C13-TR-001`.
+    ImportTabularEndedAt1Builder& extract(std::string value) {
+        extract_ = std::move(value);
+        return *this;
+    }
+
+    /// Build the struct. Throws std::runtime_error if required fields are missing.
+    ImportTabularEndedAt1 build() const& {
+        ImportTabularEndedAt1 result;
+        if (!column_.has_value()) {
+            throw std::runtime_error("missing required field: column");
+        }
+        result.column = column_.value();
+        result.extract = extract_;
+        return result;
+    }
+
+    /// Build the struct (move overload). Throws std::runtime_error if required fields are missing.
+    ImportTabularEndedAt1 build() && {
+        ImportTabularEndedAt1 result;
+        if (!column_.has_value()) {
+            throw std::runtime_error("missing required field: column");
+        }
+        result.column = std::move(column_.value());
+        result.extract = std::move(extract_);
+        return result;
+    }
+
+private:
+    std::optional<std::string> column_;
+    std::optional<std::string> extract_;
+};
 
 } // namespace tofupilot
