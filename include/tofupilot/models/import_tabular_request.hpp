@@ -27,7 +27,7 @@ struct ImportTabularRequest {
     std::optional<std::string> template_id;
     /// With a mapping that makes several runs (`runsPer` `row` or `serial`): the position, in the file’s run order, of the first run to import. One request creates at most 100 runs; when runs remain, the response carries `next_run_offset`: send the same request again with it until it is absent. Defaults to 0.
     std::optional<int64_t> run_offset;
-    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated.
+    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): create every run of the file, even those an earlier import created. By default a run an earlier import into the same procedure created is skipped and listed in `skipped_rows`, whatever the mapping and even when rows were appended to the file since: a run is recognized by its cells, or by the mapping’s `runKeyColumns`. Retrying a request is therefore safe, and so is importing a log again after it grew. A one-run-per-file mapping is never deduplicated.
     std::optional<bool> allow_duplicate;
 };
 
@@ -113,7 +113,7 @@ public:
     }
 
     /// Set the `allow_duplicate` field.
-    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): import the file even if the same content was already imported. By default a request with the same file content, `run_offset`, mapping and procedure as an earlier one whose runs still exist is not imported again: the response returns the existing runs with `already_imported: true`, so retrying a request is safe. A one-run-per-file mapping is never deduplicated.
+    /// With a mapping that makes several runs (`runsPer` `row` or `serial`): create every run of the file, even those an earlier import created. By default a run an earlier import into the same procedure created is skipped and listed in `skipped_rows`, whatever the mapping and even when rows were appended to the file since: a run is recognized by its cells, or by the mapping’s `runKeyColumns`. Retrying a request is therefore safe, and so is importing a log again after it grew. A one-run-per-file mapping is never deduplicated.
     ImportTabularRequestBuilder& allow_duplicate(bool value) {
         allow_duplicate_ = std::move(value);
         return *this;

@@ -31,6 +31,8 @@ struct ImportTabularMapping {
     std::optional<ImportTabularRunsPer> runs_per;
     /// Columns holding sub-unit serial numbers, linked to the run’s unit like `sub_units` on run creation. Empty cells are skipped. Each sub-unit must already exist: import its own runs first, or the row fails with `Sub-unit not found`.
     std::optional<std::vector<std::string>> sub_unit_columns;
+    /// Columns that identify a run when the same file is imported again, for a log that grows by appending rows. A run whose key was already imported into the procedure is skipped, and reported as `changed` when its cells differ. Defaults to every cell of the row (`runsPer: row`) or the serial number (`runsPer: serial`). Applies to `row` and `serial` only.
+    std::optional<std::vector<std::string>> run_key_columns;
     /// IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written.
     std::optional<std::string> time_zone;
     /// Skip mapped columns the file does not have instead of failing the file, so one mapping covers files whose optional columns vary. The serial number, outcome and time columns, and the name and value columns of the long layout, stay required.
@@ -55,6 +57,9 @@ inline void to_json(nlohmann::json& j, const ImportTabularMapping& v) {
     }
     if (v.sub_unit_columns.has_value()) {
         j["subUnitColumns"] = v.sub_unit_columns.value();
+    }
+    if (v.run_key_columns.has_value()) {
+        j["runKeyColumns"] = v.run_key_columns.value();
     }
     if (v.time_zone.has_value()) {
         j["timeZone"] = v.time_zone.value();
@@ -89,6 +94,9 @@ inline void from_json(const nlohmann::json& j, ImportTabularMapping& v) {
     }
     if (j.contains("subUnitColumns") && !j["subUnitColumns"].is_null()) {
         v.sub_unit_columns = j["subUnitColumns"].get<std::vector<std::string>>();
+    }
+    if (j.contains("runKeyColumns") && !j["runKeyColumns"].is_null()) {
+        v.run_key_columns = j["runKeyColumns"].get<std::vector<std::string>>();
     }
     if (j.contains("timeZone") && !j["timeZone"].is_null()) {
         v.time_zone = j["timeZone"].get<std::string>();
@@ -145,6 +153,13 @@ public:
         return *this;
     }
 
+    /// Set the `runKeyColumns` field.
+    /// Columns that identify a run when the same file is imported again, for a log that grows by appending rows. A run whose key was already imported into the procedure is skipped, and reported as `changed` when its cells differ. Defaults to every cell of the row (`runsPer: row`) or the serial number (`runsPer: serial`). Applies to `row` and `serial` only.
+    ImportTabularMappingBuilder& run_key_columns(std::vector<std::string> value) {
+        run_key_columns_ = std::move(value);
+        return *this;
+    }
+
     /// Set the `timeZone` field.
     /// IANA time zone for timestamps without an offset, such as `2026-07-08T15:49:48.349659`, `2026-07-08 15:49:48` or the date-only `2025-03-10` (read as midnight). Defaults to UTC. Timestamps with an offset or `Z`, and epoch numbers, are read as written.
     ImportTabularMappingBuilder& time_zone(std::string value) {
@@ -175,6 +190,7 @@ public:
         result.unit_metadata = unit_metadata_;
         result.runs_per = runs_per_;
         result.sub_unit_columns = sub_unit_columns_;
+        result.run_key_columns = run_key_columns_;
         result.time_zone = time_zone_;
         result.ignore_missing_columns = ignore_missing_columns_;
         return result;
@@ -196,6 +212,7 @@ public:
         result.unit_metadata = std::move(unit_metadata_);
         result.runs_per = std::move(runs_per_);
         result.sub_unit_columns = std::move(sub_unit_columns_);
+        result.run_key_columns = std::move(run_key_columns_);
         result.time_zone = std::move(time_zone_);
         result.ignore_missing_columns = std::move(ignore_missing_columns_);
         return result;
@@ -209,6 +226,7 @@ private:
     std::optional<std::vector<ImportTabularUnitMetadata>> unit_metadata_;
     std::optional<ImportTabularRunsPer> runs_per_;
     std::optional<std::vector<std::string>> sub_unit_columns_;
+    std::optional<std::vector<std::string>> run_key_columns_;
     std::optional<std::string> time_zone_;
     std::optional<bool> ignore_missing_columns_;
 };
