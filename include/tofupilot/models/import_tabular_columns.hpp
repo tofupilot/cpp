@@ -22,6 +22,8 @@ struct ImportTabularColumns {
     std::optional<double> lower_limit;
     std::optional<double> upper_limit;
     std::optional<std::string> phase;
+    /// Turns the column into a step result: each cell value maps to the measurement outcome (`PASS`, `FAIL`, `UNSET`), or to `null` to leave that cell out, such as `NOT_RUN`. A failed measurement fails its phase. A value with no entry fails the row.
+    std::optional<std::map<std::string, nlohmann::json>> outcome_map;
 };
 
 inline void to_json(nlohmann::json& j, const ImportTabularColumns& v) {
@@ -41,6 +43,9 @@ inline void to_json(nlohmann::json& j, const ImportTabularColumns& v) {
     }
     if (v.phase.has_value()) {
         j["phase"] = v.phase.value();
+    }
+    if (v.outcome_map.has_value()) {
+        j["outcomeMap"] = v.outcome_map.value();
     }
 }
 
@@ -64,6 +69,9 @@ inline void from_json(const nlohmann::json& j, ImportTabularColumns& v) {
     }
     if (j.contains("phase") && !j["phase"].is_null()) {
         v.phase = j["phase"].get<std::string>();
+    }
+    if (j.contains("outcomeMap") && !j["outcomeMap"].is_null()) {
+        v.outcome_map = j["outcomeMap"].get<std::map<std::string, nlohmann::json>>();
     }
 }
 
@@ -106,6 +114,13 @@ public:
         return *this;
     }
 
+    /// Set the `outcomeMap` field.
+    /// Turns the column into a step result: each cell value maps to the measurement outcome (`PASS`, `FAIL`, `UNSET`), or to `null` to leave that cell out, such as `NOT_RUN`. A failed measurement fails its phase. A value with no entry fails the row.
+    ImportTabularColumnsBuilder& outcome_map(std::map<std::string, nlohmann::json> value) {
+        outcome_map_ = std::move(value);
+        return *this;
+    }
+
     /// Build the struct. Throws std::runtime_error if required fields are missing.
     ImportTabularColumns build() const& {
         ImportTabularColumns result;
@@ -118,6 +133,7 @@ public:
         result.lower_limit = lower_limit_;
         result.upper_limit = upper_limit_;
         result.phase = phase_;
+        result.outcome_map = outcome_map_;
         return result;
     }
 
@@ -133,6 +149,7 @@ public:
         result.lower_limit = std::move(lower_limit_);
         result.upper_limit = std::move(upper_limit_);
         result.phase = std::move(phase_);
+        result.outcome_map = std::move(outcome_map_);
         return result;
     }
 
@@ -143,6 +160,7 @@ private:
     std::optional<double> lower_limit_;
     std::optional<double> upper_limit_;
     std::optional<std::string> phase_;
+    std::optional<std::map<std::string, nlohmann::json>> outcome_map_;
 };
 
 } // namespace tofupilot
